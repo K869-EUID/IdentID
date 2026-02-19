@@ -39,9 +39,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.ui.dashboard.settings.model.SettingsItemUi
-import com.k689.identid.ui.dashboard.settings.model.SettingsMenuItemType
 import com.k689.identid.R
+import com.k689.identid.extension.ui.openIntentChooser
+import com.k689.identid.extension.ui.openUrl
+import com.k689.identid.navigation.DashboardScreens
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
 import com.k689.identid.ui.component.ListItemLeadingContentDataUi
@@ -55,8 +56,8 @@ import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.WrapListItem
-import com.k689.identid.extension.ui.openIntentChooser
-import com.k689.identid.extension.ui.openUrl
+import com.k689.identid.ui.dashboard.settings.model.SettingsItemUi
+import com.k689.identid.ui.dashboard.settings.model.SettingsMenuItemType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
@@ -73,7 +74,7 @@ fun SettingsScreen(
     ContentScreen(
         navigatableAction = ScreenNavigateAction.BACKABLE,
         isLoading = false,
-        onBack = { viewModel.setEvent(Event.Pop) }
+        onBack = { viewModel.setEvent(Event.Pop) },
     ) { paddingValues ->
         Content(
             state = state,
@@ -95,8 +96,8 @@ private fun handleNavigationEffect(
 ) {
     when (navigationEffect) {
         is Effect.Navigation.Pop -> navController.popBackStack()
-
         is Effect.Navigation.OpenUrlExternally -> context.openUrl(uri = navigationEffect.url)
+        is Effect.Navigation.OpenPreferences -> navController.navigate(DashboardScreens.Preferences.screenRoute)
     }
 }
 
@@ -110,9 +111,10 @@ private fun Content(
     paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             ContentTitle(
@@ -121,37 +123,43 @@ private fun Content(
             )
 
             SettingsItems(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
                 items = state.settingsItems,
                 onEventSent = onEventSend,
             )
         }
 
         Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = SPACING_MEDIUM.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = SPACING_MEDIUM.dp),
             text = state.appVersion,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-                is Effect.ShareLogFile -> {
-                    context.openIntentChooser(
-                        effect.intent,
-                        effect.chooserTitle
-                    )
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> {
+                        onNavigationRequested(effect)
+                    }
+
+                    is Effect.ShareLogFile -> {
+                        context.openIntentChooser(
+                            effect.intent,
+                            effect.chooserTitle,
+                        )
+                    }
                 }
-            }
-        }.collect()
+            }.collect()
     }
 }
 
@@ -162,7 +170,7 @@ private fun SettingsItems(
     onEventSent: (Event) -> Unit,
 ) {
     Column(
-        modifier = modifier
+        modifier = modifier,
     ) {
         items.forEachIndexed { index, settingsItemUi ->
             WrapListItem(
@@ -170,7 +178,7 @@ private fun SettingsItems(
                 item = settingsItemUi.data,
                 onItemClick = {
                     onEventSent(
-                        Event.ItemClicked(itemType = settingsItemUi.type)
+                        Event.ItemClicked(itemType = settingsItemUi.type),
                     )
                 },
                 throttleClicks = false,
@@ -178,12 +186,12 @@ private fun SettingsItems(
                 mainContentVerticalPadding = SPACING_MEDIUM.dp,
             )
 
-
             if (index != items.lastIndex) {
                 HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SPACING_SMALL.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SPACING_SMALL.dp),
                 )
             }
         }
@@ -196,36 +204,42 @@ private fun SettingsScreenPreview() {
     PreviewTheme {
         val context = LocalContext.current
 
-        val settingsItems = listOf(
-            SettingsItemUi(
-                type = SettingsMenuItemType.RETRIEVE_LOGS,
-                data = ListItemDataUi(
-                    itemId = stringResource(R.string.settings_screen_option_retrieve_logs_id),
-                    mainContentData = ListItemMainContentDataUi.Text(
-                        text = stringResource(R.string.settings_screen_option_retrieve_logs)
-                    ),
-                    leadingContentData = ListItemLeadingContentDataUi.Icon(
-                        iconData = AppIcons.OpenNew
-                    ),
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = AppIcons.KeyboardArrowRight
-                    )
-                )
+        val settingsItems =
+            listOf(
+                SettingsItemUi(
+                    type = SettingsMenuItemType.RETRIEVE_LOGS,
+                    data =
+                        ListItemDataUi(
+                            itemId = stringResource(R.string.settings_screen_option_retrieve_logs_id),
+                            mainContentData =
+                                ListItemMainContentDataUi.Text(
+                                    text = stringResource(R.string.settings_screen_option_retrieve_logs),
+                                ),
+                            leadingContentData =
+                                ListItemLeadingContentDataUi.Icon(
+                                    iconData = AppIcons.OpenNew,
+                                ),
+                            trailingContentData =
+                                ListItemTrailingContentDataUi.Icon(
+                                    iconData = AppIcons.KeyboardArrowRight,
+                                ),
+                        ),
+                ),
             )
-        )
 
         Content(
-            state = State(
-                screenTitle = stringResource(R.string.settings_screen_title),
-                settingsItems = settingsItems,
-                appVersion = "1.0.0",
-                changelogUrl = ""
-            ),
+            state =
+                State(
+                    screenTitle = stringResource(R.string.settings_screen_title),
+                    settingsItems = settingsItems,
+                    appVersion = "1.0.0",
+                    changelogUrl = "",
+                ),
             effectFlow = emptyFlow(),
             onEventSend = {},
             onNavigationRequested = {},
             context = context,
-            paddingValues = PaddingValues(SPACING_MEDIUM.dp)
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
         )
     }
 }

@@ -228,12 +228,21 @@
 
     <!-- region Settings Screen -->
     <string name="settings_screen_title">Settings</string>
+    <string name="settings_screen_option_preferences">Preferences</string>
+    <string name="settings_screen_option_preferences_id">preferencesId</string>
     <string name="settings_screen_option_retrieve_logs">Retrieve logs</string>
     <string name="settings_screen_option_retrieve_logs_id">retrieveLogsId</string>
     <string name="settings_screen_option_changelog">Changelog</string>
     <string name="settings_screen_option_changelog_id">changelogId</string>
     <string name="settings_intent_chooser_logs_share_title">Share logs</string>
+    <string name="settings_preferences_option_preferences">Preferences</string>
+    <string name="settings_preferences_option_preferences_id">preferencesId</string>
     <!--endregion-->
+
+    <!-- region Preferences Screen -->
+    <string name="preferences_screen_title">Preferences</string>
+    <!--endregion-->
+
 
     <!-- region Home Screen -->
     <string name="home_screen_title">Home</string>

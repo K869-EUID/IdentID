@@ -18,12 +18,12 @@ package com.k689.identid.ui.dashboard.settings
 
 import android.content.Intent
 import android.net.Uri
+import com.k689.identid.R
 import com.k689.identid.extension.business.toUri
 import com.k689.identid.interactor.dashboard.SettingsInteractor
+import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.dashboard.settings.model.SettingsItemUi
 import com.k689.identid.ui.dashboard.settings.model.SettingsMenuItemType
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
@@ -32,26 +32,34 @@ import org.koin.android.annotation.KoinViewModel
 
 data class State(
     val screenTitle: String,
-
     val settingsItems: List<SettingsItemUi> = emptyList(),
-
     val appVersion: String = "",
     val changelogUrl: String?,
 ) : ViewState
 
 sealed class Event : ViewEvent {
     data object Pop : Event()
-    data class ItemClicked(val itemType: SettingsMenuItemType) : Event()
+
+    data class ItemClicked(
+        val itemType: SettingsMenuItemType,
+    ) : Event()
 }
 
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Pop : Navigation()
 
-        data class OpenUrlExternally(val url: Uri) : Navigation()
+        data class OpenUrlExternally(
+            val url: Uri,
+        ) : Navigation()
+
+        data object OpenPreferences : Navigation()
     }
 
-    data class ShareLogFile(val intent: Intent, val chooserTitle: String) : Effect()
+    data class ShareLogFile(
+        val intent: Intent,
+        val chooserTitle: String,
+    ) : Effect()
 }
 
 @KoinViewModel
@@ -64,7 +72,6 @@ class SettingsViewModel(
         return State(
             screenTitle = resourceProvider.getString(R.string.settings_screen_title),
             settingsItems = settingsInteractor.getSettingsItemsUi(changelogUrl = changelogUrl),
-
             appVersion = settingsInteractor.getAppVersion(),
             changelogUrl = changelogUrl,
         )
@@ -73,24 +80,28 @@ class SettingsViewModel(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Pop -> setEffect { Effect.Navigation.Pop }
-
             is Event.ItemClicked -> handleSettingsMenuItemClicked(event.itemType)
         }
     }
 
     private fun handleSettingsMenuItemClicked(itemType: SettingsMenuItemType) {
         when (itemType) {
+            SettingsMenuItemType.PREFERENCES -> {
+                setEffect { Effect.Navigation.OpenPreferences }
+            }
+
             SettingsMenuItemType.RETRIEVE_LOGS -> {
                 val logs = settingsInteractor.retrieveLogFileUris()
                 if (logs.isNotEmpty()) {
                     setEffect {
                         Effect.ShareLogFile(
-                            intent = Intent().apply {
-                                action = Intent.ACTION_SEND_MULTIPLE
-                                putParcelableArrayListExtra(Intent.EXTRA_STREAM, logs)
-                                type = "text/*"
-                            },
-                            chooserTitle = resourceProvider.getString(R.string.settings_intent_chooser_logs_share_title)
+                            intent =
+                                Intent().apply {
+                                    action = Intent.ACTION_SEND_MULTIPLE
+                                    putParcelableArrayListExtra(Intent.EXTRA_STREAM, logs)
+                                    type = "text/*"
+                                },
+                            chooserTitle = resourceProvider.getString(R.string.settings_intent_chooser_logs_share_title),
                         )
                     }
                 }
@@ -101,7 +112,7 @@ class SettingsViewModel(
                 if (changelogUrl != null) {
                     setEffect {
                         Effect.Navigation.OpenUrlExternally(
-                            url = changelogUrl.toUri()
+                            url = changelogUrl.toUri(),
                         )
                     }
                 }

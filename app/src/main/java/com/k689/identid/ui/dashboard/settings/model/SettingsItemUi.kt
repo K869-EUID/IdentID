@@ -26,4 +26,5 @@ data class SettingsItemUi(
 enum class SettingsMenuItemType {
     RETRIEVE_LOGS,
     CHANGELOG,
+    PREFERENCES,
 }
