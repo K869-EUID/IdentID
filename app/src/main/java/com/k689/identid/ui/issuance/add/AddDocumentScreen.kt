@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -50,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -88,6 +86,7 @@ import com.k689.identid.ui.component.wrap.ButtonConfig
 import com.k689.identid.ui.component.wrap.ButtonType
 import com.k689.identid.ui.component.wrap.TextConfig
 import com.k689.identid.ui.component.wrap.WrapButton
+import com.k689.identid.ui.component.wrap.WrapIcon
 import com.k689.identid.ui.component.wrap.WrapListItem
 import com.k689.identid.ui.component.wrap.WrapText
 import com.k689.identid.ui.issuance.add.model.AddDocumentUi
@@ -220,7 +219,6 @@ private fun Content(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(topStart = SIZE_LARGE.dp, topEnd = SIZE_LARGE.dp))
                         .padding(
                             top = SPACING_MEDIUM.dp,
                             start = paddingValues.calculateStartPadding(layoutDirection),
@@ -275,11 +273,7 @@ private fun MainContent(
             onValueChange = { onEventSend(Event.OnSearchQueryChanged(it)) },
             placeholder = { Text(stringResource(R.string.issuance_add_document_search_hint)) },
             leadingIcon = {
-                AppIcons.Search.imageVector?.let {
-                    Icon(imageVector = it, contentDescription = null)
-                } ?: AppIcons.Search.resourceId?.let {
-                    Icon(painter = painterResource(id = it), contentDescription = null)
-                }
+                WrapIcon(iconData = AppIcons.Search)
             },
             singleLine = true,
             colors =
@@ -300,17 +294,8 @@ private fun MainContent(
         } else {
             VSpacer.Medium()
 
-            val filteredOptions =
-                state.options
-                    .map {
-                        it.first to
-                            it.second.filter { item ->
-                                (item.itemData.mainContentData as? ListItemMainContentDataUi.Text)?.text?.contains(state.searchQuery, ignoreCase = true) == true
-                            }
-                    }.filter { it.second.isNotEmpty() }
-
             Options(
-                options = filteredOptions,
+                options = state.filteredOptions,
                 modifier = Modifier.fillMaxSize(),
                 onOptionClicked = { itemId, issuerId ->
                     onEventSend(
@@ -407,13 +392,13 @@ private fun FloatingFooter(
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp), // Pill-like shape
+        shape = RoundedCornerShape(24.dp),
         colors =
             CardDefaults.elevatedCardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                contentColor = MaterialTheme.colorScheme.onSurface,
             ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -424,27 +409,23 @@ private fun FloatingFooter(
                 text = stringResource(R.string.issuance_add_document_scan_qr_footer_text),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             WrapButton(
                 modifier = Modifier.fillMaxWidth(),
                 buttonConfig =
                     ButtonConfig(
-                        type = ButtonType.PRIMARY, // Use Primary for action
+                        type = ButtonType.PRIMARY,
                         onClick = {
                             onEventSend(Event.GoToQrScan)
                         },
                     ),
             ) {
-                // We can add an icon here
-                AppIcons.QrScanner.resourceId?.let {
-                    Icon(
-                        painter = painterResource(id = it),
-                        contentDescription = null,
-                        modifier = Modifier.size(35.dp).padding(end = 8.dp),
-                    )
-                }
+                WrapIcon(
+                    iconData = AppIcons.QrScanner,
+                    modifier = Modifier.padding(end = 8.dp).size(35.dp),
+                )
                 Text(text = stringResource(R.string.issuance_add_document_scan_qr_footer_button_text))
             }
         }
@@ -454,57 +435,52 @@ private fun FloatingFooter(
 @ThemeModePreviews
 @Composable
 private fun IssuanceAddDocumentScreenPreview() {
+    val previewOptions =
+        listOf(
+            Pair(
+                "issuer1",
+                listOf(
+                    AddDocumentUi(
+                        credentialIssuerId = "issuer1",
+                        configurationId = "configId1",
+                        itemData =
+                            ListItemDataUi(
+                                itemId = "configId1",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "National ID"),
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(iconData = AppIcons.Add),
+                            ),
+                    ),
+                ),
+            ),
+            Pair(
+                "issuer2",
+                listOf(
+                    AddDocumentUi(
+                        credentialIssuerId = "issuer2",
+                        configurationId = "configId2",
+                        itemData =
+                            ListItemDataUi(
+                                itemId = "configId2",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Driving Licence"),
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(iconData = AppIcons.Add),
+                            ),
+                    ),
+                ),
+            ),
+        )
     PreviewTheme {
         Content(
             state =
                 State(
-                    issuanceConfig =
-                        IssuanceUiConfig(
-                            flowType = IssuanceFlowType.NoDocument,
-                        ),
+                    issuanceConfig = IssuanceUiConfig(flowType = IssuanceFlowType.NoDocument),
                     showFooterScanner = true,
                     navigatableAction = ScreenNavigateAction.NONE,
                     title = stringResource(R.string.issuance_add_document_title),
                     subtitle = stringResource(R.string.issuance_add_document_subtitle),
-                    options =
-                        listOf(
-                            Pair(
-                                "issuer1",
-                                listOf(
-                                    AddDocumentUi(
-                                        credentialIssuerId = "issuer1",
-                                        configurationId = "configId1",
-                                        itemData =
-                                            ListItemDataUi(
-                                                itemId = "configId1",
-                                                mainContentData = ListItemMainContentDataUi.Text(text = "National ID"),
-                                                trailingContentData =
-                                                    ListItemTrailingContentDataUi.Icon(
-                                                        iconData = AppIcons.Add,
-                                                    ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                            Pair(
-                                "issuer2",
-                                listOf(
-                                    AddDocumentUi(
-                                        credentialIssuerId = "issuer2",
-                                        configurationId = "configId2",
-                                        itemData =
-                                            ListItemDataUi(
-                                                itemId = "configId2",
-                                                mainContentData = ListItemMainContentDataUi.Text(text = "Driving Licence"),
-                                                trailingContentData =
-                                                    ListItemTrailingContentDataUi.Icon(
-                                                        iconData = AppIcons.Add,
-                                                    ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                        ),
+                    options = previewOptions,
+                    filteredOptions = previewOptions,
                 ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
@@ -518,60 +494,55 @@ private fun IssuanceAddDocumentScreenPreview() {
 @ThemeModePreviews
 @Composable
 private fun DashboardAddDocumentScreenPreview() {
+    val previewOptions =
+        listOf(
+            Pair(
+                "issuer1",
+                listOf(
+                    AddDocumentUi(
+                        credentialIssuerId = "issuer1",
+                        configurationId = "configId1",
+                        itemData =
+                            ListItemDataUi(
+                                itemId = "configId1",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "National ID"),
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(iconData = AppIcons.Add),
+                            ),
+                    ),
+                ),
+            ),
+            Pair(
+                "issuer2",
+                listOf(
+                    AddDocumentUi(
+                        credentialIssuerId = "issuer2",
+                        configurationId = "configId2",
+                        itemData =
+                            ListItemDataUi(
+                                itemId = "configId2",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Driving Licence"),
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(iconData = AppIcons.Add),
+                            ),
+                    ),
+                ),
+            ),
+        )
     PreviewTheme {
         Content(
             state =
                 State(
                     issuanceConfig =
                         IssuanceUiConfig(
-                            flowType =
-                                IssuanceFlowType.ExtraDocument(
-                                    formatType = null,
-                                ),
+                            flowType = IssuanceFlowType.ExtraDocument(formatType = null),
                         ),
                     showFooterScanner = false,
                     navigatableAction = ScreenNavigateAction.BACKABLE,
                     title = stringResource(R.string.issuance_add_document_title),
                     subtitle = stringResource(R.string.issuance_add_document_subtitle),
-                    options =
-                        listOf(
-                            Pair(
-                                "issuer1",
-                                listOf(
-                                    AddDocumentUi(
-                                        credentialIssuerId = "issuer1",
-                                        configurationId = "configId1",
-                                        itemData =
-                                            ListItemDataUi(
-                                                itemId = "configId1",
-                                                mainContentData = ListItemMainContentDataUi.Text(text = "National ID"),
-                                                trailingContentData =
-                                                    ListItemTrailingContentDataUi.Icon(
-                                                        iconData = AppIcons.Add,
-                                                    ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                            Pair(
-                                "issuer2",
-                                listOf(
-                                    AddDocumentUi(
-                                        credentialIssuerId = "issuer2",
-                                        configurationId = "configId2",
-                                        itemData =
-                                            ListItemDataUi(
-                                                itemId = "configId2",
-                                                mainContentData = ListItemMainContentDataUi.Text(text = "Driving Licence"),
-                                                trailingContentData =
-                                                    ListItemTrailingContentDataUi.Icon(
-                                                        iconData = AppIcons.Add,
-                                                    ),
-                                            ),
-                                    ),
-                                ),
-                            ),
-                        ),
+                    options = previewOptions,
+                    filteredOptions = previewOptions,
                 ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
