@@ -1,0 +1,485 @@
+<!--
+  ~ Copyright (c) 2025 European Commission
+  ~
+  ~ Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
+  ~ Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
+  ~ except in compliance with the Licence.
+  ~
+  ~ You may obtain a copy of the Licence at:
+  ~ https://joinup.ec.europa.eu/software/page/eupl
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software distributed under
+  ~ the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+  ~ ANY KIND, either express or implied. See the Licence for the specific language
+  ~ governing permissions and limitations under the Licence.
+  -->
+
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- region Generic -->
+    <string name="generic_error_message">Oi! Kažkas nutiko ne taip</string>
+    <string name="generic_error_description">Jei problema kartojasi, susisiekite su klientų aptarnavimo tarnyba</string>
+    <string name="generic_error_button_retry">BANDYTI DAR KARTĄ</string>
+    <string name="generic_network_error_message">Nesate prisijungę prie interneto</string>
+    <string name="generic_error_retry">Bandykite dar kartą</string>
+    <string name="generic_cancel">Atšaukti</string>
+    <string name="generic_cancel_capitalized" tools:ignore="ButtonCase">ATŠAUKTI</string>
+    <string name="generic_next_capitalized" tools:ignore="ButtonCase">TOLIAU</string>
+    <string name="generic_confirm_capitalized" tools:ignore="ButtonCase">PATVIRTINTI</string>
+    <string name="generic_continue">Tęsti</string>
+    <string name="generic_continue_capitalized" tools:ignore="ButtonCase">TĘSTI</string>
+    <string name="generic_enable_capitalized" tools:ignore="ButtonCase">ĮJUNGTI</string>
+    <string name="generic_success">Pavyko</string>
+    <string name="generic_close">Uždaryti</string>
+    <string name="generic_ok">Gerai</string>
+    <string name="generic_dash">-</string>
+    <string name="generic_default_relying_party_name">Pasikliaujančioji šalis</string>
+    <string name="generic_default_issuer_name">Išdavėjas</string>
+    <string name="generic_view_details">Peržiūrėti išsamiau</string>
+    <string name="generic_deferred_success_text">Vykdoma!</string>
+    <string name="generic_bottom_sheet_delete_title">Ištrinti dokumentą?</string>
+    <string name="generic_bottom_sheet_delete_subtitle">Šis dokumentas bus visam laikui ištrintas iš jūsų piniginės ir tai gali turėti įtakos prieigai prie paslaugų.</string>
+    <string name="generic_bottom_sheet_delete_primary_button_text">Ištrinti</string>
+    <string name="generic_bottom_sheet_delete_secondary_button_text">Atšaukti</string>
+    <string name="generic_scan_qr">Nuskaityti QR kodą</string>
+    <string name="generic_or">ARBA</string>
+    <string name="generic_filters_apply">Taikyti</string>
+    <string name="generic_filters_reset">Atstatyti viską</string>
+    <string name="generic_filters_title">Filtras</string>
+    <string name="generic_filters_sort_by">Rūšiuoti pagal</string>
+    <string name="generic_filters_ascending">Didėjančia tvarka</string>
+    <string name="generic_filters_descending">Mažėjančia tvarka</string>
+    <!--endregion-->
+
+    <!-- region Content Description -->
+    <string name="content_description_image_or_placeholder_icon">Vaizdas arba vietos ženklo piktograma</string>
+    <string name="content_description_user_signature_icon">Naudotojo parašas</string>
+    <string name="content_description_qr_code_icon">QR kodas</string>
+    <string name="content_description_more_vert_icon">Daugiau elementų</string>
+    <string name="content_description_arrow_back_icon">Grįžti atgal</string>
+    <string name="content_description_close_icon">Uždaryti</string>
+    <string name="content_description_warning_icon">Įspėjimas</string>
+    <string name="content_description_error_icon">Klaida</string>
+    <string name="content_description_error_filled_icon">Klaida</string>
+    <string name="content_description_delete_icon">Ištrinti</string>
+    <string name="content_description_touch_id_icon">„Touch ID"</string>
+    <string name="content_description_qr_icon">QR</string>
+    <string name="content_description_qr_scanner_icon">QR skaitytuvas</string>
+    <string name="content_description_nfc_icon">NFC</string>
+    <string name="content_description_user_icon">Naudotojas</string>
+    <string name="content_description_id_icon">Tapatybė</string>
+    <string name="content_description_id_stroke_icon">Tapatybės kontūras</string>
+    <string name="content_description_logo_full_icon">Viso logotipo piktograma</string>
+    <string name="content_description_yellow_card_icon">Geltonos kortelės piktograma</string>
+    <string name="content_description_green_card_icon">Žalios kortelės piktograma</string>
+    <string name="content_description_red_card_icon">Raudonos kortelės piktograma</string>
+    <string name="content_description_card_logo_icon">Programėlės piktograma</string>
+    <string name="content_description_card_logo_text_icon">Tekstinio logotipo piktograma</string>
+    <string name="content_description_logo_plain_icon">Paprasto logotipo piktograma</string>
+    <string name="content_description_logo_text_icon">Tekstinio logotipo piktograma</string>
+    <string name="content_description_arrow_up_icon">Rodyklė aukštyn</string>
+    <string name="content_description_arrow_down_icon">Rodyklė žemyn</string>
+    <string name="content_description_visibility_icon">Rodyti</string>
+    <string name="content_description_visibility_off_icon">Slėpti</string>
+    <string name="content_description_add_icon">Pridėti</string>
+    <string name="content_description_edit_icon">Redaguoti</string>
+    <string name="content_description_verified_icon">Patvirtinta</string>
+    <string name="content_description_message_icon">Pranešimas</string>
+    <string name="content_description_success_icon">Pavyko</string>
+    <string name="content_description_clock_timer_icon">Laikrodžio laikmatis</string>
+    <string name="content_description_arrow_right_icon">Rodyklė dešinėn</string>
+    <string name="content_description_open_new_icon">Atidaryti naujame lange</string>
+    <string name="content_description_handle_bar_icon">Vilkimo juosta</string>
+    <string name="content_description_search_icon">Ieškoti</string>
+    <string name="content_description_present_document_same_device_icon">Pateikti dokumentą asmeniškai</string>
+    <string name="content_description_present_document_cross_device_icon">Pateikti dokumentą internetu</string>
+    <string name="content_description_add_document_from_list_icon">Pridėti dokumentą iš įgalioto šaltinio</string>
+    <string name="content_description_add_document_from_qr_icon">Pridėti dokumentą iš QR kodo</string>
+    <string name="content_description_authenticate_in_person_icon">Autentifikuotis asmeniškai</string>
+    <string name="content_description_authenticate_online_icon">Autentifikuotis internetu</string>
+    <string name="content_description_sign_document_from_device_icon">Pasirašyti dokumentą iš įrenginio</string>
+    <string name="content_description_sign_document_from_qr_icon">Pasirašyti dokumentą iš QR kodo</string>
+
+    <string name="content_description_bookmark_icon">Žymė</string>
+    <string name="content_description_bookmark_filled_icon">Užpildyta žymė</string>
+    <string name="content_description_certified_icon">Sertifikuota</string>
+    <string name="content_description_documents_icon">Dokumentai</string>
+    <string name="content_description_download_icon">Atsisiųsti</string>
+    <string name="content_description_filters_icon">Filtrai</string>
+    <string name="content_description_home_icon">Pradžia</string>
+    <string name="content_description_in_progress_icon">Vykdoma</string>
+    <string name="content_description_notifications_icon">Pranešimai</string>
+    <string name="content_description_transactions_icon">Operacijos</string>
+    <string name="content_description_wallet_activated_icon">Piniginė aktyvuota</string>
+    <string name="content_description_wallet_secured_icon">Piniginė apsaugota</string>
+    <string name="content_description_info_icon">Informacija</string>
+    <string name="content_description_issuer_icon">Išdavėjas</string>
+    <string name="content_description_issuer_logo_icon">Išdavėjo logotipas</string>
+    <string name="content_description_menu_icon">Meniu</string>
+    <string name="content_description_signature_icon">Parašas</string>
+    <string name="content_description_authenticate_icon">Tapatybės kortelės autentifikavimui</string>
+    <string name="content_description_change_pin_icon">Keisti PIN kodą</string>
+    <string name="content_description_check_icon">Žymė</string>
+    <string name="content_description_open_in_browser_icon">Atidaryti naršyklėje</string>
+    <string name="content_description_date_range_icon">Pasirinkti datų intervalą filtrui</string>
+    <string name="content_description_settings_icon">Nustatymai</string>
+    <!--endregion-->
+
+    <!-- region Biometric prompt -->
+    <string name="biometric_prompt_title">Biometrinis autentifikavimas</string>
+    <string name="biometric_prompt_subtitle">Autentifikuokitės naudodami biometrinius duomenis</string>
+    <string name="biometric_login_title">Sveiki sugrįžę</string>
+    <string name="biometric_login_biometrics_enabled_subtitle">Naudokite biometrinius duomenis, kad pasiektumėte EUDI piniginę.</string>
+    <string name="biometric_login_biometrics_not_enabled_subtitle">Norėdami pasiekti EUDI piniginę, turite įvesti PIN kodą.</string>
+    <!--endregion-->
+
+    <!-- region Biometrics -->
+    <string name="biometric_no_hardware">Jūsų įrenginys nepalaiko biometrinio autentifikavimo</string>
+    <string name="biometric_unknown_error">Inicijuojant biometrinį autentifikavimą įvyko klaida. Bandykite dar kartą</string>
+    <string name="biometric_default_mode_text_above_pin_field">PIN kodas</string>
+    <!--endregion-->
+
+    <!-- region Document Success -->
+    <string name="document_success_header_description">Sėkmingai pasidalinote šia informacija su</string>
+    <string name="document_success_header_description_when_error">Sėkmingai pasidalinote informacija su</string>
+    <string name="document_success_relying_party_default_name">@string/generic_default_relying_party_name</string>
+    <string name="document_success_collapsed_supporting_text">@string/generic_view_details</string>
+    <string name="document_success_sticky_button_text">@string/generic_close</string>
+    <!--endregion-->
+
+    <!-- region Pin -->
+    <string name="quick_pin_invalid_error">Neteisingas PIN kodas</string>
+    <string name="quick_pin_numerical_rule_invalid_error_message">Leidžiamos tik skaitinės reikšmės</string>
+    <string name="quick_pin_non_match">PIN kodai nesutampa</string>
+
+    <string name="quick_pin_create_title">Sveiki atvykę į savo piniginę</string>
+    <string name="quick_pin_create_enter_subtitle">Apsaugokite savo piniginę PIN kodu ir prisijunkite prie nacionalinės sistemos.</string>
+    <string name="quick_pin_create_reenter_subtitle">Pakartokite PIN kodą</string>
+
+    <string name="quick_pin_change_title">Keisti PIN kodą</string>
+    <string name="quick_pin_change_validate_current_subtitle">Įveskite dabartinį PIN kodą</string>
+    <string name="quick_pin_change_enter_new_subtitle">Pasirinkite PIN kodą būsimiems prisijungimams</string>
+    <string name="quick_pin_change_reenter_new_subtitle">Pakartokite naują PIN kodą</string>
+
+    <string name="quick_pin_create_success_text">Jūsų piniginė apsaugota!</string>
+    <string name="quick_pin_create_success_description">Norėdami aktyvuoti piniginę, prisijunkite prie nacionalinės sistemos ir pridėkite skaitmeninį tapatybės dokumentą.</string>
+    <string name="quick_pin_create_success_btn">Pridėti skaitmeninę tapatybę</string>
+    <string name="quick_pin_change_success_text">@string/generic_success</string>
+    <string name="quick_pin_change_success_description">PIN kodas sėkmingai pakeistas</string>
+    <string name="quick_pin_change_success_btn">GRĮŽTI Į PRADŽIĄ</string>
+
+    <string name="quick_pin_bottom_sheet_cancel_title">Atšaukti PIN kodo keitimą?</string>
+    <string name="quick_pin_bottom_sheet_cancel_subtitle">Atšaukus būsite nukreipti į pradžią nekeičiant PIN kodo</string>
+    <string name="quick_pin_bottom_sheet_cancel_primary_button_text">@string/generic_continue_capitalized</string>
+    <string name="quick_pin_bottom_sheet_cancel_secondary_button_text">@string/generic_cancel_capitalized</string>
+    <!--endregion-->
+
+    <!-- region Request Screen -->
+    <string name="request_header_description">Šiai operacijai reikalingas jūsų leidimas ir autentifikavimas.</string>
+    <string name="request_header_main_text">DUOMENŲ DALIJIMOSI UŽKLAUSA</string>
+    <string name="request_relying_party_default_name">@string/generic_default_relying_party_name</string>
+    <string name="request_relying_party_description">prašo pateikti šiuos duomenis</string>
+    <string name="request_warning_text">Prieš dalindamiesi duomenimis, atidžiai peržiūrėkite užklausą.</string>
+    <string name="request_collapsed_supporting_text">@string/generic_view_details</string>
+    <string name="request_no_data">Prašomas dokumentas nėra jūsų EUDI piniginėje.
+        Daugiau informacijos teiraukitės įgalioto išdavėjo.</string>
+    <string name="request_sticky_button_text">Dalintis</string>
+    <string name="request_bottom_sheet_warning_title">Įspėjimas</string>
+    <string name="request_bottom_sheet_warning_subtitle">Nusprendus nesidalinti tam tikrais duomenimis, prašomo dokumento išdavimas gali nepavykti.</string>
+    <string name="request_gender_male">Vyras</string>
+    <string name="request_gender_female">Moteris</string>
+    <string name="request_gender_not_known">Nežinoma</string>
+    <string name="request_gender_not_applicable">Netaikoma</string>
+    <!--endregion-->
+
+    <!-- region Loading Screen -->
+    <string name="loading_header_description">Palaukite…</string>
+    <string name="loading_biometry_biometrics_enabled_description">Naudokite biometrinius duomenis operacijai patvirtinti.</string>
+    <string name="loading_biometry_biometrics_not_enabled_description">Norėdami patvirtinti operaciją, turite patvirtinti savo tapatybę.</string>
+    <!--endregion-->
+
+    <!-- region Dashboard -->
+    <string name="dashboard_document_has_not_expired">Galioja iki:\ %1$s</string>
+    <string name="dashboard_document_has_expired">Nebegalioja</string>
+    <string name="dashboard_document_deferred_pending">Laukiama</string>
+    <string name="dashboard_document_deferred_failed">Išdavimas nepavyko</string>
+    <string name="dashboard_document_revoked">Atšauktas</string>
+    <string name="dashboard_document_credentials_info_text">%d/%d</string>
+
+    <string name="dashboard_bottom_sheet_bluetooth_title">Įjungti „Bluetooth"?</string>
+    <string name="dashboard_bottom_sheet_bluetooth_subtitle">Įjunkite „Bluetooth", kad galėtumėte dalintis informacija naudodami autentifikavimą asmeniškai arba internetu</string>
+    <string name="dashboard_bottom_sheet_bluetooth_primary_button_text">@string/generic_enable_capitalized</string>
+    <string name="dashboard_bottom_sheet_bluetooth_secondary_button_text">@string/generic_cancel_capitalized</string>
+
+    <string name="dashboard_bottom_sheet_deferred_document_pressed_title">@string/generic_bottom_sheet_delete_title</string>
+    <string name="dashboard_bottom_sheet_deferred_document_pressed_subtitle">@string/generic_bottom_sheet_delete_subtitle</string>
+    <string name="dashboard_bottom_sheet_deferred_document_pressed_primary_button_text">@string/generic_bottom_sheet_delete_primary_button_text</string>
+    <string name="dashboard_bottom_sheet_deferred_document_pressed_secondary_button_text">@string/generic_bottom_sheet_delete_secondary_button_text</string>
+
+    <string name="dashboard_bottom_sheet_deferred_documents_ready_title">Dokumentai išduoti</string>
+    <string name="dashboard_bottom_sheet_deferred_documents_ready_subtitle">Nauji dokumentai buvo pridėti į jūsų piniginę.</string>
+
+    <string name="dashboard_bottom_sheet_revoked_document_dialog_title">Atšaukti dokumentai</string>
+    <string name="dashboard_bottom_sheet_revoked_document_dialog_subtitle">Šie dokumentai buvo atšaukti.</string>
+    <!--endregion-->
+
+    <!-- region Dashboard Side Menu -->
+    <string name="dashboard_side_menu_title">Mano ES piniginė</string>
+    <string name="dashboard_side_menu_option_change_pin">Keisti PIN kodą</string>
+    <string name="dashboard_side_menu_option_change_pin_id">changePinId</string>
+    <string name="dashboard_side_menu_option_settings">Nustatymai</string>
+    <string name="dashboard_side_menu_option_settings_id">settingsId</string>
+    <!--endregion-->
+
+    <!-- region Settings Screen -->
+    <string name="settings_screen_title">Nustatymai</string>
+    <string name="settings_screen_option_preferences">Nuostatos</string>
+    <string name="settings_screen_option_preferences_id">preferencesId</string>
+    <string name="settings_screen_option_retrieve_logs">Gauti žurnalus</string>
+    <string name="settings_screen_option_retrieve_logs_id">retrieveLogsId</string>
+    <string name="settings_screen_option_changelog">Pakeitimų žurnalas</string>
+    <string name="settings_screen_option_changelog_id">changelogId</string>
+    <string name="settings_intent_chooser_logs_share_title">Bendrinti žurnalus</string>
+    <string name="settings_preferences_option_preferences">Nuostatos</string>
+    <string name="settings_preferences_option_preferences_id">preferencesId</string>
+    <!--endregion-->
+
+    <!-- region Preferences Screen -->
+    <string name="preferences_screen_title">Nuostatos</string>
+    <!--endregion-->
+
+    <!-- region Home Screen -->
+    <string name="home_screen_title">Pradžia</string>
+    <string name="home_screen_welcome">Sveiki sugrįžę</string>
+    <string name="home_screen_welcome_user_message">Sveiki sugrįžę, %1$s</string>
+    <string name="home_screen_authentication_card_title">Autentifikuokitės, tvirtinkite operacijas ir dalinkitės skaitmeniniais dokumentais asmeniškai arba internetu.</string>
+    <string name="home_screen_sign_card_title">Elektroniniu būdu pasirašykite skaitmeninius dokumentus naudodami piniginę – pasirinkite failą iš savo įrenginio.</string>
+    <string name="home_screen_authenticate">Autentifikavimas</string>
+    <string name="home_screen_authenticate_description">Autentifikuokitės dalindamiesi duomenimis asmeniškai (artimoje aplinkoje) arba internetu (svetainėje / paslaugoje).</string>
+    <string name="home_screen_sign">Pasirašymas</string>
+    <string name="home_screen_learn_more">Sužinoti daugiau</string>
+    <string name="home_screen_authenticate_option_in_person">Asmeniškai</string>
+    <string name="home_screen_add_document_option_online">Internetu</string>
+
+    <string name="home_screen_sign_document">Pasirašyti dokumentą</string>
+    <string name="home_screen_sign_document_description">Pasirašykite dokumentą skaitmeniniu būdu – pasirinkite failą iš savo įrenginio arba nuskaitykite QR kodą.</string>
+    <string name="home_screen_sign_document_option_from_device">Iš įrenginio</string>
+    <string name="home_screen_sign_document_option_scan_qr">Nuskaityti QR kodą</string>
+    <!--endregion-->
+
+    <!-- region Home Screen Learn More Popups content -->
+    <string name="home_screen_authenticate_learn_more_inner_title">Saugiai pasirašykite dokumentus</string>
+    <string name="home_screen_authenticate_learn_more_description">Pasirašykite dokumentus tik naudodami savo piniginę. Teisiškai privalomas elektroninis parašas bus greitesnis ir paprastesnis nei bet kada anksčiau, suteikdamas galimybę vykdyti veiklą bet kur ir bet kada.</string>
+    <string name="home_screen_sign_learn_more_inner_title">Pasiekite internetines paslaugas</string>
+    <string name="home_screen_sign_learn_more_description">Identifikuokite save įvairioms viešosioms ir privačioms internetinėms paslaugoms, saugodami savo privatumą. Patvirtinkite savo tapatybę vos keliais bakstelėjimais – nebereikia tvarkyti nesuskaičiuojamų slaptažodžių.</string>
+    <!--endregion-->
+
+    <!-- region Documents Screen -->
+    <string name="documents_screen_title">Dokumentai</string>
+    <string name="documents_screen_search_label">Ieškoti dokumentų</string>
+    <string name="documents_screen_search_no_results">Nė vienas dokumentas neatitinka paieškos. Pabandykite pakeisti paieškos užklausą arba filtrus.</string>
+    <string name="documents_screen_search_no_results_id">noResultsId</string>
+    <string name="documents_screen_add_document_title">Pridėti dokumentą</string>
+    <string name="documents_screen_add_document_description">Pridėkite dokumentus į piniginę – pasirinkite iš sąrašo arba nuskaitykite pateiktą QR kodą.</string>
+    <string name="documents_screen_add_document_option_list">Iš įgalioto šaltinio</string>
+    <string name="documents_screen_add_document_option_qr">@string/generic_scan_qr</string>
+    <string name="documents_screen_add_document_option_or">@string/generic_or</string>
+    <string name="documents_screen_filters_title">@string/generic_filters_title</string>
+    <string name="documents_screen_filters_sort_by">@string/generic_filters_sort_by</string>
+    <string name="documents_screen_filters_ascending">@string/generic_filters_ascending</string>
+    <string name="documents_screen_filters_descending">@string/generic_filters_descending</string>
+    <string name="documents_screen_filters_sort_default">Numatyta</string>
+    <string name="documents_screen_filters_sort_date_issued">Išdavimo data</string>
+    <string name="documents_screen_filters_sort_expiry_date">Galiojimo data</string>
+    <string name="documents_screen_filters_filter_by_issuer">Filtruoti pagal išdavėją</string>
+    <string name="documents_screen_filters_filter_by_category">Filtruoti pagal kategoriją</string>
+    <string name="documents_screen_filters_filter_by_all">Visi</string>
+    <string name="documents_screen_filters_filter_by_state">Filtruoti pagal būseną</string>
+    <string name="documents_screen_filters_filter_by_state_revoked">Atšauktas</string>
+    <string name="documents_screen_filters_filter_by_state_valid">Galiojantis</string>
+    <string name="documents_screen_filters_filter_by_state_expired">Nebegaliojantis</string>
+    <string name="documents_screen_filters_filter_by_expiry_period">Filtruoti pagal galiojimo laikotarpį</string>
+    <string name="documents_screen_filters_filter_by_expiry_period_1">Per artimiausias 7 dienas</string>
+    <string name="documents_screen_filters_filter_by_expiry_period_2">Per artimiausias 30 dienų</string>
+    <string name="documents_screen_filters_filter_by_expiry_period_3">Po 30 dienų</string>
+    <string name="documents_screen_filters_filter_by_expiry_period_4">Iki šiandienos (nebegaliojantis)</string>
+    <string name="documents_screen_filters_apply">@string/generic_filters_apply</string>
+    <string name="documents_screen_filters_reset">@string/generic_filters_reset</string>
+    <string name="documents_screen_filters_unknown_issuer">Nežinomas</string>
+    <!--endregion-->
+
+    <!-- region Transactions Screen -->
+    <string name="transactions_screen_title">Operacijos</string>
+    <string name="transactions_screen_search_label">Ieškoti operacijų</string>
+    <string name="transactions_screen_search_no_results_id">noTransactionsId</string>
+    <string name="transactions_screen_search_no_results">Operacijų nerasta. Pabandykite pakeisti paieškos užklausą arba filtrus.</string>
+    <string name="transactions_screen_0_minutes_ago_message">Ką tik</string>
+    <plurals name="transactions_screen_some_minutes_ago_message">
+        <item quantity="one">prieš %d minutę</item>
+        <item quantity="few">prieš %d minutes</item>
+        <item quantity="other">prieš %d minučių</item>
+    </plurals>
+    <string name="transactions_screen_text_field_date_pattern">yyyy-mm-dd</string>
+    <!--endregion-->
+
+    <!-- region Transactions Screen, Filter labels-->
+    <string name="transactions_screen_filters_title">@string/generic_filters_title</string>
+    <string name="transactions_screen_filters_sort_by">@string/generic_filters_sort_by</string>
+    <string name="transactions_screen_filters_ascending">@string/generic_filters_ascending</string>
+    <string name="transactions_screen_filters_descending">@string/generic_filters_descending</string>
+    <string name="transactions_screen_filters_sort_transaction_date">Operacijos data</string>
+    <string name="transactions_screen_filter_by_date_period">Filtruoti pagal operacijos datų laikotarpį</string>
+    <string name="transactions_screen_filter_by_status">Filtruoti pagal būseną</string>
+    <string name="transactions_screen_filters_filter_by_relying_party">Filtruoti pagal pasikliaujančiąją šalį</string>
+    <string name="transactions_screen_filters_filter_by_transaction_type">Filtruoti pagal operacijos tipą</string>
+    <string name="transactions_screen_filters_filter_by_transaction_type_presentation">Pateikimas</string>
+    <string name="transactions_screen_filters_filter_by_transaction_type_issuance">Išdavimas</string>
+    <string name="transactions_screen_filters_filter_by_transaction_type_signing">Pasirašymas</string>
+    <string name="transactions_screen_filters_date_from">Data nuo</string>
+    <string name="transactions_screen_filters_date_to">Data iki</string>
+    <string name="transactions_filter_item_status_completed">Atlikta</string>
+    <string name="transactions_filter_item_status_failed">Nepavyko</string>
+    <string name="transactions_filter_item_no_relying_party_transactions">Nėra pasikliaujančiosios šalies</string>
+    <string name="transactions_screen_filters_apply">@string/generic_filters_apply</string>
+    <string name="transactions_screen_filters_reset">@string/generic_filters_reset</string>
+    <!--endregion-->
+
+    <!-- region Document Sign -->
+    <string name="document_sign_title">Pasirašyti dokumentą</string>
+    <string name="document_sign_subtitle">Pasirinkite dokumentą iš savo įrenginio, kad galėtumėte jį elektroniniu būdu pasirašyti.</string>
+    <string name="document_sign_select_document">Pasirinkti dokumentą</string>
+    <string name="document_sign_select_document_button_id">documentSignButtonId</string>
+    <!--endregion-->
+
+    <!-- region Qr Scan -->
+    <string name="qr_scan_permission_not_granted">Nepateiktas kameros leidimas\nAtidarykite programėlės nustatymus</string>
+    <string name="qr_scan_informative_text_presentation_flow">Nepavyksta nuskaityti QR kodo?\nIšbandykite alternatyvų būdą</string>
+    <string name="qr_scan_informative_text_issuance_flow">Nepavyksta nuskaityti QR kodo?\nIšbandykite alternatyvų būdą</string>
+    <string name="qr_scan_informative_text_signature_flow">Nepavyksta nuskaityti QR kodo?\nIšbandykite alternatyvų būdą</string>
+    <!--endregion-->
+
+    <!-- region Document Details -->
+    <string name="document_details_revoked_document_message">Šį dokumentą atšaukė išdavėjas. Daugiau informacijos teiraukitės išdavimo tarnyboje.</string>
+    <string name="document_details_boolean_item_true_readable_value">taip</string>
+    <string name="document_details_boolean_item_false_readable_value">ne</string>
+
+    <string name="document_details_bottom_sheet_delete_title">@string/generic_bottom_sheet_delete_title</string>
+    <string name="document_details_bottom_sheet_delete_subtitle">@string/generic_bottom_sheet_delete_subtitle</string>
+    <string name="document_details_bottom_sheet_delete_primary_button_text">@string/generic_bottom_sheet_delete_primary_button_text</string>
+    <string name="document_details_bottom_sheet_delete_secondary_button_text">@string/generic_bottom_sheet_delete_secondary_button_text</string>
+
+    <string name="document_details_document_credentials_info_text">liko %d/%d egzempliorių</string>
+    <string name="document_details_document_credentials_info_more_info_text">Daugiau informacijos</string>
+    <string name="document_details_document_credentials_info_expanded_text_subtitle">Saugumo sumetimais šis dokumentas gali būti pateiktas ribotą skaičių kartų, po to jį reikia iš naujo gauti iš išdavimo institucijos.</string>
+    <string name="document_details_document_credentials_info_expanded_button_update_now_text">Gauti naują</string>
+    <string name="document_details_document_credentials_info_expanded_button_hide_text">Slėpti</string>
+    <string name="document_details_main_section_text">DOKUMENTO INFORMACIJA</string>
+    <string name="document_details_issuer_section_text">IŠDAVĖJAS</string>
+    <string name="document_details_secondary_button_text">Ištrinti dokumentą</string>
+
+    <string name="document_details_bottom_sheet_bookmark_info_title">Išsaugota mėgstamuosiuose</string>
+    <string name="document_details_bottom_sheet_bookmark_info_message">Dokumentas sėkmingai pridėtas į mėgstamųjų sąrašą.</string>
+    <string name="document_details_bottom_sheet_bookmark_removed_info_title">Pašalinta iš mėgstamųjų</string>
+    <string name="document_details_bottom_sheet_bookmark_removed_info_message">Dokumentas sėkmingai pašalintas iš mėgstamųjų sąrašo.</string>
+
+    <string name="document_details_bottom_sheet_badge_title">Patikima pasikliaujančioji šalis</string>
+    <string name="document_details_bottom_sheet_badge_subtitle">Pasikliaujančioji šalis laikoma patikima, kai atitinka
+        iš anksto nustatytus saugumo, duomenų apsaugos, atitikties ir atsakingo duomenų tvarkymo kriterijus.</string>
+    <!--endregion-->
+
+    <!-- region Transaction Details -->
+    <string name="transaction_details_screen_title">Operacijos informacija</string>
+    <string name="transaction_details_screen_card_date_label">Data</string>
+    <string name="transaction_details_request_deletion_message">Galite pateikti prašymą nutraukti su šia operacija susijusių asmens duomenų tvarkymą. Tai gali turėti įtakos jūsų prieigai prie paslaugų.</string>
+    <string name="transaction_details_report_transaction_message">Jei manote, kad ši pasikliaujančioji šalis neteisėtai prašė asmens duomenų, galite pranešti apie šią operaciją institucijoms.</string>
+    <string name="transaction_details_request_deletion_button">Prašyti duomenų ištrynimo</string>
+    <string name="transaction_details_report_transaction_button">Pranešti apie įtartiną operaciją</string>
+    <string name="transaction_details_data_shared_section_title">PASIDALINTI DUOMENYS</string>
+    <string name="transaction_details_data_shared_prefix_id">transactionDetailsDataSharedId</string>
+    <string name="transaction_details_data_signed_section_title">PASIRAŠYTI DUOMENYS</string>
+    <string name="transaction_details_data_signed_prefix_id">transactionDetailsDataSignedId</string>
+    <string name="transaction_details_collapsed_supporting_text">@string/generic_view_details</string>
+    <!--endregion-->
+
+    <!-- region Proximity QR -->
+    <string name="proximity_qr_title">Pateikti dokumentą asmeniškai</string>
+    <string name="proximity_qr_subtitle">Parodykite šį QR kodą pasikliaujančiajai šaliai, kad pateiktumėte skaitmeninį dokumentą.</string>
+    <string name="proximity_qr_use_nfc">Arba dalinkitės per NFC</string>
+    <string name="proximity_qr_hold_near_reader">Pridėkite telefoną prie skaitytuvo, kad jis būtų nuskaitytas.</string>
+    <!--endregion-->
+
+    <!-- region Presentation Qr Scan -->
+    <string name="presentation_qr_scan_title">Pateikti dokumentą internetu</string>
+    <string name="presentation_qr_scan_subtitle">Nuskaitykite pasikliaujančiosios šalies pateiktą QR kodą, kad pateiktumėte skaitmeninį dokumentą.</string>
+    <!--endregion-->
+
+    <!-- region Signature Qr Scan -->
+    <string name="signature_qr_scan_title">Pasirašyti dokumentą</string>
+    <string name="signature_qr_scan_subtitle">Nuskaitykite QR kodą, kad elektroniniu būdu pasirašytumėte dokumentą.</string>
+    <!--endregion-->
+
+    <!-- region Issuance Add Document Screen -->
+    <string name="issuance_add_document_title">Pridėti dokumentą iš įgalioto šaltinio</string>
+    <string name="issuance_add_document_subtitle">Pasirinkite skaitmeninį dokumentą iš toliau pateikto sąrašo ir pridėkite jį į savo piniginę.</string>
+    <string name="issuance_add_document_no_options">Nėra galimų dokumentų. Pabandykite kitą paieškos terminą.</string>
+    <string name="issuance_add_document_scan_qr_footer_text">@string/generic_or</string>
+    <string name="issuance_add_document_scan_qr_footer_button_text">@string/generic_scan_qr</string>
+    <string name="issuance_add_document_deferred_success_text">@string/generic_deferred_success_text</string>
+    <string name="issuance_add_document_deferred_success_description">Jūsų dokumentas buvo užsakytas. Kai jis bus išduotas į jūsų piniginę, gausite pranešimą.</string>
+    <string name="issuance_add_document_deferred_success_primary_button_text">@string/generic_ok</string>
+    <string name="issuance_add_document_search_hint">Ieškoti dokumento</string>
+    <!--endregion-->
+
+    <!-- region Issuance Success Screen -->
+    <string name="issuance_success_header_description">Sėkmingai pridėjote šiuos dokumentus į savo piniginę</string>
+    <string name="issuance_success_header_description_when_error">Sėkmingai pridėjote dokumentą (-us) į savo piniginę</string>
+    <string name="issuance_success_header_issuer_default_name">@string/generic_default_issuer_name</string>
+    <!--endregion-->
+
+    <!-- region Issuance Qr Scan -->
+    <string name="issuance_qr_scan_title">Pridėti dokumentą per QR kodą</string>
+    <string name="issuance_qr_scan_subtitle">Nuskaitykite išdavėjo pateiktą QR kodą, kad pridėtumėte skaitmeninį dokumentą į savo piniginę.</string>
+    <!--endregion-->
+
+    <!-- region Issuance Document Offer -->
+    <string name="issuance_document_offer_primary_button_text_add">Pridėti</string>
+    <string name="issuance_document_offer_deferred_success_text">@string/generic_deferred_success_text</string>
+    <string name="issuance_document_offer_deferred_success_description">Jūsų dokumentai iš %1$s buvo užsakyti. Kai jie bus išduoti į jūsų piniginę, gausite pranešimą.</string>
+    <string name="issuance_document_offer_deferred_success_primary_button_text">@string/generic_ok</string>
+    <string name="issuance_document_offer_error_missing_pid_text">Pirmiausia reikia aktyvuoti piniginę naudojant nacionalinį tapatybės dokumentą</string>
+    <string name="issuance_document_offer_error_invalid_txcode_format">Neteisingas operacijos kodo formatas. Ilgis turi būti nuo %1$d iki %2$d skaitmenų, leidžiami tik skaitiniai simboliai.</string>
+    <string name="issuance_document_offer_error_no_document">Nepavyko gauti ir apdoroti kredencialų pasiūlymo</string>
+
+    <string name="issuance_document_offer_description">Šiai operacijai reikalingas jūsų leidimas ir autentifikavimas.</string>
+    <string name="issuance_document_offer_header_main_text">IŠDAVIMO UŽKLAUSA</string>
+    <string name="issuance_document_offer_relying_party_default_name">@string/generic_default_issuer_name</string>
+    <string name="issuance_document_offer_relying_party_description">nori pridėti šiuos dokumentus</string>
+    <!--endregion-->
+
+    <!-- region Issuance Document Offer Code -->
+    <string name="issuance_code_title">%1$s reikalauja patvirtinimo</string>
+    <string name="issuance_code_caption">Įveskite %1$d skaitmenų operacijos kodą, kurį gavote.</string>
+    <!--endregion-->
+
+    <!-- region Issuance Document Errors -->
+    <string name="issuance_generic_error">Išduodant dokumentą (-us) įvyko klaida</string>
+    <!--endregion-->
+
+    <!-- region Document Categories -->
+    <string name="document_category_government">VALDŽIOS INSTITUCIJOS</string>
+    <string name="document_category_travel">KELIONĖS</string>
+    <string name="document_category_finance">FINANSAI</string>
+    <string name="document_category_education">ŠVIETIMAS</string>
+    <string name="document_category_health">SVEIKATA</string>
+    <string name="document_category_social_security">SOCIALINĖ APSAUGA</string>
+    <string name="document_category_retail">PREKYBA</string>
+    <string name="document_category_other">KITA</string>
+    <!--endregion-->
+
+    <!-- region Transaction Categories -->
+    <string name="transaction_category_today">ŠIANDIEN</string>
+    <string name="transaction_category_this_week">ŠIĄ SAVAITĘ</string>
+    <string name="transaction_category_month_year">MĖNUO</string>
+    <!--endregion-->
+
+</resources>
