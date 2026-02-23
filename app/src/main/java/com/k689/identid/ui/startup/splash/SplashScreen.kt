@@ -53,6 +53,7 @@ import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.utils.OneTimeLaunchedEffect
 import com.k689.identid.ui.component.wrap.WrapImage
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
@@ -95,12 +96,15 @@ private fun Content(
     effectFlow: Flow<Effect>,
     onNavigationRequested: (navigationEffect: Effect.Navigation) -> Unit,
 ) {
-    val visibilityState =
-        remember {
-            MutableTransitionState(false).apply {
-                targetState = true
-            }
-        }
+    val greenCardVisibility = remember { MutableTransitionState(false) }
+    val redCardVisibility = remember { MutableTransitionState(false) }
+
+    LaunchedEffect(Unit) {
+        greenCardVisibility.targetState = true
+        delay(150)
+        redCardVisibility.targetState = true
+    }
+
     Scaffold { paddingValues ->
         Box(
             Modifier
@@ -109,28 +113,47 @@ private fun Content(
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center,
         ) {
-            AnimatedVisibility(
-                visibleState = visibilityState,
-                enter =
-                    fadeIn(animationSpec = tween(state.logoAnimationDuration)) +
+            Box(contentAlignment = Alignment.Center) {
+                AnimatedVisibility(
+                    visibleState = redCardVisibility,
+                    enter =
                         slideIn(
-                            animationSpec = tween(state.logoAnimationDuration),
-                            initialOffset = { fullSize -> IntOffset(fullSize.width / 4, 100) },
-                        ),
-                exit = fadeOut(animationSpec = tween(state.logoAnimationDuration)),
-            ) {
-                Column {
+                            animationSpec = tween(550),
+                            initialOffset = { IntOffset(x = 0, y = 80) },
+                        ) +
+                            fadeIn(
+                                animationSpec = tween(450),
+                            ),
+                    exit = fadeOut(animationSpec = tween(state.logoAnimationDuration)),
+                ) {
                     WrapImage(
-                        iconData = AppIcons.LogoFull,
-                        modifier = Modifier.size(250.dp),
-                    )
-                    Text(
-                        text = "IdentID",
-                        fontSize = 50.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        iconData = AppIcons.RedCard,
+                        modifier = Modifier.size(300.dp),
                     )
                 }
+
+                AnimatedVisibility(
+                    visibleState = greenCardVisibility,
+                    enter =
+                        slideIn(
+                            animationSpec = tween(550),
+                            initialOffset = { IntOffset(x = 0, y = 80) },
+                        ) +
+                            fadeIn(
+                                animationSpec = tween(450),
+                            ),
+                    exit = fadeOut(animationSpec = tween(state.logoAnimationDuration)),
+                ) {
+                    WrapImage(
+                        iconData = AppIcons.GreenCard,
+                        modifier = Modifier.size(300.dp),
+                    )
+                }
+
+                WrapImage(
+                    iconData = AppIcons.YellowCard,
+                    modifier = Modifier.size(300.dp),
+                )
             }
         }
     }

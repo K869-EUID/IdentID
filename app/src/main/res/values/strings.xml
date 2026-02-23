@@ -70,6 +70,11 @@
     <string name="content_description_id_icon">Id</string>
     <string name="content_description_id_stroke_icon">Id stroke</string>
     <string name="content_description_logo_full_icon">Full Logo icon</string>
+    <string name="content_description_yellow_card_icon">Yellow Card icon</string>
+    <string name="content_description_green_card_icon">Green Card icon</string>
+    <string name="content_description_red_card_icon">Red Card icon</string>
+    <string name="content_description_card_logo_icon">App Icon</string>
+    <string name="content_description_card_logo_text_icon">Text Logo icon</string>
     <string name="content_description_logo_plain_icon">Plain Logo icon</string>
     <string name="content_description_logo_text_icon">Text Logo icon</string>
     <string name="content_description_arrow_up_icon">Arrow up</string>
