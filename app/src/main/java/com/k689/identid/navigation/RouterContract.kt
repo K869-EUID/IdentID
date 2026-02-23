@@ -18,7 +18,10 @@ package com.k689.identid.navigation
 
 interface NavigatableItem
 
-open class Screen(name: String, parameters: String = "") : NavigatableItem {
+open class Screen(
+    name: String,
+    parameters: String = "",
+) : NavigatableItem {
     val screenRoute: String = name + parameters
     val screenName = name
 }
@@ -29,9 +32,10 @@ sealed class StartupScreens {
 
 sealed class CommonScreens {
     data object Success : Screen(name = "SUCCESS", parameters = "?successConfig={successConfig}")
+
     data object Biometric : Screen(
         name = "BIOMETRIC",
-        parameters = "?biometricConfig={biometricConfig}"
+        parameters = "?biometricConfig={biometricConfig}",
     )
 
     data object QuickPin :
@@ -39,7 +43,7 @@ sealed class CommonScreens {
 
     data object QrScan : Screen(
         name = "QR_SCAN",
-        parameters = "?qrScanConfig={qrScanConfig}"
+        parameters = "?qrScanConfig={qrScanConfig}",
     )
 }
 
@@ -48,23 +52,25 @@ sealed class DashboardScreens {
 
     data object Settings : Screen(name = "SETTINGS")
 
+    data object Preferences : Screen(name = "PREFERENCES")
+
     data object DocumentSign : Screen(name = "DOCUMENT_SIGN")
 
     data object DocumentDetails : Screen(
         name = "DOCUMENT_DETAILS",
-        parameters = "?documentId={documentId}"
+        parameters = "?documentId={documentId}",
     )
 
     data object TransactionDetails : Screen(
         name = "TRANSACTION_DETAILS",
-        parameters = "?transactionId={transactionId}"
+        parameters = "?transactionId={transactionId}",
     )
 }
 
 sealed class PresentationScreens {
     data object PresentationRequest : Screen(
         name = "PRESENTATION_REQUEST",
-        parameters = "?requestUriConfig={requestUriConfig}"
+        parameters = "?requestUriConfig={requestUriConfig}",
     )
 
     data object PresentationLoading : Screen(name = "PRESENTATION_LOADING")
@@ -75,12 +81,12 @@ sealed class PresentationScreens {
 sealed class ProximityScreens {
     data object QR : Screen(
         name = "PROXIMITY_QR",
-        parameters = "?requestUriConfig={requestUriConfig}"
+        parameters = "?requestUriConfig={requestUriConfig}",
     )
 
     data object Request : Screen(
         name = "PROXIMITY_REQUEST",
-        parameters = "?requestUriConfig={requestUriConfig}"
+        parameters = "?requestUriConfig={requestUriConfig}",
     )
 
     data object Loading : Screen(name = "PROXIMITY_LOADING")
@@ -91,30 +97,37 @@ sealed class ProximityScreens {
 sealed class IssuanceScreens {
     data object AddDocument : Screen(
         name = "ISSUANCE_ADD_DOCUMENT",
-        parameters = "?issuanceConfig={issuanceConfig}"
+        parameters = "?issuanceConfig={issuanceConfig}",
     )
 
     data object DocumentOffer : Screen(
         name = "ISSUANCE_DOCUMENT_OFFER",
-        parameters = "?offerConfig={offerConfig}"
+        parameters = "?offerConfig={offerConfig}",
     )
 
     data object DocumentOfferCode : Screen(
         name = "ISSUANCE_DOCUMENT_OFFER_CODE",
-        parameters = "?offerCodeConfig={offerCodeConfig}"
+        parameters = "?offerCodeConfig={offerCodeConfig}",
     )
 
     data object DocumentIssuanceSuccess : Screen(
         name = "ISSUANCE_DOCUMENT_SUCCESS",
-        parameters = "?issuanceSuccessConfig={issuanceSuccessConfig}"
+        parameters = "?issuanceSuccessConfig={issuanceSuccessConfig}",
     )
 }
 
-sealed class ModuleRoute(val route: String) : NavigatableItem {
+sealed class ModuleRoute(
+    val route: String,
+) : NavigatableItem {
     data object StartupModule : ModuleRoute("STARTUP_MODULE")
+
     data object CommonModule : ModuleRoute("COMMON_MODULE")
+
     data object DashboardModule : ModuleRoute("DASHBOARD_MODULE")
+
     data object PresentationModule : ModuleRoute("PRESENTATION_MODULE")
+
     data object ProximityModule : ModuleRoute("PROXIMITY_MODULE")
+
     data object IssuanceModule : ModuleRoute("ISSUANCE_MODULE")
 }
