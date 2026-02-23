@@ -17,18 +17,23 @@
 package com.k689.identid.ui.component.wrap
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -48,6 +53,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.k689.identid.R
+import com.k689.identid.extension.ui.exposeTestTagsAsResourceId
+import com.k689.identid.extension.ui.optionalTestTag
+import com.k689.identid.extension.ui.throttledClickable
 import com.k689.identid.theme.values.divider
 import com.k689.identid.theme.values.warning
 import com.k689.identid.ui.component.AppIcons
@@ -60,37 +68,32 @@ import com.k689.identid.ui.component.utils.ALPHA_ENABLED
 import com.k689.identid.ui.component.utils.DEFAULT_BIG_ICON_SIZE
 import com.k689.identid.ui.component.utils.DEFAULT_ICON_SIZE
 import com.k689.identid.ui.component.utils.HSpacer
+import com.k689.identid.ui.component.utils.SIZE_MEDIUM
 import com.k689.identid.ui.component.utils.SIZE_SMALL
 import com.k689.identid.ui.component.utils.SPACING_EXTRA_SMALL
 import com.k689.identid.ui.component.utils.SPACING_LARGE
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.utils.VSpacer
-import com.k689.identid.extension.ui.exposeTestTagsAsResourceId
-import com.k689.identid.extension.ui.optionalTestTag
-import com.k689.identid.extension.ui.throttledClickable
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.util.ui.TestTag
 
-private val defaultBottomSheetPadding: PaddingValues = PaddingValues(
-    start = SPACING_LARGE.dp,
-    end = SPACING_LARGE.dp,
-    top = 0.dp,
-    bottom = SPACING_LARGE.dp
-)
-
-private val bottomSheetWithTwoBigIconsPadding: PaddingValues = PaddingValues(
-    start = SPACING_LARGE.dp,
-    end = SPACING_LARGE.dp,
-    top = 0.dp,
-    bottom = 0.dp
-)
+private val defaultBottomSheetPadding: PaddingValues =
+    PaddingValues(
+        start = SPACING_LARGE.dp,
+        end = SPACING_LARGE.dp,
+        top = 0.dp,
+        bottom = SPACING_LARGE.dp,
+    )
 
 private val bottomSheetDefaultBackgroundColor: Color
     @Composable get() = MaterialTheme.colorScheme.surfaceContainerLowest
 
 private val bottomSheetDefaultTextColor: Color
     @Composable get() = MaterialTheme.colorScheme.onSurface
+
+private val bottomSheetSecondaryTextColor: Color
+    @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
 /**
  * Data class representing the text content for a bottom sheet.
@@ -126,9 +129,10 @@ fun WrapModalBottomSheet(
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        modifier = Modifier
-            .exposeTestTagsAsResourceId()
-            .then(modifier),
+        modifier =
+            Modifier
+                .exposeTestTagsAsResourceId()
+                .then(modifier),
         sheetState = sheetState,
         shape = shape,
         dragHandle = dragHandle,
@@ -157,11 +161,12 @@ fun GenericBottomSheet(
     sheetPadding: PaddingValues = defaultBottomSheetPadding,
 ) {
     Column(
-        modifier = Modifier
-            .wrapContentHeight()
-            .background(color = sheetBackgroundColor)
-            .fillMaxWidth()
-            .padding(sheetPadding)
+        modifier =
+            Modifier
+                .wrapContentHeight()
+                .background(color = sheetBackgroundColor)
+                .fillMaxWidth()
+                .padding(sheetPadding),
     ) {
         titleContent()
         VSpacer.Medium()
@@ -174,9 +179,9 @@ fun GenericBottomSheet(
  *
  * This bottom sheet presents information to the user with optional icons,
  * title, message, and two buttons for positive and negative actions.
+ * Buttons are laid out side-by-side and fill equal width.
  *
- * @param textData Data class containing the text content for the bottom sheet. This includes
- *                 title, message, positive button text, and negative button text.
+ * @param textData Data class containing the text content for the bottom sheet.
  * @param leadingIcon An optional icon to be displayed at the beginning of the title.
  * @param leadingIconTint An optional tint color for the leading icon.
  * @param onPositiveClick A lambda function to be executed when the positive button is clicked.
@@ -197,51 +202,59 @@ fun DialogBottomSheet(
         leadingIcon = leadingIcon,
         leadingIconTint = leadingIconTint,
         bodyContent = {
+            VSpacer.Small()
             Row(
-                modifier = Modifier.padding(vertical = SPACING_EXTRA_SMALL.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 textData.negativeButtonText?.let { safeNegativeButtonText ->
                     WrapButton(
-                        modifier = Modifier
-                            .optionalTestTag(negativeButtonTestTag)
-                            .weight(1f),
-                        buttonConfig = ButtonConfig(
-                            type = ButtonType.SECONDARY,
-                            onClick = onNegativeClick,
-                            isWarning = textData.isNegativeButtonWarning,
-                        )
+                        modifier =
+                            Modifier
+                                .optionalTestTag(negativeButtonTestTag)
+                                .weight(1f),
+                        buttonConfig =
+                            ButtonConfig(
+                                type = ButtonType.SECONDARY,
+                                onClick = onNegativeClick,
+                                isWarning = textData.isNegativeButtonWarning,
+                            ),
                     ) {
                         Text(
                             text = safeNegativeButtonText,
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
 
-                HSpacer.Small()
-
                 textData.positiveButtonText?.let { safePositiveButtonText ->
                     WrapButton(
-                        modifier = Modifier
-                            .optionalTestTag(positiveButtonTestTag)
-                            .weight(1f),
-                        buttonConfig = ButtonConfig(
-                            type = ButtonType.PRIMARY,
-                            onClick = onPositiveClick,
-                            isWarning = textData.isPositiveButtonWarning,
-                        )
+                        modifier =
+                            Modifier
+                                .optionalTestTag(positiveButtonTestTag)
+                                .weight(1f),
+                        buttonConfig =
+                            ButtonConfig(
+                                type = ButtonType.PRIMARY,
+                                onClick = onPositiveClick,
+                                isWarning = textData.isPositiveButtonWarning,
+                            ),
                     ) {
                         Text(
                             text = safePositiveButtonText,
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
                 }
             }
-        }
+        },
     )
 }
 
@@ -250,15 +263,10 @@ fun DialogBottomSheet(
  *
  * This function displays a basic bottom sheet with a title and message.
  * It can optionally include a leading icon with a custom tint.
- * It utilizes the `BaseBottomSheet` composable for its core functionality, providing a
- * standardized structure for bottom sheets.
  *
- * @param textData An object of type `BottomSheetTextData` containing the title and message
- * to be displayed in the bottom sheet.
- * @param leadingIcon An optional `IconData` object representing the icon to be displayed
- * at the leading edge of the bottom sheet.
- * @param leadingIconTint An optional `Color` to apply as a tint to the leading icon. If null,
- * the default icon color will be used.
+ * @param textData An object containing the title and message to be displayed.
+ * @param leadingIcon An optional icon displayed at the leading edge of the title.
+ * @param leadingIconTint An optional tint color for the leading icon.
  */
 @Composable
 fun SimpleBottomSheet(
@@ -283,37 +291,40 @@ private fun BaseBottomSheet(
     sheetPadding: PaddingValues = defaultBottomSheetPadding,
 ) {
     Column(
-        modifier = Modifier
-            .wrapContentHeight()
-            .background(color = sheetBackgroundColor)
-            .fillMaxWidth()
-            .padding(sheetPadding),
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        modifier =
+            Modifier
+                .wrapContentHeight()
+                .background(color = sheetBackgroundColor)
+                .fillMaxWidth()
+                .padding(sheetPadding),
+        verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Start),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             leadingIcon?.let { safeLeadingIcon ->
                 WrapIcon(
                     modifier = Modifier.size(DEFAULT_ICON_SIZE.dp),
                     iconData = safeLeadingIcon,
-                    customTint = leadingIconTint
+                    customTint = leadingIconTint,
                 )
             }
             Text(
                 text = textData.title,
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    color = bottomSheetDefaultTextColor
-                )
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        color = bottomSheetDefaultTextColor,
+                    ),
             )
         }
 
         Text(
             text = textData.message,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = bottomSheetDefaultTextColor
-            )
+            style =
+                MaterialTheme.typography.bodyMedium.copy(
+                    color = bottomSheetSecondaryTextColor,
+                ),
         )
 
         bodyContent?.let { safeBodyContent ->
@@ -322,6 +333,18 @@ private fun BaseBottomSheet(
     }
 }
 
+/**
+ * A bottom sheet composable that presents two prominent action choices side by side.
+ *
+ * Each option is rendered as a fully-clickable card with a large icon and a label.
+ * A circular "or" badge is overlaid at the center without consuming horizontal space.
+ * Both cards are forced to the same height via [IntrinsicSize.Max].
+ *
+ * @param textData Text content for the header (title + message).
+ * @param options Exactly two [ModalOptionUi] items to display.
+ * @param onEventSent Callback invoked with the selected option's event.
+ * @param hostTab Optional identifier used for generating test tags.
+ */
 @Composable
 fun <T : ViewEvent> BottomSheetWithTwoBigIcons(
     textData: BottomSheetTextDataUi,
@@ -332,73 +355,100 @@ fun <T : ViewEvent> BottomSheetWithTwoBigIcons(
     if (options.size == 2) {
         BaseBottomSheet(
             textData = textData,
-            sheetPadding = bottomSheetWithTwoBigIconsPadding,
             bodyContent = {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Top,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    options.forEachIndexed { index, item ->
-                        if (index == 1) {
-                            Text(
-                                modifier = Modifier.align(Alignment.CenterVertically),
-                                text = stringResource(
-                                    R.string.documents_screen_add_document_option_or
-                                ),
-                                style = MaterialTheme.typography.bodySmall.copy(
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            )
-                        }
+                VSpacer.Small()
 
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .padding(vertical = SPACING_MEDIUM.dp),
-                            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            item.leadingIcon?.let { safeLeadingIcon ->
-                                WrapImage(
-                                    modifier = Modifier
-                                        .size(DEFAULT_BIG_ICON_SIZE.dp)
-                                        .alpha(
-                                            alpha = ALPHA_ENABLED.takeIf { item.enabled }
-                                                ?: ALPHA_DISABLED
-                                        ),
-                                    iconData = safeLeadingIcon,
-                                )
-                            }
-                            WrapButton(
-                                modifier = Modifier
-                                    .optionalTestTag(
-                                        hostTab?.let { safeHostTab ->
-                                            TestTag.buttonInBottomSheetWithTwoBigIcons(
-                                                hostTab = safeHostTab,
-                                                index = index
-                                            )
-                                        }
-                                    )
-                                    .wrapContentWidth(),
-                                buttonConfig = ButtonConfig(
-                                    type = ButtonType.PRIMARY,
-                                    onClick = { onEventSent(item.event) },
-                                    enabled = item.enabled
-                                )
-                            ) {
-                                Text(
-                                    text = item.title,
-                                    style = MaterialTheme.typography.labelLarge.copy(
-                                        color = MaterialTheme.colorScheme.onPrimary
-                                    ),
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        }
-                    }
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(IntrinsicSize.Max),
+                ) {
+                    BigIconOptionCard(
+                        modifier = Modifier.weight(1f),
+                        item = options[0],
+                        index = 0,
+                        hostTab = hostTab,
+                        onEventSent = onEventSent,
+                    )
+
+                    HSpacer.Medium()
+
+                    BigIconOptionCard(
+                        modifier = Modifier.weight(1f),
+                        item = options[1],
+                        index = 1,
+                        hostTab = hostTab,
+                        onEventSent = onEventSent,
+                    )
                 }
-            }
+
+                VSpacer.Small()
+            },
+        )
+    }
+}
+
+/**
+ * A single clickable option card used inside [BottomSheetWithTwoBigIcons].
+ *
+ * The entire card is the tap target. It shows a large icon at the top and
+ * the option title below it, centered. Both cards share the same height
+ * via the parent's [IntrinsicSize.Max] constraint.
+ */
+@Composable
+private fun <T : ViewEvent> BigIconOptionCard(
+    modifier: Modifier = Modifier,
+    item: ModalOptionUi<T>,
+    index: Int,
+    hostTab: String?,
+    onEventSent: (T) -> Unit,
+) {
+    val cardShape = RoundedCornerShape(SIZE_MEDIUM.dp)
+    val containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+    val borderColor = MaterialTheme.colorScheme.outlineVariant
+
+    Column(
+        modifier =
+            modifier
+                .fillMaxHeight()
+                .clip(cardShape)
+                .border(
+                    width = 1.dp,
+                    color = borderColor,
+                    shape = cardShape,
+                ).background(containerColor)
+                .alpha(
+                    alpha = ALPHA_ENABLED.takeIf { item.enabled } ?: ALPHA_DISABLED,
+                ).optionalTestTag(
+                    hostTab?.let { safeHostTab ->
+                        TestTag.buttonInBottomSheetWithTwoBigIcons(
+                            hostTab = safeHostTab,
+                            index = index,
+                        )
+                    },
+                ).throttledClickable(enabled = item.enabled) {
+                    onEventSent(item.event)
+                }.padding(SPACING_MEDIUM.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item.leadingIcon?.let { safeLeadingIcon ->
+            WrapImage(
+                modifier = Modifier.size(DEFAULT_BIG_ICON_SIZE.dp),
+                iconData = safeLeadingIcon,
+            )
+            VSpacer.Medium()
+        }
+
+        Text(
+            text = item.title,
+            style =
+                MaterialTheme.typography.titleSmall.copy(
+                    color = bottomSheetDefaultTextColor,
+                ),
+            textAlign = TextAlign.Center,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -416,14 +466,14 @@ fun <T : ViewEvent> BottomSheetWithOptionsList(
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.Start
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     OptionsList(
                         optionItems = options,
-                        itemSelected = onEventSent
+                        itemSelected = onEventSent,
                     )
                 }
-            }
+            },
         )
     }
 }
@@ -434,18 +484,20 @@ private fun <T : ViewEvent> OptionsList(
     itemSelected: (T) -> Unit,
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
+        verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
         itemsIndexed(optionItems) { index, item ->
 
             OptionListItem(
                 item = item,
-                itemSelected = itemSelected
+                itemSelected = itemSelected,
             )
 
             if (index < optionItems.lastIndex) {
                 HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = SPACING_EXTRA_SMALL.dp),
                     thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 )
             }
         }
@@ -458,18 +510,18 @@ private fun <T : ViewEvent> OptionListItem(
     itemSelected: (T) -> Unit,
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(SIZE_SMALL.dp))
-            .background(bottomSheetDefaultBackgroundColor)
-            .throttledClickable {
-                itemSelected(item.event)
-            }
-            .padding(
-                vertical = SPACING_MEDIUM.dp
-            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(SIZE_SMALL.dp))
+                .throttledClickable {
+                    itemSelected(item.event)
+                }.padding(
+                    horizontal = SPACING_EXTRA_SMALL.dp,
+                    vertical = SPACING_MEDIUM.dp,
+                ),
         horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Start),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         item.leadingIcon?.let { safeLeadingIcon ->
             WrapIcon(
@@ -482,9 +534,10 @@ private fun <T : ViewEvent> OptionListItem(
         Text(
             modifier = Modifier.weight(1f),
             text = item.title,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = bottomSheetDefaultTextColor
-            ),
+            style =
+                MaterialTheme.typography.bodyLarge.copy(
+                    color = bottomSheetDefaultTextColor,
+                ),
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
@@ -502,19 +555,22 @@ private fun <T : ViewEvent> OptionListItem(
 @Composable
 private fun BottomSheetDefaultHandle() {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(bottomSheetDefaultBackgroundColor)
-            .padding(vertical = SPACING_MEDIUM.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(bottomSheetDefaultBackgroundColor)
+                .padding(vertical = SPACING_MEDIUM.dp),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         WrapIcon(
             iconData = AppIcons.HandleBar,
-            customTint = MaterialTheme.colorScheme.divider
+            customTint = MaterialTheme.colorScheme.divider,
         )
     }
 }
+
+// region Previews
 
 @ThemeModePreviews
 @Composable
@@ -529,10 +585,11 @@ private fun BottomSheetDefaultHandlePreview() {
 private fun SimpleBottomSheetPreview() {
     PreviewTheme {
         SimpleBottomSheet(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message",
-            )
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Title",
+                    message = "Message",
+                ),
         )
     }
 }
@@ -542,12 +599,32 @@ private fun SimpleBottomSheetPreview() {
 private fun SimpleBottomSheetWithLeadingIconPreview() {
     PreviewTheme {
         SimpleBottomSheet(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message",
-            ),
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Title",
+                    message = "Message",
+                ),
             leadingIcon = AppIcons.Warning,
             leadingIconTint = MaterialTheme.colorScheme.warning,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun SimpleBottomSheetLongContentPreview() {
+    PreviewTheme {
+        SimpleBottomSheet(
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Verify your identity",
+                    message =
+                        "To proceed, we need to verify your identity. " +
+                            "Please have your government-issued ID ready and " +
+                            "ensure you are in a well-lit environment.",
+                ),
+            leadingIcon = AppIcons.IdStroke,
+            leadingIconTint = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -557,12 +634,49 @@ private fun SimpleBottomSheetWithLeadingIconPreview() {
 private fun DialogBottomSheetPreview() {
     PreviewTheme {
         DialogBottomSheet(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message",
-                positiveButtonText = "OK",
-                negativeButtonText = "Cancel"
-            )
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Title",
+                    message = "Message",
+                    positiveButtonText = "OK",
+                    negativeButtonText = "Cancel",
+                ),
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun DialogBottomSheetWarningPreview() {
+    PreviewTheme {
+        DialogBottomSheet(
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Delete document?",
+                    message = "This action cannot be undone. The document will be permanently removed from your wallet.",
+                    positiveButtonText = "Delete",
+                    isPositiveButtonWarning = true,
+                    negativeButtonText = "Keep it",
+                ),
+            leadingIcon = AppIcons.Warning,
+            leadingIconTint = MaterialTheme.colorScheme.warning,
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun DialogBottomSheetSingleButtonPreview() {
+    PreviewTheme {
+        DialogBottomSheet(
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Success",
+                    message = "Your document has been added to the wallet.",
+                    positiveButtonText = "Got it",
+                ),
+            leadingIcon = AppIcons.Verified,
+            leadingIconTint = MaterialTheme.colorScheme.primary,
         )
     }
 }
@@ -574,49 +688,77 @@ private data object DummyEventForPreview : ViewEvent
 private fun BottomSheetWithOptionsListPreview() {
     PreviewTheme {
         BottomSheetWithOptionsList(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message"
-            ),
-            options = buildList {
-                addAll(
-                    listOf(
-                        ModalOptionUi(
-                            title = "Option with no icons",
-                            event = DummyEventForPreview,
-                        ),
-                        ModalOptionUi(
-                            title = "Option with leading icon",
-                            leadingIcon = AppIcons.Verified,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                        ),
-                        ModalOptionUi(
-                            title = "Option with leading icon",
-                            trailingIcon = AppIcons.Edit,
-                            trailingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                        ),
-                        ModalOptionUi(
-                            title = "Option with leading and trailing icon",
-                            leadingIcon = AppIcons.Add,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            trailingIcon = AppIcons.ClockTimer,
-                            trailingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                        ),
-                        ModalOptionUi(
-                            title = "Option with leading and trailing icon and really really really really really long text",
-                            leadingIcon = AppIcons.Add,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            trailingIcon = AppIcons.ClockTimer,
-                            trailingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                        ),
-                    )
-                )
-            },
-            onEventSent = {}
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Choose an option",
+                    message = "Select how you want to proceed",
+                ),
+            options =
+                listOf(
+                    ModalOptionUi(
+                        title = "Option with no icons",
+                        event = DummyEventForPreview,
+                    ),
+                    ModalOptionUi(
+                        title = "Option with leading icon",
+                        leadingIcon = AppIcons.Verified,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                    ),
+                    ModalOptionUi(
+                        title = "Option with trailing icon",
+                        trailingIcon = AppIcons.Edit,
+                        trailingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                    ),
+                    ModalOptionUi(
+                        title = "Option with leading and trailing icon",
+                        leadingIcon = AppIcons.Add,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        trailingIcon = AppIcons.ClockTimer,
+                        trailingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                    ),
+                    ModalOptionUi(
+                        title = "Option with leading and trailing icon and really really really really really long text",
+                        leadingIcon = AppIcons.Add,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        trailingIcon = AppIcons.ClockTimer,
+                        trailingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                    ),
+                ),
+            onEventSent = {},
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun BottomSheetWithTwoBigIconsShortTextPreview() {
+    PreviewTheme {
+        BottomSheetWithTwoBigIcons(
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Add document",
+                    message = "Add documents to your wallet by choosing from a list or by scanning a provided QR code.",
+                ),
+            options =
+                listOf(
+                    ModalOptionUi(
+                        title = "From authorized source",
+                        leadingIcon = AppIcons.AddDocumentFromList,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                    ModalOptionUi(
+                        title = "Scan QR",
+                        leadingIcon = AppIcons.AddDocumentFromQr,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                ),
+            onEventSent = {},
         )
     }
 }
@@ -626,31 +768,61 @@ private fun BottomSheetWithOptionsListPreview() {
 private fun BottomSheetWithTwoBigIconsEvenTextPreview() {
     PreviewTheme {
         BottomSheetWithTwoBigIcons(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message"
-            ),
-            options = buildList {
-                addAll(
-                    listOf(
-                        ModalOptionUi(
-                            title = "Enabled Option with leading icon",
-                            leadingIcon = AppIcons.PresentDocumentInPerson,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                            enabled = true,
-                        ),
-                        ModalOptionUi(
-                            title = "Disabled Option with leading icon",
-                            leadingIcon = AppIcons.PresentDocumentOnline,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                            enabled = false,
-                        ),
-                    )
-                )
-            },
-            onEventSent = {}
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Present document",
+                    message = "Choose how to present your document",
+                ),
+            options =
+                listOf(
+                    ModalOptionUi(
+                        title = "Enabled Option with icon",
+                        leadingIcon = AppIcons.PresentDocumentInPerson,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                    ModalOptionUi(
+                        title = "Disabled Option with icon",
+                        leadingIcon = AppIcons.PresentDocumentOnline,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = false,
+                    ),
+                ),
+            onEventSent = {},
+        )
+    }
+}
+
+@ThemeModePreviews
+@Composable
+private fun BottomSheetWithTwoBigIconsLongTextPreview() {
+    PreviewTheme {
+        BottomSheetWithTwoBigIcons(
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Sign document",
+                    message = "Choose how you would like to sign your document",
+                ),
+            options =
+                listOf(
+                    ModalOptionUi(
+                        title = "Present document in person at a physical location",
+                        leadingIcon = AppIcons.PresentDocumentInPerson,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                    ModalOptionUi(
+                        title = "Present document remotely via online verification",
+                        leadingIcon = AppIcons.PresentDocumentOnline,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                ),
+            onEventSent = {},
         )
     }
 }
@@ -660,31 +832,31 @@ private fun BottomSheetWithTwoBigIconsEvenTextPreview() {
 private fun BottomSheetWithTwoBigIconsUnevenTextPreview() {
     PreviewTheme {
         BottomSheetWithTwoBigIcons(
-            textData = BottomSheetTextDataUi(
-                title = "Title",
-                message = "Message"
-            ),
-            options = buildList {
-                addAll(
-                    listOf(
-                        ModalOptionUi(
-                            title = "Enabled Option a lot of text",
-                            leadingIcon = AppIcons.PresentDocumentInPerson,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                            enabled = true,
-                        ),
-                        ModalOptionUi(
-                            title = "Enabled Option",
-                            leadingIcon = AppIcons.PresentDocumentOnline,
-                            leadingIconTint = MaterialTheme.colorScheme.primary,
-                            event = DummyEventForPreview,
-                            enabled = true,
-                        ),
-                    )
-                )
-            },
-            onEventSent = {}
+            textData =
+                BottomSheetTextDataUi(
+                    title = "Add document",
+                    message = "Choose how to add your document",
+                ),
+            options =
+                listOf(
+                    ModalOptionUi(
+                        title = "Enabled option with a lot of descriptive text here",
+                        leadingIcon = AppIcons.PresentDocumentInPerson,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                    ModalOptionUi(
+                        title = "Short",
+                        leadingIcon = AppIcons.PresentDocumentOnline,
+                        leadingIconTint = MaterialTheme.colorScheme.primary,
+                        event = DummyEventForPreview,
+                        enabled = true,
+                    ),
+                ),
+            onEventSent = {},
         )
     }
 }
+
+// endregion
