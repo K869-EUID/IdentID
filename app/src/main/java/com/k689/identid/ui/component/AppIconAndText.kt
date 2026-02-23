@@ -18,6 +18,9 @@ package com.k689.identid.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,8 +31,8 @@ import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.WrapImage
 
 data class AppIconAndTextDataUi(
-    val appIcon: IconDataUi = AppIcons.LogoPlain,
-    val appText: IconDataUi = AppIcons.LogoText,
+    val appIcon: IconDataUi = AppIcons.CardLogo,
+    val appText: IconDataUi = AppIcons.CardLogoText,
 )
 
 @Composable
@@ -46,8 +49,14 @@ fun AppIconAndText(
             ),
         verticalAlignment = Alignment.Top,
     ) {
-        WrapImage(iconData = appIconAndTextData.appIcon)
-        WrapImage(iconData = appIconAndTextData.appText)
+        WrapImage(
+            modifier = Modifier.size(width = 44.dp, height = 32.dp),
+            iconData = appIconAndTextData.appIcon,
+        )
+        WrapImage(
+            modifier = Modifier.size(width = 73.dp, height = 38.dp),
+            iconData = appIconAndTextData.appText,
+        )
     }
 }
 
@@ -58,8 +67,8 @@ private fun AppIconAndTextPreview() {
         AppIconAndText(
             appIconAndTextData =
                 AppIconAndTextDataUi(
-                    appIcon = AppIcons.LogoPlain,
-                    appText = AppIcons.LogoText,
+                    appIcon = AppIcons.CardLogo,
+                    appText = AppIcons.CardLogoText,
                 ),
         )
     }

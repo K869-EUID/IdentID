@@ -22,9 +22,12 @@ import androidx.core.content.edit
 import com.k689.identid.extension.business.shuffle
 import com.k689.identid.extension.business.unShuffle
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.theme.AppTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 interface PrefsController {
-
     /**
      * Defines if [SharedPreferences] contains a value for given [key]. This function will only
      * identify if a key exists in storage and will not check if corresponding value is valid.
@@ -54,17 +57,9 @@ interface PrefsController {
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
-    fun setString(key: String, value: String)
-
-    /**
-     * Assigns given [value] to device storage - shared preferences given [key]. You can
-     * retrieve this value by calling [getString].
-     *
-     * @param key   Key used to add given [value].
-     * @param value Value to add after given [key].
-     */
-    fun setLong(
-        key: String, value: Long
+    fun setString(
+        key: String,
+        value: String,
     )
 
     /**
@@ -74,7 +69,22 @@ interface PrefsController {
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
-    fun setBool(key: String, value: Boolean)
+    fun setLong(
+        key: String,
+        value: Long,
+    )
+
+    /**
+     * Assigns given [value] to device storage - shared preferences given [key]. You can
+     * retrieve this value by calling [getString].
+     *
+     * @param key   Key used to add given [value].
+     * @param value Value to add after given [key].
+     */
+    fun setBool(
+        key: String,
+        value: Boolean,
+    )
 
     /**
      * Retrieves a string value from device shared preferences that corresponds to given [key]. If
@@ -84,7 +94,10 @@ interface PrefsController {
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
      */
-    fun getString(key: String, defaultValue: String): String
+    fun getString(
+        key: String,
+        defaultValue: String,
+    ): String
 
     /**
      * Retrieves a long value from device shared preferences that corresponds to given [key]. If
@@ -94,7 +107,10 @@ interface PrefsController {
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
      */
-    fun getLong(key: String, defaultValue: Long): Long
+    fun getLong(
+        key: String,
+        defaultValue: Long,
+    ): Long
 
     /**
      * Retrieves a boolean value from the device's shared preferences associated with the given [key].
@@ -108,7 +124,10 @@ interface PrefsController {
      * @param defaultValue The boolean value to return if the [key] is not found or has a null value.
      * @return The boolean value associated with the [key], or the [defaultValue] if the [key] is not found or has a null value.
      */
-    fun getBool(key: String, defaultValue: Boolean): Boolean
+    fun getBool(
+        key: String,
+        defaultValue: Boolean,
+    ): Boolean
 
     /**
      * Sets an integer value associated with the given key in the underlying data store.
@@ -117,7 +136,10 @@ interface PrefsController {
      * @param key The unique identifier for the integer value.  Must not be null or empty.
      * @param value The integer value to store.
      */
-    fun setInt(key: String, value: Int)
+    fun setInt(
+        key: String,
+        value: Int,
+    )
 
     /**
      * Retrieves an integer value associated with the given key from a data source.
@@ -127,7 +149,10 @@ interface PrefsController {
      * @param defaultValue The default integer value to return if the key is not found or the value is not an integer.
      * @return The integer value associated with the key, or the default value if the key is not found or the value is invalid.
      */
-    fun getInt(key: String, defaultValue: Int): Int
+    fun getInt(
+        key: String,
+        defaultValue: Int,
+    ): Int
 }
 
 /**
@@ -141,10 +166,8 @@ interface PrefsController {
  *                           including the application context for obtaining SharedPreferences.
  */
 class PrefsControllerImpl(
-    private val resourceProvider: ResourceProvider
+    private val resourceProvider: ResourceProvider,
 ) : PrefsController {
-
-
     /**
      * Retrieves the SharedPreferences instance for the application.
      *
@@ -154,9 +177,7 @@ class PrefsControllerImpl(
      *
      * @return The SharedPreferences instance.
      */
-    private fun getSharedPrefs(): SharedPreferences {
-        return resourceProvider.provideContext().getSharedPreferences("eudi-wallet", MODE_PRIVATE)
-    }
+    private fun getSharedPrefs(): SharedPreferences = resourceProvider.provideContext().getSharedPreferences("eudi-wallet", MODE_PRIVATE)
 
     /**
      * Defines if [SharedPreferences] contains a value for given [key]. This function will only
@@ -166,9 +187,7 @@ class PrefsControllerImpl(
      *
      * @return `true` if preferences contain given key. `false` otherwise.
      */
-    override fun contains(key: String): Boolean {
-        return getSharedPrefs().contains(key)
-    }
+    override fun contains(key: String): Boolean = getSharedPrefs().contains(key)
 
     /**
      * Removes given preference key from shared preferences. Notice that this operation is
@@ -196,7 +215,10 @@ class PrefsControllerImpl(
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
-    override fun setString(key: String, value: String) {
+    override fun setString(
+        key: String,
+        value: String,
+    ) {
         getSharedPrefs().edit {
             putString(key, value.shuffle())
         }
@@ -213,7 +235,8 @@ class PrefsControllerImpl(
      * @param value Value to add after given [key].
      */
     override fun setLong(
-        key: String, value: Long
+        key: String,
+        value: Long,
     ) {
         getSharedPrefs().edit {
             putLong(key, value)
@@ -230,7 +253,10 @@ class PrefsControllerImpl(
      * @param key   Key used to add given [value].
      * @param value Value to add after given [key].
      */
-    override fun setBool(key: String, value: Boolean) {
+    override fun setBool(
+        key: String,
+        value: Boolean,
+    ) {
         getSharedPrefs().edit {
             putBoolean(key, value)
         }
@@ -247,9 +273,10 @@ class PrefsControllerImpl(
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
      */
-    override fun getString(key: String, defaultValue: String): String {
-        return getSharedPrefs().getString(key, null)?.unShuffle() ?: defaultValue
-    }
+    override fun getString(
+        key: String,
+        defaultValue: String,
+    ): String = getSharedPrefs().getString(key, null)?.unShuffle() ?: defaultValue
 
     /**
      * Retrieves a long value from device shared preferences that corresponds to given [key]. If
@@ -262,9 +289,10 @@ class PrefsControllerImpl(
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
      */
-    override fun getLong(key: String, defaultValue: Long): Long {
-        return getSharedPrefs().getLong(key, defaultValue)
-    }
+    override fun getLong(
+        key: String,
+        defaultValue: Long,
+    ): Long = getSharedPrefs().getLong(key, defaultValue)
 
     /**
      * Retrieves a boolean value from device shared preferences that corresponds to given [key]. If
@@ -277,9 +305,10 @@ class PrefsControllerImpl(
      * @param defaultValue Default value to return if given [key] does not exist in prefs or if
      * key value is invalid.
      */
-    override fun getBool(key: String, defaultValue: Boolean): Boolean {
-        return getSharedPrefs().getBoolean(key, defaultValue)
-    }
+    override fun getBool(
+        key: String,
+        defaultValue: Boolean,
+    ): Boolean = getSharedPrefs().getBoolean(key, defaultValue)
 
     /**
      * Retrieves an integer value from SharedPreferences associated with the given key.
@@ -289,9 +318,10 @@ class PrefsControllerImpl(
      * @param defaultValue The default integer value to return if no value is found for the key.
      * @return The integer value associated with the key, or the default value if no value is found.
      */
-    override fun getInt(key: String, defaultValue: Int): Int {
-        return getSharedPrefs().getInt(key, defaultValue)
-    }
+    override fun getInt(
+        key: String,
+        defaultValue: Int,
+    ): Int = getSharedPrefs().getInt(key, defaultValue)
 
     /**
      * Sets an integer value in the shared preferences.
@@ -299,7 +329,10 @@ class PrefsControllerImpl(
      * @param key The key under which the value should be stored.
      * @param value The integer value to be stored.
      */
-    override fun setInt(key: String, value: Int) {
+    override fun setInt(
+        key: String,
+        value: Int,
+    ) {
         getSharedPrefs().edit {
             putInt(key, value)
         }
@@ -308,13 +341,41 @@ class PrefsControllerImpl(
 
 interface PrefKeys {
     fun getCryptoAlias(): String
+
     fun setCryptoAlias(value: String)
+
+    val theme: StateFlow<AppTheme>
+
+    fun setTheme(theme: AppTheme)
+
+    fun loadTheme(): AppTheme
 }
 
 class PrefKeysImpl(
-    private val prefsController: PrefsController
+    private val prefsController: PrefsController,
 ) : PrefKeys {
+    companion object {
+        private const val THEME_KEY = "AppTheme"
+        private const val CRYPTO_KEY = "CryptoAlias"
+    }
 
+    private val _theme = MutableStateFlow(loadTheme())
+
+    override val theme = _theme.asStateFlow()
+
+    override fun loadTheme(): AppTheme {
+        val theme = prefsController.getString(THEME_KEY, "")
+        return try {
+            AppTheme.valueOf(theme)
+        } catch (_: Exception) {
+            AppTheme.SYSTEM
+        }
+    }
+
+    override fun setTheme(theme: AppTheme) {
+        prefsController.setString(THEME_KEY, theme.name)
+        _theme.value = theme
+    }
 
     /**
      * Retrieves the alias used for cryptographic operations from SharedPreferences.
@@ -324,10 +385,7 @@ class PrefKeysImpl(
      * @return The crypto alias string. Returns an empty string if the alias is not found
      *         or has not been set.
      */
-    override fun getCryptoAlias(): String {
-        return prefsController.getString("CryptoAlias", "")
-    }
-
+    override fun getCryptoAlias(): String = prefsController.getString(CRYPTO_KEY, "")
 
     /**
      * Stores the crypto alias used for the secret key in android keystore.
@@ -336,6 +394,6 @@ class PrefKeysImpl(
      * @param value the crypto alias value.
      */
     override fun setCryptoAlias(value: String) {
-        prefsController.setString("CryptoAlias", value)
+        prefsController.setString(CRYPTO_KEY, value)
     }
 }
