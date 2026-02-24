@@ -16,7 +16,6 @@
 
 package com.k689.identid.ui.component.wrap
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import com.k689.identid.theme.ThemeManager
 import com.k689.identid.theme.values.allCorneredShapeLarge
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.preview.PreviewTheme
@@ -36,14 +36,14 @@ private val primaryFabContainerColor: Color
     @Composable get() = MaterialTheme.colorScheme.primary
 
 private val primaryFabContentColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color.White
     } else {
         MaterialTheme.colorScheme.surface
     }
 
 private val secondaryFabContainerColor: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color.DarkGray
     } else {
         MaterialTheme.colorScheme.surface

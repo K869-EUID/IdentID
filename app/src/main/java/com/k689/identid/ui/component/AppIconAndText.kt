@@ -21,9 +21,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
@@ -56,6 +58,7 @@ fun AppIconAndText(
         WrapImage(
             modifier = Modifier.size(width = 73.dp, height = 38.dp),
             iconData = appIconAndTextData.appText,
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onSurface),
         )
     }
 }

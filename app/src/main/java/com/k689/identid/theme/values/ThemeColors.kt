@@ -16,7 +16,6 @@
 
 package com.k689.identid.theme.values
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -306,28 +305,28 @@ class ThemeColors {
 }
 
 val ColorScheme.success: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color(ThemeColors.eudiw_theme_dark_success)
     } else {
         Color(ThemeColors.eudiw_theme_light_success)
     }
 
 val ColorScheme.warning: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color(ThemeColors.eudiw_theme_dark_warning)
     } else {
         Color(ThemeColors.eudiw_theme_light_warning)
     }
 
 val ColorScheme.pending: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color(ThemeColors.eudiw_theme_dark_pending)
     } else {
         Color(ThemeColors.eudiw_theme_light_pending)
     }
 
 val ColorScheme.divider: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
+    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
         Color(ThemeColors.eudiw_theme_dark_divider)
     } else {
         Color(ThemeColors.eudiw_theme_light_divider)
