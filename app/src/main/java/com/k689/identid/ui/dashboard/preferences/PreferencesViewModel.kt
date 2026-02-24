@@ -3,6 +3,7 @@ package com.k689.identid.ui.dashboard.preferences
 import com.k689.identid.R
 import com.k689.identid.controller.storage.PrefKeys
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.theme.AppLanguage
 import com.k689.identid.theme.AppTheme
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
@@ -12,7 +13,10 @@ import org.koin.android.annotation.KoinViewModel
 
 data class State(
     val screenTitle: String,
+    val themeLabel: String = "",
+    val languageLabel: String = "",
     val selectedTheme: AppTheme = AppTheme.SYSTEM,
+    val selectedLanguage: AppLanguage = AppLanguage.SYSTEM,
 ) : ViewState
 
 sealed class Event : ViewEvent {
@@ -20,6 +24,10 @@ sealed class Event : ViewEvent {
 
     data class OnThemeSelected(
         val theme: AppTheme,
+    ) : Event()
+
+    data class OnLanguageSelected(
+        val language: AppLanguage,
     ) : Event()
 }
 
@@ -37,7 +45,10 @@ class PreferencesViewModel(
     override fun setInitialState(): State =
         State(
             screenTitle = resourceProvider.getString(R.string.preferences_screen_title),
+            themeLabel = resourceProvider.getString(R.string.preferences_theme_label),
+            languageLabel = resourceProvider.getString(R.string.preferences_language_label),
             selectedTheme = prefKeys.theme.value,
+            selectedLanguage = AppLanguage.fromCurrentLocale(resourceProvider.provideContext()),
         )
 
     override fun handleEvents(event: Event) {
@@ -49,6 +60,13 @@ class PreferencesViewModel(
             is Event.OnThemeSelected -> {
                 prefKeys.setTheme(event.theme)
                 setState { copy(selectedTheme = event.theme) }
+            }
+
+            is Event.OnLanguageSelected -> {
+                AppLanguage.applyAndRestart(
+                    context = resourceProvider.provideContext(),
+                    language = event.language,
+                )
             }
         }
     }

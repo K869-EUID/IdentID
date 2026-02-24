@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 European Commission
+ * Copyright (c) 2026 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -16,8 +16,12 @@
 
 package com.k689.identid.ui.container
 
+import android.app.LocaleManager
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Bundle
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -38,14 +42,28 @@ import com.k689.identid.navigation.helper.DeepLinkAction
 import com.k689.identid.navigation.helper.DeepLinkType
 import com.k689.identid.navigation.helper.handleDeepLinkAction
 import com.k689.identid.navigation.helper.hasDeepLink
+import com.k689.identid.theme.AppLanguage
 import com.k689.identid.theme.AppTheme
 import com.k689.identid.theme.ThemeManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.core.annotation.KoinExperimentalAPI
+import kotlin.system.exitProcess
 
 open class EudiComponentActivity : FragmentActivity() {
+
+    companion object {
+        /**
+         * Tracks the locale tag across activity recreations within the same process.
+         * When the system per-app language setting changes the locale, the framework
+         * recreates the activity but keeps the process alive. Koin singletons and
+         * ViewModels survive with stale cached strings. By comparing the current locale
+         * to this saved value, we detect the change and restart the process.
+         */
+        private var lastLocaleTag: String? = null
+    }
+
     private val routerHost: RouterHost by inject()
     private val prefKeys: PrefKeys by inject()
 
@@ -55,6 +73,44 @@ open class EudiComponentActivity : FragmentActivity() {
 
     internal fun cacheDeepLink(intent: Intent?) {
         pendingDeepLink = intent?.data
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        restartIfLocaleChanged()
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            super.attachBaseContext(AppLanguage.wrapContext(newBase))
+        } else {
+            super.attachBaseContext(newBase)
+        }
+    }
+
+    /**
+     * Detects whether the per-app locale was changed externally (e.g. system settings)
+     * since the last time this activity was created. If so, restarts the process so
+     * that all singletons, ViewModels, and cached resource strings pick up the new locale.
+     *
+     * On the very first launch (fresh process) [lastLocaleTag] is null, so the check
+     * is skipped and the current tag is just recorded.
+     */
+    private fun restartIfLocaleChanged() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+
+        val localeManager = getSystemService(LocaleManager::class.java)
+        val locales = localeManager.applicationLocales
+        val currentTag = if (locales.isEmpty) "" else locales.get(0)?.toLanguageTag().orEmpty()
+
+        if (lastLocaleTag != null && lastLocaleTag != currentTag) {
+            lastLocaleTag = currentTag
+            val intent = packageManager.getLaunchIntentForPackage(packageName)
+            intent?.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            exitProcess(0)
+        }
+        lastLocaleTag = currentTag
     }
 
     @OptIn(KoinExperimentalAPI::class)

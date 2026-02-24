@@ -246,6 +246,8 @@
 
     <!-- region Preferences Screen -->
     <string name="preferences_screen_title">Preferences</string>
+    <string name="preferences_theme_label">Theme</string>
+    <string name="preferences_language_label">Language</string>
     <!--endregion-->
 
 
