@@ -319,6 +319,7 @@
     <plurals name="transactions_screen_some_minutes_ago_message">
         <item quantity="one">prieš %d minutę</item>
         <item quantity="few">prieš %d minutes</item>
+        <item quantity="many">prieš %d minutes</item>
         <item quantity="other">prieš %d minučių</item>
     </plurals>
     <string name="transactions_screen_text_field_date_pattern">yyyy-mm-dd</string>
@@ -370,7 +371,7 @@
     <string name="document_details_bottom_sheet_delete_primary_button_text">@string/generic_bottom_sheet_delete_primary_button_text</string>
     <string name="document_details_bottom_sheet_delete_secondary_button_text">@string/generic_bottom_sheet_delete_secondary_button_text</string>
 
-    <string name="document_details_document_credentials_info_text">liko %d/%d egzempliorių</string>
+    <string name="document_details_document_credentials_info_text">Liko %d/%d egzempliorių</string>
     <string name="document_details_document_credentials_info_more_info_text">Daugiau informacijos</string>
     <string name="document_details_document_credentials_info_expanded_text_subtitle">Saugumo sumetimais šis dokumentas gali būti pateiktas ribotą skaičių kartų, po to jį reikia iš naujo gauti iš išdavimo institucijos.</string>
     <string name="document_details_document_credentials_info_expanded_button_update_now_text">Gauti naują</string>
