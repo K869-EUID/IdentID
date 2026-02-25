@@ -365,10 +365,11 @@ private fun ContentPreview() {
                                                     displayTitle = "title",
                                                     value = "value",
                                                     isRequired = false,
-                                                    path = ClaimPathDomain(
-                                                        value = listOf(),
-                                                        type = ClaimType.MsoMdoc(namespace = "namespace")
-                                                    )
+                                                    path =
+                                                        ClaimPathDomain(
+                                                            value = listOf(),
+                                                            type = ClaimType.MsoMdoc(namespace = "namespace"),
+                                                        ),
                                                 ),
                                             ),
                                     ),

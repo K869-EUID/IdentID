@@ -29,9 +29,7 @@ data class Filters(
         get() = filterGroups.isNotEmpty()
 
     companion object {
-        fun emptyFilters(): Filters {
-            return Filters(filterGroups = emptyList(), SortOrder.Ascending(isDefault = true))
-        }
+        fun emptyFilters(): Filters = Filters(filterGroups = emptyList(), SortOrder.Ascending(isDefault = true))
     }
 }
 
@@ -82,13 +80,12 @@ sealed class FilterElement {
         override val filterableAction: FilterAction = DefaultFilterAction,
     ) : FilterElement() {
         companion object {
-            fun emptyFilter(): FilterItem {
-                return FilterItem(
+            fun emptyFilter(): FilterItem =
+                FilterItem(
                     id = "",
                     name = "",
-                    selected = false
+                    selected = false,
                 )
-            }
         }
     }
 
@@ -108,20 +105,25 @@ data object DefaultFilterAction : FilterAction() {
         sortOrder: SortOrder,
         filterableItems: FilterableList,
         filter: FilterElement,
-    ): FilterableList {
-        return filterableItems
-    }
+    ): FilterableList = filterableItems
 }
 
 sealed class SortOrder {
     abstract val isDefault: Boolean
 
-    data class Ascending(override val isDefault: Boolean = false) : SortOrder()
-    data class Descending(override val isDefault: Boolean = false) : SortOrder()
+    data class Ascending(
+        override val isDefault: Boolean = false,
+    ) : SortOrder()
+
+    data class Descending(
+        override val isDefault: Boolean = false,
+    ) : SortOrder()
 }
 
 @Suppress("UNCHECKED_CAST")
-data class FilterMultipleAction<T : FilterableAttributes>(val predicate: (T, FilterElement) -> Boolean) {
+data class FilterMultipleAction<T : FilterableAttributes>(
+    val predicate: (T, FilterElement) -> Boolean,
+) {
     fun applyFilter(
         filterableItems: FilterableList,
         filterGroup: FilterGroup,
@@ -132,14 +134,14 @@ data class FilterMultipleAction<T : FilterableAttributes>(val predicate: (T, Fil
         } else {
             val matchingItems = mutableSetOf<FilterableItem>()
             selectedFilters.forEach { filter ->
-                filterableItems.items.filter { item ->
-                    predicate(item.attributes as T, filter)
-                }.forEach { matchingItems.add(it) }
+                filterableItems.items
+                    .filter { item ->
+                        predicate(item.attributes as T, filter)
+                    }.forEach { matchingItems.add(it) }
             }
             filterableItems.copy(items = matchingItems.toList())
         }
     }
-
 }
 
 sealed class FilterAction {
@@ -150,23 +152,23 @@ sealed class FilterAction {
     ): FilterableList
 
     @Suppress("UNCHECKED_CAST")
-    data class Filter<T : FilterableAttributes>(val predicate: (T, FilterElement) -> Boolean) :
-        FilterAction() {
+    data class Filter<T : FilterableAttributes>(
+        val predicate: (T, FilterElement) -> Boolean,
+    ) : FilterAction() {
         override fun applyFilter(
             sortOrder: SortOrder,
             filterableItems: FilterableList,
             filter: FilterElement,
-        ): FilterableList {
-            return filterableItems.copy(
-                items = filterableItems.items.filter {
-                    predicate(
-                        it.attributes as T,
-                        filter
-                    )
-                }
+        ): FilterableList =
+            filterableItems.copy(
+                items =
+                    filterableItems.items.filter {
+                        predicate(
+                            it.attributes as T,
+                            filter,
+                        )
+                    },
             )
-        }
-
     }
 
     /**
@@ -174,18 +176,22 @@ sealed class FilterAction {
      * @param R The type of the attribute to be sorted by
      * */
     @Suppress("UNCHECKED_CAST")
-    data class Sort<T : FilterableAttributes, R : Comparable<R>>(val selector: (T) -> R?) :
-        FilterAction() {
+    data class Sort<T : FilterableAttributes, R : Comparable<R>>(
+        val selector: (T) -> R?,
+    ) : FilterAction() {
         override fun applyFilter(
             sortOrder: SortOrder,
             filterableItems: FilterableList,
             filter: FilterElement,
-        ): FilterableList {
-            return filterableItems.copy(items = filterableItems.items.sortByOrder(sortOrder) {
-                selector(
-                    it.attributes as T
-                )
-            }.toMutableList())
-        }
+        ): FilterableList =
+            filterableItems.copy(
+                items =
+                    filterableItems.items
+                        .sortByOrder(sortOrder) {
+                            selector(
+                                it.attributes as T,
+                            )
+                        }.toMutableList(),
+            )
     }
 }

@@ -17,27 +17,25 @@
 package com.k689.identid.storage.prefs
 
 import com.google.gson.Gson
+import com.k689.identid.controller.storage.PrefsController
 import com.k689.identid.model.authentication.BiometricAuthentication
 import com.k689.identid.provider.authentication.BiometryStorageProvider
-import com.k689.identid.controller.storage.PrefsController
 
 class PrefsBiometryStorageProvider(
-    private val prefsController: PrefsController
+    private val prefsController: PrefsController,
 ) : BiometryStorageProvider {
-
     /**
      * Returns the biometric data in order to validate that biometric is not tampered in any way.
      */
-    override fun getBiometricAuthentication(): BiometricAuthentication? {
-        return try {
+    override fun getBiometricAuthentication(): BiometricAuthentication? =
+        try {
             Gson().fromJson(
                 prefsController.getString("BiometricAuthentication", ""),
-                BiometricAuthentication::class.java
+                BiometricAuthentication::class.java,
             )
         } catch (_: Exception) {
             null
         }
-    }
 
     /**
      * Stores the biometric data used to validate that biometric is not tampered in any way.
@@ -63,7 +61,5 @@ class PrefsBiometryStorageProvider(
      *
      * Setting an empty value will clear the entry from shared prefs.
      */
-    override fun getUseBiometricsAuth(): Boolean {
-        return prefsController.getBool("UseBiometricsAuth", false)
-    }
+    override fun getUseBiometricsAuth(): Boolean = prefsController.getBool("UseBiometricsAuth", false)
 }

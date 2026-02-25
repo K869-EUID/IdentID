@@ -45,9 +45,9 @@ data class IconDataUi(
 ) {
     init {
         require(
-            resourceId == null && imageVector != null ||
-                resourceId != null && imageVector == null ||
-                resourceId != null && imageVector != null,
+            (resourceId == null && imageVector != null) ||
+                (resourceId != null && imageVector == null) ||
+                (resourceId != null && imageVector != null),
         ) {
             "An Icon should at least have a valid resourceId or a valid imageVector."
         }

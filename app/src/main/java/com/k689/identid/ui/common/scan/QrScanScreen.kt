@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.common.qr_scan
+package com.k689.identid.ui.common.scan
 
 import android.content.Context
 import androidx.camera.core.CameraSelector
@@ -57,9 +57,13 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
-import com.k689.identid.ui.common.qr_scan.component.QrCodeAnalyzer
-import com.k689.identid.ui.common.qr_scan.component.qrBorderCanvas
 import com.k689.identid.R
+import com.k689.identid.extension.ui.openAppSettings
+import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.extension.ui.throttledClickable
+import com.k689.identid.navigation.CommonScreens
+import com.k689.identid.ui.common.scan.component.QrCodeAnalyzer
+import com.k689.identid.ui.common.scan.component.qrBorderCanvas
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ErrorInfo
 import com.k689.identid.ui.component.content.ContentScreen
@@ -75,10 +79,6 @@ import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.utils.screenWidthInDp
 import com.k689.identid.ui.component.wrap.WrapCard
 import com.k689.identid.ui.component.wrap.WrapIcon
-import com.k689.identid.extension.ui.openAppSettings
-import com.k689.identid.extension.ui.paddingFrom
-import com.k689.identid.extension.ui.throttledClickable
-import com.k689.identid.navigation.CommonScreens
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -86,7 +86,7 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 fun QrScanScreen(
     navController: NavController,
-    viewModel: QrScanViewModel
+    viewModel: QrScanViewModel,
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -112,7 +112,7 @@ fun QrScanScreen(
 private fun handleNavigationEffect(
     context: Context,
     navigationEffect: Effect.Navigation,
-    navController: NavController
+    navController: NavController,
 ) {
     when (navigationEffect) {
         is Effect.Navigation.SwitchScreen -> {
@@ -127,7 +127,9 @@ private fun handleNavigationEffect(
             navController.popBackStack()
         }
 
-        is Effect.Navigation.GoToAppSettings -> context.openAppSettings()
+        is Effect.Navigation.GoToAppSettings -> {
+            context.openAppSettings()
+        }
     }
 }
 
@@ -141,22 +143,24 @@ private fun Content(
     paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .paddingFrom(paddingValues, bottom = false, start = false, end = false),
-        verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .paddingFrom(paddingValues, bottom = false, start = false, end = false),
+        verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp),
     ) {
         ContentTitle(
-            modifier = Modifier
-                .fillMaxWidth()
-                .paddingFrom(paddingValues, bottom = false, top = false),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .paddingFrom(paddingValues, bottom = false, top = false),
             title = state.qrScannedConfig.title,
             subtitle = state.qrScannedConfig.subTitle,
         )
 
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.BottomCenter
+            contentAlignment = Alignment.BottomCenter,
         ) {
             OpenCamera(
                 hasCameraPermission = state.hasCameraPermission,
@@ -164,7 +168,7 @@ private fun Content(
                 onEventSend = onEventSend,
                 onQrScanned = { qrCode ->
                     onEventSend(Event.OnQrScanned(context = context, resultQr = qrCode))
-                }
+                },
             )
 
             AnimatedInformativeText(state = state, paddingValues = paddingValues)
@@ -172,21 +176,26 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
 @Composable
-private fun AnimatedInformativeText(state: State, paddingValues: PaddingValues) {
+private fun AnimatedInformativeText(
+    state: State,
+    paddingValues: PaddingValues,
+) {
     AnimatedVisibility(visible = state.showInformativeText) {
         Box(
-            modifier = Modifier.padding(
-                paddingValues.calculateBottomPadding()
-            )
+            modifier =
+                Modifier.padding(
+                    paddingValues.calculateBottomPadding(),
+                ),
         ) {
             InformativeText(text = state.informativeText)
         }
@@ -204,16 +213,22 @@ private fun OpenCamera(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val cameraProviderFuture = remember {
-        ProcessCameraProvider.getInstance(context)
-    }
+    val cameraProviderFuture =
+        remember {
+            ProcessCameraProvider.getInstance(context)
+        }
 
     val scannerAreaSize = screenWidthInDp(true) - SIZE_100.dp
 
     val permissionState = rememberPermissionState(permission = android.Manifest.permission.CAMERA)
     when {
-        permissionState.status.isGranted -> onEventSend(Event.CameraAccessGranted)
-        permissionState.status.shouldShowRationale -> onEventSend(Event.ShowPermissionRational)
+        permissionState.status.isGranted -> {
+            onEventSend(Event.CameraAccessGranted)
+        }
+
+        permissionState.status.shouldShowRationale -> {
+            onEventSend(Event.ShowPermissionRational)
+        }
 
         else -> {
             LaunchedEffect(Unit) {
@@ -224,52 +239,57 @@ private fun OpenCamera(
 
     // The space the Camera is going to occupy.
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                color = Color.Black,
-            ),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color.Black,
+                ),
+        contentAlignment = Alignment.Center,
     ) {
         if (hasCameraPermission) {
-
             // The Camera.
             AndroidView(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
                 factory = { context ->
 
                     val previewView = PreviewView(context)
                     val preview = Preview.Builder().build()
 
-                    val selector = CameraSelector.Builder()
-                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                        .build()
+                    val selector =
+                        CameraSelector
+                            .Builder()
+                            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                            .build()
 
                     preview.surfaceProvider = previewView.surfaceProvider
 
-                    val imageAnalysis = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
+                    val imageAnalysis =
+                        ImageAnalysis
+                            .Builder()
+                            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                            .build()
 
                     imageAnalysis.setAnalyzer(
                         ContextCompat.getMainExecutor(context),
                         QrCodeAnalyzer { result ->
                             onQrScanned(result)
-                        }
+                        },
                     )
                     try {
                         cameraProviderFuture.get().bindToLifecycle(
                             lifecycleOwner,
                             selector,
                             preview,
-                            imageAnalysis
+                            imageAnalysis,
                         )
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
                     previewView
-                }
+                },
             )
         } else if (shouldShowPermissionRational) {
             ErrorInfo(
@@ -282,7 +302,7 @@ private fun OpenCamera(
 
         // Draw indicators.
         Canvas(
-            modifier = Modifier.size(scannerAreaSize)
+            modifier = Modifier.size(scannerAreaSize),
         ) {
             qrBorderCanvas(
                 borderColor = Color.White,
@@ -290,7 +310,7 @@ private fun OpenCamera(
                 strokeWidth = SIZE_EXTRA_SMALL.dp,
                 capSize = SIZE_LARGE.dp,
                 gapAngle = SIZE_EXTRA_SMALL,
-                cap = StrokeCap.Square
+                cap = StrokeCap.Square,
             )
         }
     }
@@ -302,14 +322,14 @@ private fun InformativeText(text: String) {
         Row(
             modifier = Modifier.padding(all = SPACING_SMALL.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             WrapIcon(AppIcons.Error)
             Text(
                 modifier = Modifier.padding(all = SPACING_SMALL.dp),
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
     }
@@ -320,7 +340,7 @@ private fun InformativeText(text: String) {
 private fun InformativeTextPreview() {
     PreviewTheme {
         InformativeText(
-            text = stringResource(R.string.qr_scan_informative_text_presentation_flow)
+            text = stringResource(R.string.qr_scan_informative_text_presentation_flow),
         )
     }
 }

@@ -21,8 +21,8 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.k689.identid.storage.dao.type.StorageDao
 import com.k689.identid.model.storage.TransactionLog
+import com.k689.identid.storage.dao.type.StorageDao
 
 @Dao
 interface TransactionLogDao : StorageDao<TransactionLog> {

@@ -23,10 +23,10 @@ import com.k689.identid.ui.common.loading.LoadingScreen
 @Composable
 fun ProximityLoadingScreen(
     navController: NavController,
-    viewModel: ProximityLoadingViewModel
+    viewModel: ProximityLoadingViewModel,
 ) {
     LoadingScreen(
         navController = navController,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }

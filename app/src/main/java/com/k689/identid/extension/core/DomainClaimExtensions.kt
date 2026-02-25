@@ -29,8 +29,8 @@ import com.k689.identid.model.core.ClaimDomain
  *         Groups are considered empty if, after recursively filtering their items,
  *         they contain no items. Non-group claims are always kept.
  */
-fun List<ClaimDomain>.removeEmptyGroups(): List<ClaimDomain> {
-    return this.mapNotNull { claim ->
+fun List<ClaimDomain>.removeEmptyGroups(): List<ClaimDomain> =
+    this.mapNotNull { claim ->
         when (claim) {
             is ClaimDomain.Group -> {
                 val filteredItems =
@@ -42,10 +42,11 @@ fun List<ClaimDomain>.removeEmptyGroups(): List<ClaimDomain> {
                 }
             }
 
-            is ClaimDomain.Primitive -> claim // Keep non-group claims (Primitive)
+            is ClaimDomain.Primitive -> {
+                claim
+            } // Keep non-group claims (Primitive)
         }
     }
-}
 
 /**
  * Recursively sorts a list of [ClaimDomain] based on the provided [selector].
@@ -58,15 +59,20 @@ fun List<ClaimDomain>.removeEmptyGroups(): List<ClaimDomain> {
  * @return A new list of [ClaimDomain] sorted recursively according to the [selector].
  */
 fun <T : Comparable<T>> List<ClaimDomain>.sortRecursivelyBy(
-    selector: (ClaimDomain) -> T
+    selector: (ClaimDomain) -> T,
 ): List<ClaimDomain> {
-    return this.map { claim ->
-        when (claim) {
-            is ClaimDomain.Group -> claim.copy(
-                items = claim.items.sortRecursivelyBy(selector) // Recursively sort children
-            )
+    return this
+        .map { claim ->
+            when (claim) {
+                is ClaimDomain.Group -> {
+                    claim.copy(
+                        items = claim.items.sortRecursivelyBy(selector), // Recursively sort children
+                    )
+                }
 
-            is ClaimDomain.Primitive -> claim // Primitives stay unchanged
-        }
-    }.sortedBy(selector) // Apply sorting at the current level
+                is ClaimDomain.Primitive -> {
+                    claim
+                } // Primitives stay unchanged
+            }
+        }.sortedBy(selector) // Apply sorting at the current level
 }

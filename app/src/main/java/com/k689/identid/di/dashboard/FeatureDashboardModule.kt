@@ -17,11 +17,9 @@
 package com.k689.identid.di.dashboard
 
 import com.k689.identid.config.ConfigLogic
-import com.k689.identid.controller.log.LogController
-import com.k689.identid.provider.UuidProvider
-import com.k689.identid.validator.FilterValidator
 import com.k689.identid.config.WalletCoreConfig
 import com.k689.identid.controller.core.WalletCoreDocumentsController
+import com.k689.identid.controller.log.LogController
 import com.k689.identid.interactor.dashboard.DashboardInteractor
 import com.k689.identid.interactor.dashboard.DashboardInteractorImpl
 import com.k689.identid.interactor.dashboard.DocumentDetailsInteractor
@@ -38,7 +36,9 @@ import com.k689.identid.interactor.dashboard.TransactionDetailsInteractor
 import com.k689.identid.interactor.dashboard.TransactionDetailsInteractorImpl
 import com.k689.identid.interactor.dashboard.TransactionsInteractor
 import com.k689.identid.interactor.dashboard.TransactionsInteractorImpl
+import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.validator.FilterValidator
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -50,31 +50,34 @@ class FeatureDashboardModule
 @Factory
 fun provideDashboardInteractor(
     resourceProvider: ResourceProvider,
-): DashboardInteractor = DashboardInteractorImpl(
-    resourceProvider,
-)
+): DashboardInteractor =
+    DashboardInteractorImpl(
+        resourceProvider,
+    )
 
 @Factory
 fun provideSettingsInteractor(
     configLogic: ConfigLogic,
     logController: LogController,
     resourceProvider: ResourceProvider,
-): SettingsInteractor = SettingsInteractorImpl(
-    configLogic,
-    logController,
-    resourceProvider,
-)
+): SettingsInteractor =
+    SettingsInteractorImpl(
+        configLogic,
+        logController,
+        resourceProvider,
+    )
 
 @Factory
 fun provideHomeInteractor(
     resourceProvider: ResourceProvider,
     walletCoreDocumentsController: WalletCoreDocumentsController,
     walletCoreConfig: WalletCoreConfig,
-): HomeInteractor = HomeInteractorImpl(
-    resourceProvider,
-    walletCoreDocumentsController,
-    walletCoreConfig,
-)
+): HomeInteractor =
+    HomeInteractorImpl(
+        resourceProvider,
+        walletCoreDocumentsController,
+        walletCoreConfig,
+    )
 
 @Factory
 fun provideDocumentsInteractor(
@@ -93,18 +96,20 @@ fun provideTransactionInteractor(
     resourceProvider: ResourceProvider,
     filterValidator: FilterValidator,
     walletCoreDocumentsController: WalletCoreDocumentsController,
-): TransactionsInteractor = TransactionsInteractorImpl(
-    resourceProvider,
-    filterValidator,
-    walletCoreDocumentsController
-)
+): TransactionsInteractor =
+    TransactionsInteractorImpl(
+        resourceProvider,
+        filterValidator,
+        walletCoreDocumentsController,
+    )
 
 @Factory
 fun provideDocumentSignInteractor(
     resourceProvider: ResourceProvider,
-): DocumentSignInteractor = DocumentSignInteractorImpl(
-    resourceProvider,
-)
+): DocumentSignInteractor =
+    DocumentSignInteractorImpl(
+        resourceProvider,
+    )
 
 @Factory
 fun provideDocumentDetailsInteractor(
@@ -122,10 +127,10 @@ fun provideDocumentDetailsInteractor(
 fun provideTransactionDetailsInteractor(
     walletCoreDocumentsController: WalletCoreDocumentsController,
     resourceProvider: ResourceProvider,
-    uuidProvider: UuidProvider
+    uuidProvider: UuidProvider,
 ): TransactionDetailsInteractor =
     TransactionDetailsInteractorImpl(
         walletCoreDocumentsController,
         resourceProvider,
-        uuidProvider
+        uuidProvider,
     )

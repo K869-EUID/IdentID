@@ -22,5 +22,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "bookmarks")
 data class Bookmark(
     @PrimaryKey
-    val identifier: String
+    val identifier: String,
 )

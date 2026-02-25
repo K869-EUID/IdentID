@@ -75,18 +75,25 @@ data class ToolbarActionUi(
 
 data class ToolbarConfig(
     val title: String = "",
-    val actions: List<ToolbarActionUi> = listOf()
+    val actions: List<ToolbarActionUi> = listOf(),
 )
 
 enum class ScreenNavigateAction {
-    BACKABLE, CANCELABLE, NONE
+    BACKABLE,
+    CANCELABLE,
+    NONE,
 }
 
 enum class ImePaddingConfig {
-    NO_PADDING, WITH_BOTTOM_BAR, ONLY_CONTENT
+    NO_PADDING,
+    WITH_BOTTOM_BAR,
+    ONLY_CONTENT,
 }
 
-data class BroadcastAction(val intentFilters: List<String>, val callback: (Intent?) -> Unit)
+data class BroadcastAction(
+    val intentFilters: List<String>,
+    val callback: (Intent?) -> Unit,
+)
 
 @Composable
 fun ContentScreen(
@@ -103,31 +110,34 @@ fun ContentScreen(
     contentErrorConfig: ContentErrorConfig? = null,
     broadcastAction: BroadcastAction? = null,
     imePaddingConfig: ImePaddingConfig = ImePaddingConfig.NO_PADDING,
-    bodyContent: @Composable (PaddingValues) -> Unit
+    bodyContent: @Composable (PaddingValues) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val hasToolBar = contentErrorConfig != null
-            || navigatableAction != ScreenNavigateAction.NONE
-            || topBar != null
-            || toolBarConfig?.actions?.isNotEmpty() == true
+    val hasToolBar =
+        contentErrorConfig != null ||
+            navigatableAction != ScreenNavigateAction.NONE ||
+            topBar != null ||
+            toolBarConfig?.actions?.isNotEmpty() == true
     val topSpacing = if (hasToolBar) TopSpacing.WithToolbar else TopSpacing.WithoutToolbar
 
     Scaffold(
         topBar = {
             if (topBar != null && contentErrorConfig == null) {
                 Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .statusBarsPadding()
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .statusBarsPadding(),
                 ) {
                     topBar()
                 }
             } else if (hasToolBar) {
                 DefaultToolBar(
-                    navigatableAction = contentErrorConfig?.let {
-                        ScreenNavigateAction.CANCELABLE
-                    } ?: navigatableAction,
+                    navigatableAction =
+                        contentErrorConfig?.let {
+                            ScreenNavigateAction.CANCELABLE
+                        } ?: navigatableAction,
                     onBack = contentErrorConfig?.onCancel ?: onBack,
                     keyboardController = keyboardController,
                     toolbarConfig = toolBarConfig,
@@ -137,15 +147,16 @@ fun ContentScreen(
         bottomBar = {
             bottomBar?.let {
                 Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .then(
-                            if (imePaddingConfig == ImePaddingConfig.WITH_BOTTOM_BAR) {
-                                Modifier.imePadding()
-                            } else {
-                                Modifier
-                            }
-                        )
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .then(
+                                if (imePaddingConfig == ImePaddingConfig.WITH_BOTTOM_BAR) {
+                                    Modifier.imePadding()
+                                } else {
+                                    Modifier
+                                },
+                            ),
                 ) {
                     bottomBar()
                 }
@@ -156,59 +167,61 @@ fun ContentScreen(
         snackbarHost = snackbarHost,
     ) { padding ->
 
-        val screenPaddingsIgnoringSticky = screenPaddings(
-            hasStickyBottom = false,
-            append = padding,
-            topSpacing = topSpacing
-        )
+        val screenPaddingsIgnoringSticky =
+            screenPaddings(
+                hasStickyBottom = false,
+                append = padding,
+                topSpacing = topSpacing,
+            )
 
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
-
             if (contentErrorConfig != null) {
                 ContentError(
                     config = contentErrorConfig,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(screenPaddingsIgnoringSticky)
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(screenPaddingsIgnoringSticky),
                 )
             } else {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .then(
-                            if (imePaddingConfig == ImePaddingConfig.ONLY_CONTENT) {
-                                Modifier.imePadding()
-                            } else {
-                                Modifier
-                            }
-                        )
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (imePaddingConfig == ImePaddingConfig.ONLY_CONTENT) {
+                                    Modifier.imePadding()
+                                } else {
+                                    Modifier
+                                },
+                            ),
                 ) {
-
                     Box(modifier = Modifier.weight(1f)) {
                         bodyContent(
                             screenPaddings(
                                 hasStickyBottom = stickyBottom != null,
                                 append = padding,
-                                topSpacing = topSpacing
-                            )
+                                topSpacing = topSpacing,
+                            ),
                         )
                     }
 
                     stickyBottom?.let { stickyBottomContent ->
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .navigationBarsPadding()
-                                .zIndex(Z_STICKY),
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .navigationBarsPadding()
+                                    .zIndex(Z_STICKY),
+                            contentAlignment = Alignment.Center,
                         ) {
                             stickyBottomContent(
                                 stickyBottomPaddings(
                                     contentScreenPaddings = screenPaddingsIgnoringSticky,
-                                    layoutDirection = LocalLayoutDirection.current
-                                )
+                                    layoutDirection = LocalLayoutDirection.current,
+                                ),
                             )
                         }
                     }
@@ -227,7 +240,7 @@ fun ContentScreen(
 
     broadcastAction?.let {
         SystemBroadcastReceiver(
-            intentFilters = it.intentFilters
+            intentFilters = it.intentFilters,
         ) { intent ->
             it.callback(intent)
         }
@@ -242,43 +255,44 @@ private fun DefaultToolBar(
     keyboardController: SoftwareKeyboardController?,
     toolbarConfig: ToolbarConfig?,
 ) {
-
     TopAppBar(
         title = {
             Text(
                 text = toolbarConfig?.title.orEmpty(),
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
         },
         navigationIcon = {
             // Check if we should add back/close button.
             if (navigatableAction != ScreenNavigateAction.NONE) {
-                val navigationIcon = when (navigatableAction) {
-                    ScreenNavigateAction.CANCELABLE -> AppIcons.Close
-                    else -> AppIcons.ArrowBack
-                }
+                val navigationIcon =
+                    when (navigatableAction) {
+                        ScreenNavigateAction.CANCELABLE -> AppIcons.Close
+                        else -> AppIcons.ArrowBack
+                    }
 
                 ToolbarIcon(
-                    toolbarAction = ToolbarActionUi(
-                        icon = navigationIcon,
-                        onClick = {
-                            onBack?.invoke()
-                            keyboardController?.hide()
-                        }
-                    )
+                    toolbarAction =
+                        ToolbarActionUi(
+                            icon = navigationIcon,
+                            onClick = {
+                                onBack?.invoke()
+                                keyboardController?.hide()
+                            },
+                        ),
                 )
             }
         },
         // Add toolbar actions.
         actions = {
             ToolBarActions(toolBarActions = toolbarConfig?.actions)
-        }
+        },
     )
 }
 
 @Composable
 internal fun ToolBarActions(
-    toolBarActions: List<ToolbarActionUi>?
+    toolBarActions: List<ToolbarActionUi>?,
 ) {
     toolBarActions?.let { actions ->
 
@@ -296,15 +310,16 @@ internal fun ToolBarActions(
         if (actions.size > MAX_TOOLBAR_ACTIONS) {
             Box {
                 ToolbarIcon(
-                    toolbarAction = ToolbarActionUi(
-                        icon = AppIcons.VerticalMore,
-                        onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
-                        enabled = true,
-                    )
+                    toolbarAction =
+                        ToolbarActionUi(
+                            icon = AppIcons.VerticalMore,
+                            onClick = { dropDownMenuExpanded = !dropDownMenuExpanded },
+                            enabled = true,
+                        ),
                 )
                 DropdownMenu(
                     expanded = dropDownMenuExpanded,
-                    onDismissRequest = { dropDownMenuExpanded = false }
+                    onDismissRequest = { dropDownMenuExpanded = false },
                 ) {
                     actions
                         .sortedByDescending { it.order }
@@ -320,8 +335,9 @@ internal fun ToolBarActions(
 
 @Composable
 private fun ToolbarIcon(toolbarAction: ToolbarActionUi) {
-    val customIconTint = toolbarAction.customTint
-        ?: MaterialTheme.colorScheme.onSurface
+    val customIconTint =
+        toolbarAction.customTint
+            ?: MaterialTheme.colorScheme.onSurface
 
     if (toolbarAction.clickable) {
         WrapIconButton(
@@ -329,7 +345,7 @@ private fun ToolbarIcon(toolbarAction: ToolbarActionUi) {
             onClick = toolbarAction.onClick,
             enabled = toolbarAction.enabled,
             customTint = customIconTint,
-            throttleClicks = toolbarAction.throttleClicks
+            throttleClicks = toolbarAction.throttleClicks,
         )
     } else {
         WrapIcon(
@@ -345,12 +361,13 @@ private fun ToolbarIcon(toolbarAction: ToolbarActionUi) {
 @Composable
 private fun ToolbarIconClickablePreview() {
     PreviewTheme {
-        val action = ToolbarActionUi(
-            icon = AppIcons.Verified,
-            onClick = {},
-            enabled = true,
-            clickable = true,
-        )
+        val action =
+            ToolbarActionUi(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = true,
+            )
 
         ToolbarIcon(toolbarAction = action)
     }
@@ -360,12 +377,13 @@ private fun ToolbarIconClickablePreview() {
 @Composable
 private fun ToolbarIconNotClickablePreview() {
     PreviewTheme {
-        val action = ToolbarActionUi(
-            icon = AppIcons.Verified,
-            onClick = {},
-            enabled = true,
-            clickable = false,
-        )
+        val action =
+            ToolbarActionUi(
+                icon = AppIcons.Verified,
+                onClick = {},
+                enabled = true,
+                clickable = false,
+            )
 
         ToolbarIcon(toolbarAction = action)
     }
@@ -375,32 +393,33 @@ private fun ToolbarIconNotClickablePreview() {
 @Composable
 private fun ToolBarActionsWithFourActionsPreview() {
     PreviewTheme {
-        val toolBarActions = listOf(
-            ToolbarActionUi(
-                icon = AppIcons.Verified,
-                onClick = {},
-                enabled = true,
-                clickable = true,
-            ),
-            ToolbarActionUi(
-                icon = AppIcons.Verified,
-                onClick = {},
-                enabled = false,
-                clickable = true,
-            ),
-            ToolbarActionUi(
-                icon = AppIcons.Verified,
-                onClick = {},
-                enabled = true,
-                clickable = false,
-            ),
-            ToolbarActionUi(
-                icon = AppIcons.Verified,
-                onClick = {},
-                enabled = false,
-                clickable = false,
+        val toolBarActions =
+            listOf(
+                ToolbarActionUi(
+                    icon = AppIcons.Verified,
+                    onClick = {},
+                    enabled = true,
+                    clickable = true,
+                ),
+                ToolbarActionUi(
+                    icon = AppIcons.Verified,
+                    onClick = {},
+                    enabled = false,
+                    clickable = true,
+                ),
+                ToolbarActionUi(
+                    icon = AppIcons.Verified,
+                    onClick = {},
+                    enabled = true,
+                    clickable = false,
+                ),
+                ToolbarActionUi(
+                    icon = AppIcons.Verified,
+                    onClick = {},
+                    enabled = false,
+                    clickable = false,
+                ),
             )
-        )
 
         Row {
             ToolBarActions(toolBarActions)

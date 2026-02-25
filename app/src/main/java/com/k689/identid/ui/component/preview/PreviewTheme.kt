@@ -21,7 +21,7 @@ import com.k689.identid.theme.ThemeManager
 
 @Composable
 fun PreviewTheme(
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     ThemeManager.instance.Theme { content() }
 }

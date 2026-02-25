@@ -21,7 +21,7 @@ import java.time.LocalDate
 
 data class FilterDateRangeSelectionUi(
     val startDate: LocalDate? = null,
-    val endDate: LocalDate? = null
+    val endDate: LocalDate? = null,
 ) {
     val displayedStartDate: String
         get() = startDate.toDisplayedDate()

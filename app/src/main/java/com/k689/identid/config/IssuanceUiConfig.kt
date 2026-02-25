@@ -25,20 +25,23 @@ import com.k689.identid.ui.serializer.adapter.SerializableTypeAdapter
 
 sealed interface IssuanceFlowType {
     data object NoDocument : IssuanceFlowType
-    data class ExtraDocument(val formatType: FormatType?) : IssuanceFlowType
+
+    data class ExtraDocument(
+        val formatType: FormatType?,
+    ) : IssuanceFlowType
 }
 
 data class IssuanceUiConfig(
     val flowType: IssuanceFlowType,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "issuanceConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder().registerTypeAdapter(
-                IssuanceFlowType::class.java,
-                SerializableTypeAdapter<IssuanceFlowType>()
-            ).create()
-        }
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
+                .registerTypeAdapter(
+                    IssuanceFlowType::class.java,
+                    SerializableTypeAdapter<IssuanceFlowType>(),
+                ).create()
     }
 }

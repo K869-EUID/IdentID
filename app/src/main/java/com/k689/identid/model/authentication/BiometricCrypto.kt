@@ -18,4 +18,6 @@ package com.k689.identid.model.authentication
 
 import androidx.biometric.BiometricPrompt
 
-data class BiometricCrypto(val cryptoObject: BiometricPrompt.CryptoObject?)
+data class BiometricCrypto(
+    val cryptoObject: BiometricPrompt.CryptoObject?,
+)

@@ -28,13 +28,13 @@ import androidx.biometric.BiometricPrompt.AuthenticationResult
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.k689.identid.controller.storage.BiometryStorageController
-import com.k689.identid.model.authentication.BiometricAuthentication
-import com.k689.identid.model.authentication.BiometricCrypto
+import com.k689.identid.R
 import com.k689.identid.controller.crypto.CryptoController
+import com.k689.identid.controller.storage.BiometryStorageController
 import com.k689.identid.extension.business.decodeFromPemBase64String
 import com.k689.identid.extension.business.encodeToPemBase64String
-import com.k689.identid.R
+import com.k689.identid.model.authentication.BiometricAuthentication
+import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.provider.resources.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -45,16 +45,20 @@ import java.nio.charset.StandardCharsets
 import javax.crypto.Cipher
 import kotlin.coroutines.resume
 
-enum class BiometricsAuthError(val code: Int) {
-    Cancel(10), CancelByUser(13)
+enum class BiometricsAuthError(
+    val code: Int,
+) {
+    Cancel(10),
+    CancelByUser(13),
 }
 
 interface BiometricAuthenticationController {
     fun deviceSupportsBiometrics(listener: (BiometricsAvailability) -> Unit)
+
     fun authenticate(
         context: Context,
         notifyOnAuthenticationFailure: Boolean,
-        listener: (BiometricsAuthenticate) -> Unit
+        listener: (BiometricsAuthenticate) -> Unit,
     )
 
     suspend fun authenticate(
@@ -71,59 +75,71 @@ class BiometricAuthenticationControllerImpl(
     private val resourceProvider: ResourceProvider,
     private val cryptoController: CryptoController,
     private val biometryStorageController: BiometryStorageController,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : BiometricAuthenticationController {
-
     override fun deviceSupportsBiometrics(listener: (BiometricsAvailability) -> Unit) {
         val biometricManager = BiometricManager.from(resourceProvider.provideContext())
         when (biometricManager.canAuthenticate(BIOMETRIC_WEAK)) {
-            BiometricManager.BIOMETRIC_SUCCESS -> listener.invoke(BiometricsAvailability.CanAuthenticate)
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> listener.invoke(BiometricsAvailability.NonEnrolled)
-            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> listener.invoke(
-                BiometricsAvailability.Failure(resourceProvider.getString(R.string.biometric_no_hardware))
-            )
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                listener.invoke(BiometricsAvailability.CanAuthenticate)
+            }
 
-            else -> listener.invoke(BiometricsAvailability.Failure(resourceProvider.getString(R.string.biometric_unknown_error)))
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                listener.invoke(BiometricsAvailability.NonEnrolled)
+            }
+
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> {
+                listener.invoke(
+                    BiometricsAvailability.Failure(resourceProvider.getString(R.string.biometric_no_hardware)),
+                )
+            }
+
+            else -> {
+                listener.invoke(BiometricsAvailability.Failure(resourceProvider.getString(R.string.biometric_unknown_error)))
+            }
         }
     }
 
     override fun authenticate(
         context: Context,
         notifyOnAuthenticationFailure: Boolean,
-        listener: (BiometricsAuthenticate) -> Unit
+        listener: (BiometricsAuthenticate) -> Unit,
     ) {
         (context as? FragmentActivity)?.let { activity ->
 
             activity.lifecycleScope.launch {
-
                 val storedCrypto = retrieveCrypto()
                 val biometricData = storedCrypto.first
                 val cipher = storedCrypto.second
 
                 if (cipher == null) {
                     listener.invoke(
-                        BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description))
+                        BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description)),
                     )
                     return@launch
                 }
 
-                val data = authenticate(
-                    activity = activity,
-                    biometryCrypto = BiometricCrypto(BiometricPrompt.CryptoObject(cipher)),
-                    promptInfo = BiometricPrompt.PromptInfo.Builder()
-                        .setTitle(activity.getString(R.string.biometric_prompt_title))
-                        .setSubtitle(activity.getString(R.string.biometric_prompt_subtitle))
-                        .setNegativeButtonText(activity.getString(R.string.generic_cancel))
-                        .build(),
-                    notifyOnAuthenticationFailure = notifyOnAuthenticationFailure
-                )
+                val data =
+                    authenticate(
+                        activity = activity,
+                        biometryCrypto = BiometricCrypto(BiometricPrompt.CryptoObject(cipher)),
+                        promptInfo =
+                            BiometricPrompt.PromptInfo
+                                .Builder()
+                                .setTitle(activity.getString(R.string.biometric_prompt_title))
+                                .setSubtitle(activity.getString(R.string.biometric_prompt_subtitle))
+                                .setNegativeButtonText(activity.getString(R.string.generic_cancel))
+                                .build(),
+                        notifyOnAuthenticationFailure = notifyOnAuthenticationFailure,
+                    )
 
                 if (data.authenticationResult != null) {
-                    val state = verifyCrypto(
-                        context = context,
-                        result = data.authenticationResult,
-                        biometricAuthentication = biometricData
-                    )
+                    val state =
+                        verifyCrypto(
+                            context = context,
+                            result = data.authenticationResult,
+                            biometricAuthentication = biometricData,
+                        )
                     listener.invoke(state)
                 } else if (
                     data.errorCode != BiometricsAuthError.Cancel.code &&
@@ -138,16 +154,17 @@ class BiometricAuthenticationControllerImpl(
     }
 
     override fun launchBiometricSystemScreen() {
-        val enrollIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
-                putExtra(
-                    Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                    BIOMETRIC_WEAK
-                )
+        val enrollIntent =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Intent(Settings.ACTION_BIOMETRIC_ENROLL).apply {
+                    putExtra(
+                        Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
+                        BIOMETRIC_WEAK,
+                    )
+                }
+            } else {
+                Intent(Settings.ACTION_SECURITY_SETTINGS)
             }
-        } else {
-            Intent(Settings.ACTION_SECURITY_SETTINGS)
-        }
         enrollIntent.addFlags(FLAG_ACTIVITY_NEW_TASK)
         resourceProvider.provideContext().startActivity(enrollIntent)
     }
@@ -156,100 +173,119 @@ class BiometricAuthenticationControllerImpl(
         activity: FragmentActivity,
         biometryCrypto: BiometricCrypto,
         promptInfo: BiometricPrompt.PromptInfo,
-        notifyOnAuthenticationFailure: Boolean
-    ): BiometricPromptData = suspendCancellableCoroutine { continuation ->
-        val prompt = BiometricPrompt(
-            activity,
-            ContextCompat.getMainExecutor(activity),
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    if (continuation.isActive) {
-                        continuation.resume(
-                            BiometricPromptData(null, errorCode, errString)
-                        )
-                    }
-                }
+        notifyOnAuthenticationFailure: Boolean,
+    ): BiometricPromptData =
+        suspendCancellableCoroutine { continuation ->
+            val prompt =
+                BiometricPrompt(
+                    activity,
+                    ContextCompat.getMainExecutor(activity),
+                    object : BiometricPrompt.AuthenticationCallback() {
+                        override fun onAuthenticationError(
+                            errorCode: Int,
+                            errString: CharSequence,
+                        ) {
+                            if (continuation.isActive) {
+                                continuation.resume(
+                                    BiometricPromptData(null, errorCode, errString),
+                                )
+                            }
+                        }
 
-                override fun onAuthenticationSucceeded(result: AuthenticationResult) {
-                    if (continuation.isActive) {
-                        continuation.resume(BiometricPromptData(result))
-                    }
-                }
+                        override fun onAuthenticationSucceeded(result: AuthenticationResult) {
+                            if (continuation.isActive) {
+                                continuation.resume(BiometricPromptData(result))
+                            }
+                        }
 
-                override fun onAuthenticationFailed() {
-                    if (continuation.isActive && notifyOnAuthenticationFailure) {
-                        continuation.resume(BiometricPromptData(null))
-                    }
-                }
-            }
-        )
-        biometryCrypto.cryptoObject?.let {
-            prompt.authenticate(
-                promptInfo,
-                it
-            )
-        } ?: prompt.authenticate(promptInfo)
-    }
+                        override fun onAuthenticationFailed() {
+                            if (continuation.isActive && notifyOnAuthenticationFailure) {
+                                continuation.resume(BiometricPromptData(null))
+                            }
+                        }
+                    },
+                )
+            biometryCrypto.cryptoObject?.let {
+                prompt.authenticate(
+                    promptInfo,
+                    it,
+                )
+            } ?: prompt.authenticate(promptInfo)
+        }
 
     private suspend fun retrieveCrypto(): Pair<BiometricAuthentication?, Cipher?> =
         withContext(dispatcher) {
             val biometricData = biometryStorageController.getBiometricAuthentication()
-            val cipher = cryptoController.getCipher(
-                encrypt = biometricData == null,
-                ivBytes = biometricData?.ivString?.decodeFromPemBase64String() ?: ByteArray(0)
-            )
+            val cipher =
+                cryptoController.getCipher(
+                    encrypt = biometricData == null,
+                    ivBytes = biometricData?.ivString?.decodeFromPemBase64String() ?: ByteArray(0),
+                )
             Pair(biometricData, cipher)
         }
 
     private suspend fun verifyCrypto(
         context: Context,
         result: AuthenticationResult?,
-        biometricAuthentication: BiometricAuthentication?
-    ): BiometricsAuthenticate = withContext(dispatcher) {
-        result?.cryptoObject?.cipher?.let {
-            if (biometricAuthentication == null) {
-                val randomString = cryptoController.generateCodeVerifier()
-                biometryStorageController.setBiometricAuthentication(
-                    BiometricAuthentication(
-                        randomString = randomString,
-                        encryptedString = cryptoController.encryptDecrypt(
-                            cipher = it,
-                            byteArray = randomString.toByteArray(StandardCharsets.UTF_8)
-                        ).encodeToPemBase64String().orEmpty(),
-                        ivString = it.iv.encodeToPemBase64String().orEmpty()
+        biometricAuthentication: BiometricAuthentication?,
+    ): BiometricsAuthenticate =
+        withContext(dispatcher) {
+            result?.cryptoObject?.cipher?.let {
+                if (biometricAuthentication == null) {
+                    val randomString = cryptoController.generateCodeVerifier()
+                    biometryStorageController.setBiometricAuthentication(
+                        BiometricAuthentication(
+                            randomString = randomString,
+                            encryptedString =
+                                cryptoController
+                                    .encryptDecrypt(
+                                        cipher = it,
+                                        byteArray = randomString.toByteArray(StandardCharsets.UTF_8),
+                                    ).encodeToPemBase64String()
+                                    .orEmpty(),
+                            ivString = it.iv.encodeToPemBase64String().orEmpty(),
+                        ),
                     )
-                )
-                BiometricsAuthenticate.Success
-            } else {
-                if (biometricAuthentication.randomString
-                        .toByteArray(StandardCharsets.UTF_8)
-                        .contentEquals(
-                            cryptoController.encryptDecrypt(
-                                cipher = it,
-                                byteArray = biometricAuthentication.encryptedString
-                                    .decodeFromPemBase64String() ?: ByteArray(0)
-                            )
-                        )
-                ) {
                     BiometricsAuthenticate.Success
                 } else {
-                    BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description))
+                    if (biometricAuthentication.randomString
+                            .toByteArray(StandardCharsets.UTF_8)
+                            .contentEquals(
+                                cryptoController.encryptDecrypt(
+                                    cipher = it,
+                                    byteArray =
+                                        biometricAuthentication.encryptedString
+                                            .decodeFromPemBase64String() ?: ByteArray(0),
+                                ),
+                            )
+                    ) {
+                        BiometricsAuthenticate.Success
+                    } else {
+                        BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description))
+                    }
                 }
-            }
-        } ?: BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description))
-    }
+            } ?: BiometricsAuthenticate.Failed(context.getString(R.string.generic_error_description))
+        }
 }
 
 sealed class BiometricsAuthenticate {
     data object Success : BiometricsAuthenticate()
-    data class Failed(val errorMessage: String) : BiometricsAuthenticate()
+
+    data class Failed(
+        val errorMessage: String,
+    ) : BiometricsAuthenticate()
+
     data object Cancelled : BiometricsAuthenticate()
 }
 
 sealed class BiometricsAvailability {
     data object CanAuthenticate : BiometricsAvailability()
+
     data object NonEnrolled : BiometricsAvailability()
-    data class Failure(val errorMessage: String) : BiometricsAvailability()
+
+    data class Failure(
+        val errorMessage: String,
+    ) : BiometricsAvailability()
 }
 
 data class BiometricPromptData(

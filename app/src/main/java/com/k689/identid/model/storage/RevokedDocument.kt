@@ -22,5 +22,5 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "revokedDocuments")
 data class RevokedDocument(
     @PrimaryKey
-    val identifier: String
+    val identifier: String,
 )

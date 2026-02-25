@@ -37,10 +37,11 @@ import com.k689.identid.ui.component.wrap.WrapText
 fun SectionTitle(
     modifier: Modifier,
     text: String,
-    textConfig: TextConfig = TextConfig(
-        style = MaterialTheme.typography.labelSmall,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
+    textConfig: TextConfig =
+        TextConfig(
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
 ) {
     WrapText(
         modifier = modifier,
@@ -55,7 +56,7 @@ private fun SectionTitlePreview() {
     PreviewTheme {
         SectionTitle(
             modifier = Modifier,
-            text = "DOCUMENT DETAILS"
+            text = "DOCUMENT DETAILS",
         )
     }
 }

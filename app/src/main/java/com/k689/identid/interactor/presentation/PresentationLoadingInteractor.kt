@@ -19,11 +19,11 @@ package com.k689.identid.interactor.presentation
 import android.content.Context
 import com.k689.identid.controller.authentication.BiometricsAvailability
 import com.k689.identid.controller.authentication.DeviceAuthenticationResult
-import com.k689.identid.model.authentication.BiometricCrypto
-import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
 import com.k689.identid.controller.core.SendRequestedDocumentsPartialState
 import com.k689.identid.controller.core.WalletCorePartialState
 import com.k689.identid.controller.core.WalletCorePresentationController
+import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
+import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.model.core.AuthenticationData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
@@ -34,20 +34,32 @@ sealed class PresentationLoadingObserveResponsePartialState {
         val authenticationData: List<AuthenticationData>,
     ) : PresentationLoadingObserveResponsePartialState()
 
-    data class Failure(val error: String) : PresentationLoadingObserveResponsePartialState()
+    data class Failure(
+        val error: String,
+    ) : PresentationLoadingObserveResponsePartialState()
+
     data object Success : PresentationLoadingObserveResponsePartialState()
-    data class Redirect(val uri: URI) : PresentationLoadingObserveResponsePartialState()
+
+    data class Redirect(
+        val uri: URI,
+    ) : PresentationLoadingObserveResponsePartialState()
+
     data object RequestReadyToBeSent : PresentationLoadingObserveResponsePartialState()
 }
 
 sealed class PresentationLoadingSendRequestedDocumentPartialState {
-    data class Failure(val error: String) : PresentationLoadingSendRequestedDocumentPartialState()
+    data class Failure(
+        val error: String,
+    ) : PresentationLoadingSendRequestedDocumentPartialState()
+
     data object Success : PresentationLoadingSendRequestedDocumentPartialState()
 }
 
 interface PresentationLoadingInteractor {
     fun observeResponse(): Flow<PresentationLoadingObserveResponsePartialState>
+
     fun sendRequestedDocuments(): PresentationLoadingSendRequestedDocumentPartialState
+
     fun handleUserAuthentication(
         context: Context,
         crypto: BiometricCrypto,
@@ -60,17 +72,20 @@ class PresentationLoadingInteractorImpl(
     private val walletCorePresentationController: WalletCorePresentationController,
     private val deviceAuthenticationInteractor: DeviceAuthenticationInteractor,
 ) : PresentationLoadingInteractor {
-
     override fun observeResponse(): Flow<PresentationLoadingObserveResponsePartialState> =
         walletCorePresentationController.observeSentDocumentsRequest().mapNotNull { response ->
             when (response) {
-                is WalletCorePartialState.Failure -> PresentationLoadingObserveResponsePartialState.Failure(
-                    error = response.error
-                )
+                is WalletCorePartialState.Failure -> {
+                    PresentationLoadingObserveResponsePartialState.Failure(
+                        error = response.error,
+                    )
+                }
 
-                is WalletCorePartialState.Redirect -> PresentationLoadingObserveResponsePartialState.Redirect(
-                    uri = response.uri
-                )
+                is WalletCorePartialState.Redirect -> {
+                    PresentationLoadingObserveResponsePartialState.Redirect(
+                        uri = response.uri,
+                    )
+                }
 
                 is WalletCorePartialState.Success -> {
                     PresentationLoadingObserveResponsePartialState.Success
@@ -78,22 +93,28 @@ class PresentationLoadingInteractorImpl(
 
                 is WalletCorePartialState.UserAuthenticationRequired -> {
                     PresentationLoadingObserveResponsePartialState.UserAuthenticationRequired(
-                        response.authenticationData
+                        response.authenticationData,
                     )
                 }
 
-                is WalletCorePartialState.RequestIsReadyToBeSent -> PresentationLoadingObserveResponsePartialState.RequestReadyToBeSent
+                is WalletCorePartialState.RequestIsReadyToBeSent -> {
+                    PresentationLoadingObserveResponsePartialState.RequestReadyToBeSent
+                }
             }
         }
 
-    override fun sendRequestedDocuments(): PresentationLoadingSendRequestedDocumentPartialState {
-        return when (val result = walletCorePresentationController.sendRequestedDocuments()) {
-            is SendRequestedDocumentsPartialState.RequestSent -> PresentationLoadingSendRequestedDocumentPartialState.Success
-            is SendRequestedDocumentsPartialState.Failure -> PresentationLoadingSendRequestedDocumentPartialState.Failure(
-                result.error
-            )
+    override fun sendRequestedDocuments(): PresentationLoadingSendRequestedDocumentPartialState =
+        when (val result = walletCorePresentationController.sendRequestedDocuments()) {
+            is SendRequestedDocumentsPartialState.RequestSent -> {
+                PresentationLoadingSendRequestedDocumentPartialState.Success
+            }
+
+            is SendRequestedDocumentsPartialState.Failure -> {
+                PresentationLoadingSendRequestedDocumentPartialState.Failure(
+                    result.error,
+                )
+            }
         }
-    }
 
     override fun handleUserAuthentication(
         context: Context,
@@ -108,7 +129,7 @@ class PresentationLoadingInteractorImpl(
                         context = context,
                         crypto = crypto,
                         notifyOnAuthenticationFailure = notifyOnAuthenticationFailure,
-                        resultHandler = resultHandler
+                        resultHandler = resultHandler,
                     )
                 }
 

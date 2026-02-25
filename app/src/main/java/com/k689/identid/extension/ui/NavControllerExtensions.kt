@@ -46,26 +46,23 @@ fun NavController.resetBackStack(screenRouter: String) {
     }
 }
 
-fun NavController.wasFlowCancelled(): Boolean {
-    return currentBackStackEntry
+fun NavController.wasFlowCancelled(): Boolean =
+    currentBackStackEntry
         ?.savedStateHandle
         ?.remove<Boolean>(FLOW_CANCELLATION)
         ?: false
-}
 
-fun NavController.wasFlowSucceeded(): Boolean {
-    return currentBackStackEntry
+fun NavController.wasFlowSucceeded(): Boolean =
+    currentBackStackEntry
         ?.savedStateHandle
         ?.remove<Boolean>(FLOW_SUCCESS)
         ?: false
-}
 
-fun NavController.getFlowCompletion(): FlowCompletion {
-    return if (wasFlowCancelled()) {
+fun NavController.getFlowCompletion(): FlowCompletion =
+    if (wasFlowCancelled()) {
         FlowCompletion.CANCEL
     } else if (wasFlowSucceeded()) {
         FlowCompletion.SUCCESS
     } else {
         FlowCompletion.NONE
     }
-}

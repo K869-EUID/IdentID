@@ -41,8 +41,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.ui.proximity.qr.component.rememberQrBitmapPainter
 import com.k689.identid.R
+import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.navigation.ProximityScreens
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.content.ContentScreen
 import com.k689.identid.ui.component.content.ContentTitle
@@ -55,8 +56,7 @@ import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.utils.screenWidthInDp
 import com.k689.identid.ui.component.wrap.WrapImage
-import com.k689.identid.extension.ui.paddingFrom
-import com.k689.identid.navigation.ProximityScreens
+import com.k689.identid.ui.proximity.qr.component.rememberQrBitmapPainter
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -66,7 +66,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 @Composable
 fun ProximityQRScreen(
     navController: NavController,
-    viewModel: ProximityQRViewModel
+    viewModel: ProximityQRViewModel,
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -95,7 +95,7 @@ fun ProximityQRScreen(
                     }
                 }
             },
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 
@@ -105,25 +105,25 @@ fun ProximityQRScreen(
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         viewModel.setEvent(
             Event.NfcEngagement(
                 componentActivity = context as ComponentActivity,
-                enable = true
-            )
+                enable = true,
+            ),
         )
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_PAUSE
+        lifecycleEvent = Lifecycle.Event.ON_PAUSE,
     ) {
         viewModel.setEvent(
             Event.NfcEngagement(
                 componentActivity = context as ComponentActivity,
-                enable = false
-            )
+                enable = false,
+            ),
         )
     }
 }
@@ -135,29 +135,29 @@ private fun Content(
     onNavigationRequested: (navigationEffect: Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
-
     val qrSize = screenWidthInDp(true) / 1.4f
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .paddingFrom(paddingValues, bottom = false)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .paddingFrom(paddingValues, bottom = false),
         ) {
             ContentTitle(
                 modifier = Modifier.fillMaxWidth(),
                 title = stringResource(id = R.string.proximity_qr_title),
-                subtitle = stringResource(id = R.string.proximity_qr_subtitle)
+                subtitle = stringResource(id = R.string.proximity_qr_subtitle),
             )
 
             Box(
                 modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 QRCode(
                     qrCode = state.qrCode,
-                    qrSize = qrSize
+                    qrSize = qrSize,
                 )
             }
         }
@@ -169,39 +169,41 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
 @Composable
 private fun NFCSection(paddingValues: PaddingValues) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(
-                start = SPACING_MEDIUM.dp,
-                end = SPACING_MEDIUM.dp,
-                top = SPACING_MEDIUM.dp,
-                bottom = paddingValues.calculateBottomPadding()
-            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(
+                    start = SPACING_MEDIUM.dp,
+                    end = SPACING_MEDIUM.dp,
+                    top = SPACING_MEDIUM.dp,
+                    bottom = paddingValues.calculateBottomPadding(),
+                ),
         verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(id = R.string.proximity_qr_use_nfc),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
         WrapImage(iconData = AppIcons.NFC)
         Text(
             text = stringResource(id = R.string.proximity_qr_hold_near_reader),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
         )
     }
 }
@@ -210,16 +212,17 @@ private fun NFCSection(paddingValues: PaddingValues) {
 private fun QRCode(
     modifier: Modifier = Modifier,
     qrCode: String,
-    qrSize: Dp
+    qrSize: Dp,
 ) {
     if (qrCode.isNotEmpty()) {
         WrapImage(
             modifier = modifier,
-            painter = rememberQrBitmapPainter(
-                content = qrCode,
-                size = qrSize
-            ),
-            contentDescription = stringResource(id = R.string.content_description_qr_code_icon)
+            painter =
+                rememberQrBitmapPainter(
+                    content = qrCode,
+                    size = qrSize,
+                ),
+            contentDescription = stringResource(id = R.string.content_description_qr_code_icon),
         )
     }
 }
@@ -229,14 +232,15 @@ private fun QRCode(
 private fun ContentPreview() {
     PreviewTheme {
         Content(
-            state = State(
-                isLoading = false,
-                error = null,
-                qrCode = "some qr code"
-            ),
+            state =
+                State(
+                    isLoading = false,
+                    error = null,
+                    qrCode = "some qr code",
+                ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onNavigationRequested = {},
-            paddingValues = PaddingValues(SPACING_MEDIUM.dp)
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
         )
     }
 }

@@ -17,6 +17,7 @@
 package com.k689.identid.ui.dashboard.transactions.list.model
 
 import androidx.annotation.StringRes
+import com.k689.identid.R
 import com.k689.identid.util.business.endOfDay
 import com.k689.identid.util.business.endOfMonth
 import com.k689.identid.util.business.endOfWeek
@@ -24,7 +25,6 @@ import com.k689.identid.util.business.monthYearFormatter
 import com.k689.identid.util.business.startOfDay
 import com.k689.identid.util.business.startOfMonth
 import com.k689.identid.util.business.startOfWeek
-import com.k689.identid.R
 import java.time.LocalDateTime
 
 sealed class TransactionCategoryUi(
@@ -32,29 +32,31 @@ sealed class TransactionCategoryUi(
     val id: Int,
     val order: Int,
     val dateRange: ClosedRange<LocalDateTime>? = null,
-    val displayName: String? = null
+    val displayName: String? = null,
 ) {
     data object Today : TransactionCategoryUi(
         stringResId = R.string.transaction_category_today,
         id = 1,
         order = Int.MAX_VALUE,
-        dateRange = LocalDateTime.now().startOfDay()..LocalDateTime.now().endOfDay()
+        dateRange = LocalDateTime.now().startOfDay()..LocalDateTime.now().endOfDay(),
     )
 
     data object ThisWeek : TransactionCategoryUi(
         stringResId = R.string.transaction_category_this_week,
         id = 2,
         order = Int.MAX_VALUE - 1,
-        dateRange = LocalDateTime.now().startOfWeek()..LocalDateTime.now().endOfWeek()
+        dateRange = LocalDateTime.now().startOfWeek()..LocalDateTime.now().endOfWeek(),
     )
 
-    class Month(dateTime: LocalDateTime) : TransactionCategoryUi(
-        stringResId = R.string.transaction_category_month_year,
-        id = generateMonthId(dateTime),
-        order = calculateMonthOrder(dateTime),
-        dateRange = dateTime.startOfMonth()..dateTime.endOfMonth(),
-        displayName = monthYearFormatter.format(dateTime).uppercase()
-    ) {
+    class Month(
+        dateTime: LocalDateTime,
+    ) : TransactionCategoryUi(
+            stringResId = R.string.transaction_category_month_year,
+            id = generateMonthId(dateTime),
+            order = calculateMonthOrder(dateTime),
+            dateRange = dateTime.startOfMonth()..dateTime.endOfMonth(),
+            displayName = monthYearFormatter.format(dateTime).uppercase(),
+        ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Month) return false
@@ -63,20 +65,16 @@ sealed class TransactionCategoryUi(
             val otherStart = other.dateRange?.start
 
             return thisStart?.year == otherStart?.year &&
-                    thisStart?.monthValue == otherStart?.monthValue
+                thisStart?.monthValue == otherStart?.monthValue
         }
 
-        override fun hashCode(): Int {
-            return dateRange?.let {
+        override fun hashCode(): Int =
+            dateRange?.let {
                 it.start.year * 100 + it.start.monthValue
             } ?: 0
-        }
     }
 }
 
-private fun generateMonthId(dateTime: LocalDateTime): Int =
-    dateTime.year * 100 + dateTime.monthValue
+private fun generateMonthId(dateTime: LocalDateTime): Int = dateTime.year * 100 + dateTime.monthValue
 
-private fun calculateMonthOrder(dateTime: LocalDateTime): Int {
-    return dateTime.year * 100 + dateTime.monthValue
-}
+private fun calculateMonthOrder(dateTime: LocalDateTime): Int = dateTime.year * 100 + dateTime.monthValue

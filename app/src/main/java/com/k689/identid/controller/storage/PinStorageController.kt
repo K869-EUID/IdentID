@@ -20,11 +20,15 @@ import com.k689.identid.config.StorageConfig
 
 interface PinStorageController {
     fun retrievePin(): String
+
     fun setPin(pin: String)
+
     fun isPinValid(pin: String): Boolean
 }
 
-class PinStorageControllerImpl(private val storageConfig: StorageConfig) : PinStorageController {
+class PinStorageControllerImpl(
+    private val storageConfig: StorageConfig,
+) : PinStorageController {
     override fun retrievePin(): String = storageConfig.pinStorageProvider.retrievePin()
 
     override fun setPin(pin: String) {

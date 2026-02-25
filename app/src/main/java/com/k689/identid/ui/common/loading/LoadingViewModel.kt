@@ -18,14 +18,14 @@ package com.k689.identid.ui.common.loading
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.k689.identid.config.NavigationType
+import com.k689.identid.navigation.Screen
 import com.k689.identid.ui.component.content.ContentErrorConfig
 import com.k689.identid.ui.component.content.ContentHeaderConfig
-import com.k689.identid.config.NavigationType
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
 import com.k689.identid.ui.mvi.ViewState
-import com.k689.identid.navigation.Screen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
@@ -34,28 +34,35 @@ data class State(
     val error: ContentErrorConfig? = null,
     val headerConfig: ContentHeaderConfig,
     val isCancellable: Boolean,
-    val notifyOnAuthenticationFailure: Boolean = false
+    val notifyOnAuthenticationFailure: Boolean = false,
 ) : ViewState
 
 sealed class Event : ViewEvent {
-    data class DoWork(val context: Context) : Event()
+    data class DoWork(
+        val context: Context,
+    ) : Event()
+
     data object Initialize : Event()
+
     data object GoBack : Event()
+
     data object DismissError : Event()
 }
 
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
-        data class SwitchScreen(val screenRoute: String) : Navigation()
+        data class SwitchScreen(
+            val screenRoute: String,
+        ) : Navigation()
+
         data class PopBackStackUpTo(
             val screenRoute: String,
-            val inclusive: Boolean
+            val inclusive: Boolean,
         ) : Navigation()
     }
 }
 
 abstract class LoadingViewModel : MviViewModel<Event, State, Effect>() {
-
     /**
      * The [ContentHeaderConfig] of the re-usable [LoadingScreen] .
      */
@@ -87,20 +94,22 @@ abstract class LoadingViewModel : MviViewModel<Event, State, Effect>() {
      */
     abstract fun getCancellableTimeout(): Duration
 
-    override fun setInitialState(): State {
-        return State(
+    override fun setInitialState(): State =
+        State(
             headerConfig = getHeaderConfig(),
             error = null,
-            isCancellable = !getCancellableTimeout().isPositive()
+            isCancellable = !getCancellableTimeout().isPositive(),
         )
-    }
 
     override fun handleEvents(event: Event) {
         when (event) {
+            is Event.Initialize -> {
+                initiateCancellableTimeoutIfAvailable()
+            }
 
-            is Event.Initialize -> initiateCancellableTimeoutIfAvailable()
-
-            is Event.DoWork -> doWork(event.context)
+            is Event.DoWork -> {
+                doWork(event.context)
+            }
 
             is Event.GoBack -> {
                 setState {
@@ -129,7 +138,7 @@ abstract class LoadingViewModel : MviViewModel<Event, State, Effect>() {
                 setEffect {
                     Effect.Navigation.PopBackStackUpTo(
                         screenRoute = getPreviousScreen().screenRoute,
-                        inclusive = false
+                        inclusive = false,
                     )
                 }
             }
@@ -138,15 +147,17 @@ abstract class LoadingViewModel : MviViewModel<Event, State, Effect>() {
                 setEffect {
                     Effect.Navigation.PopBackStackUpTo(
                         screenRoute = navigationType.screen.screenRoute,
-                        inclusive = false
+                        inclusive = false,
                     )
                 }
             }
 
             is NavigationType.Deeplink -> {}
 
-            is NavigationType.PushRoute -> setEffect {
-                Effect.Navigation.SwitchScreen(navigationType.route)
+            is NavigationType.PushRoute -> {
+                setEffect {
+                    Effect.Navigation.SwitchScreen(navigationType.route)
+                }
             }
         }
     }

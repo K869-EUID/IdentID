@@ -29,7 +29,7 @@ import androidx.lifecycle.LifecycleOwner
 
 @Composable
 fun OneTimeLaunchedEffect(
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     var initialEffects by rememberSaveable { mutableStateOf(false) }
     if (!initialEffects) {
@@ -42,14 +42,17 @@ fun OneTimeLaunchedEffect(
 
 @Composable
 fun LifecycleEffect(
-    lifecycleOwner: LifecycleOwner, lifecycleEvent: Lifecycle.Event, block: () -> Unit
+    lifecycleOwner: LifecycleOwner,
+    lifecycleEvent: Lifecycle.Event,
+    block: () -> Unit,
 ) {
     DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == lifecycleEvent) {
-                block()
+        val observer =
+            LifecycleEventObserver { _, event ->
+                if (event == lifecycleEvent) {
+                    block()
+                }
             }
-        }
         // Add the observer to the lifecycle
         lifecycleOwner.lifecycle.addObserver(observer)
 

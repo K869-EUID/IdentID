@@ -24,11 +24,12 @@ import com.k689.identid.model.authentication.BiometricCrypto
 
 interface DeviceAuthenticationInteractor {
     fun getBiometricsAvailability(listener: (BiometricsAvailability) -> Unit)
+
     fun authenticateWithBiometrics(
         context: Context,
         crypto: BiometricCrypto,
         notifyOnAuthenticationFailure: Boolean,
-        resultHandler: DeviceAuthenticationResult
+        resultHandler: DeviceAuthenticationResult,
     )
 
     fun launchBiometricSystemScreen()
@@ -37,7 +38,6 @@ interface DeviceAuthenticationInteractor {
 class DeviceAuthenticationInteractorImpl(
     private val deviceAuthenticationController: DeviceAuthenticationController,
 ) : DeviceAuthenticationInteractor {
-
     override fun launchBiometricSystemScreen() {
         deviceAuthenticationController.launchBiometricSystemScreen()
     }
@@ -50,13 +50,13 @@ class DeviceAuthenticationInteractorImpl(
         context: Context,
         crypto: BiometricCrypto,
         notifyOnAuthenticationFailure: Boolean,
-        resultHandler: DeviceAuthenticationResult
+        resultHandler: DeviceAuthenticationResult,
     ) {
         deviceAuthenticationController.authenticate(
             context,
             crypto,
             notifyOnAuthenticationFailure,
-            resultHandler
+            resultHandler,
         )
     }
 }

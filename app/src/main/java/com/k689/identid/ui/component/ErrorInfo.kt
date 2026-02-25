@@ -41,13 +41,12 @@ fun ErrorInfo(
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     isIconEnabled: Boolean = false,
 ) {
-
     val errorIconSize = screenWidthInDp(true) / 6
 
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SIZE_SMALL.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         WrapIcon(
             iconData = AppIcons.Error,
@@ -60,7 +59,7 @@ fun ErrorInfo(
             style = MaterialTheme.typography.bodyMedium,
             color = contentColor,
             textAlign = TextAlign.Center,
-            lineHeight = 20.sp
+            lineHeight = 20.sp,
         )
     }
 }
@@ -71,7 +70,7 @@ private fun ErrorInfoPreview() {
     PreviewTheme {
         ErrorInfo(
             informativeText = "No data available",
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }

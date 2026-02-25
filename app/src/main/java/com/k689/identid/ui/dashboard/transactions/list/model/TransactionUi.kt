@@ -17,8 +17,8 @@
 package com.k689.identid.ui.dashboard.transactions.list.model
 
 import com.k689.identid.model.validator.FilterableItemPayload
-import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
 import com.k689.identid.ui.component.wrap.ExpandableListItemUi
+import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
 
 data class TransactionUi(
     val uiData: ExpandableListItemUi.SingleListItem,

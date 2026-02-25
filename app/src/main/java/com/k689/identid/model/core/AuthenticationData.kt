@@ -20,5 +20,5 @@ import com.k689.identid.model.authentication.BiometricCrypto
 
 data class AuthenticationData(
     val crypto: BiometricCrypto,
-    val onAuthenticationSuccess: () -> Unit
+    val onAuthenticationSuccess: () -> Unit,
 )

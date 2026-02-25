@@ -54,34 +54,38 @@ fun WrapSwitch(
 private fun WrapSwitchPreview() {
     PreviewTheme {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_SMALL.dp)
+            verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_SMALL.dp),
         ) {
             WrapSwitch(
-                switchData = SwitchDataUi(
-                    enabled = true,
-                    isChecked = true,
-                ),
+                switchData =
+                    SwitchDataUi(
+                        enabled = true,
+                        isChecked = true,
+                    ),
                 onCheckedChange = {},
             )
             WrapSwitch(
-                switchData = SwitchDataUi(
-                    enabled = true,
-                    isChecked = false,
-                ),
+                switchData =
+                    SwitchDataUi(
+                        enabled = true,
+                        isChecked = false,
+                    ),
                 onCheckedChange = {},
             )
             WrapSwitch(
-                switchData = SwitchDataUi(
-                    enabled = false,
-                    isChecked = true,
-                ),
+                switchData =
+                    SwitchDataUi(
+                        enabled = false,
+                        isChecked = true,
+                    ),
                 onCheckedChange = {},
             )
             WrapSwitch(
-                switchData = SwitchDataUi(
-                    enabled = false,
-                    isChecked = false,
-                ),
+                switchData =
+                    SwitchDataUi(
+                        enabled = false,
+                        isChecked = false,
+                    ),
                 onCheckedChange = {},
             )
         }

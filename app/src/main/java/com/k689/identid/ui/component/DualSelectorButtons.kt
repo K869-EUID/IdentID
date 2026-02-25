@@ -44,7 +44,7 @@ import com.k689.identid.ui.component.wrap.WrapIcon
 
 enum class DualSelectorButton {
     FIRST,
-    SECOND
+    SECOND,
 }
 
 data class DualSelectorButtonDataUi(
@@ -54,64 +54,67 @@ data class DualSelectorButtonDataUi(
 )
 
 @Composable
-fun DualSelectorButtons(data: DualSelectorButtonDataUi, onClick: (DualSelectorButton) -> Unit) {
-
+fun DualSelectorButtons(
+    data: DualSelectorButtonDataUi,
+    onClick: (DualSelectorButton) -> Unit,
+) {
     Row(
-        modifier = Modifier
-            .height(SIZE_XX_LARGE.dp)
-            .fillMaxWidth()
+        modifier =
+            Modifier
+                .height(SIZE_XX_LARGE.dp)
+                .fillMaxWidth(),
     ) {
         RoundedBorderText(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(
-                    color = if (data.selectedButton == DualSelectorButton.FIRST) {
-                        MaterialTheme.colorScheme.secondary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceDim
-                    },
-                    RoundedCornerShape(
-                        topStart = SIZE_LARGE.dp,
-                        bottomStart = SIZE_LARGE.dp
-                    )
-                )
-                .clip(
-                    RoundedCornerShape(
-                        topStart = SIZE_LARGE.dp,
-                        bottomStart = SIZE_LARGE.dp
-                    )
-                )
-                .clickable { onClick(DualSelectorButton.FIRST) }
-                .padding(SIZE_SMALL.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(
+                        color =
+                            if (data.selectedButton == DualSelectorButton.FIRST) {
+                                MaterialTheme.colorScheme.secondary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceDim
+                            },
+                        RoundedCornerShape(
+                            topStart = SIZE_LARGE.dp,
+                            bottomStart = SIZE_LARGE.dp,
+                        ),
+                    ).clip(
+                        RoundedCornerShape(
+                            topStart = SIZE_LARGE.dp,
+                            bottomStart = SIZE_LARGE.dp,
+                        ),
+                    ).clickable { onClick(DualSelectorButton.FIRST) }
+                    .padding(SIZE_SMALL.dp),
             text = data.first,
-            isSelected = data.selectedButton == DualSelectorButton.FIRST
+            isSelected = data.selectedButton == DualSelectorButton.FIRST,
         )
         RoundedBorderText(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .background(
-                    color = if (data.selectedButton == DualSelectorButton.SECOND) {
-                        MaterialTheme.colorScheme.secondary
-                    } else {
-                        MaterialTheme.colorScheme.surfaceDim
-                    },
-                    RoundedCornerShape(
-                        topEnd = SIZE_LARGE.dp,
-                        bottomEnd = SIZE_LARGE.dp
-                    )
-                )
-                .clip(
-                    RoundedCornerShape(
-                        topEnd = SIZE_LARGE.dp,
-                        bottomEnd = SIZE_LARGE.dp
-                    )
-                )
-                .clickable { onClick(DualSelectorButton.SECOND) }
-                .padding(SIZE_SMALL.dp),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+                    .background(
+                        color =
+                            if (data.selectedButton == DualSelectorButton.SECOND) {
+                                MaterialTheme.colorScheme.secondary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceDim
+                            },
+                        RoundedCornerShape(
+                            topEnd = SIZE_LARGE.dp,
+                            bottomEnd = SIZE_LARGE.dp,
+                        ),
+                    ).clip(
+                        RoundedCornerShape(
+                            topEnd = SIZE_LARGE.dp,
+                            bottomEnd = SIZE_LARGE.dp,
+                        ),
+                    ).clickable { onClick(DualSelectorButton.SECOND) }
+                    .padding(SIZE_SMALL.dp),
             text = data.second,
-            isSelected = data.selectedButton == DualSelectorButton.SECOND
+            isSelected = data.selectedButton == DualSelectorButton.SECOND,
         )
     }
 }
@@ -122,29 +125,30 @@ fun RoundedBorderText(
     text: String,
     isSelected: Boolean,
 ) {
-    val contentColor = if (isSelected) {
-        MaterialTheme.colorScheme.onSecondaryContainer
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
+    val contentColor =
+        if (isSelected) {
+            MaterialTheme.colorScheme.onSecondaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        }
 
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         AnimatedVisibility(isSelected) {
             WrapIcon(
                 modifier = Modifier.padding(end = SPACING_SMALL.dp),
                 iconData = AppIcons.Check,
-                customTint = contentColor
+                customTint = contentColor,
             )
         }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center,
-            color = contentColor
+            color = contentColor,
         )
     }
 }
@@ -157,8 +161,8 @@ private fun DualSelectorButtonsPreview() {
             DualSelectorButtonDataUi(
                 first = "offendit",
                 second = "principes",
-                selectedButton = DualSelectorButton.SECOND
-            )
+                selectedButton = DualSelectorButton.SECOND,
+            ),
         ) {}
     }
 }

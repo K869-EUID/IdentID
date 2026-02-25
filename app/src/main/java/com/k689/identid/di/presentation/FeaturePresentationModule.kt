@@ -16,17 +16,17 @@
 
 package com.k689.identid.di.presentation
 
-import com.k689.identid.provider.UuidProvider
-import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
 import com.k689.identid.controller.core.WalletCoreDocumentsController
 import com.k689.identid.controller.core.WalletCorePresentationController
 import com.k689.identid.di.core.PRESENTATION_SCOPE_ID
+import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
 import com.k689.identid.interactor.presentation.PresentationLoadingInteractor
 import com.k689.identid.interactor.presentation.PresentationLoadingInteractorImpl
 import com.k689.identid.interactor.presentation.PresentationRequestInteractor
 import com.k689.identid.interactor.presentation.PresentationRequestInteractorImpl
 import com.k689.identid.interactor.presentation.PresentationSuccessInteractor
 import com.k689.identid.interactor.presentation.PresentationSuccessInteractorImpl
+import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.resources.ResourceProvider
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
@@ -43,25 +43,23 @@ fun providePresentationRequestInteractor(
     uuidProvider: UuidProvider,
     walletCoreDocumentsController: WalletCoreDocumentsController,
     @ScopeId(name = PRESENTATION_SCOPE_ID) walletCorePresentationController: WalletCorePresentationController,
-): PresentationRequestInteractor {
-    return PresentationRequestInteractorImpl(
+): PresentationRequestInteractor =
+    PresentationRequestInteractorImpl(
         resourceProvider,
         uuidProvider,
         walletCorePresentationController,
-        walletCoreDocumentsController
+        walletCoreDocumentsController,
     )
-}
 
 @Factory
 fun providePresentationLoadingInteractor(
     @ScopeId(name = PRESENTATION_SCOPE_ID) walletCorePresentationController: WalletCorePresentationController,
     deviceAuthenticationInteractor: DeviceAuthenticationInteractor,
-): PresentationLoadingInteractor {
-    return PresentationLoadingInteractorImpl(
+): PresentationLoadingInteractor =
+    PresentationLoadingInteractorImpl(
         walletCorePresentationController,
-        deviceAuthenticationInteractor
+        deviceAuthenticationInteractor,
     )
-}
 
 @Factory
 fun providePresentationSuccessInteractor(
@@ -69,11 +67,10 @@ fun providePresentationSuccessInteractor(
     walletCoreDocumentsController: WalletCoreDocumentsController,
     resourceProvider: ResourceProvider,
     uuidProvider: UuidProvider,
-): PresentationSuccessInteractor {
-    return PresentationSuccessInteractorImpl(
+): PresentationSuccessInteractor =
+    PresentationSuccessInteractorImpl(
         walletCorePresentationController,
         walletCoreDocumentsController,
         resourceProvider,
         uuidProvider,
     )
-}

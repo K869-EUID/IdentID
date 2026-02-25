@@ -31,14 +31,15 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 enum class DatePickerDialogType {
-    SelectStartDate, SelectEndDate
+    SelectStartDate,
+    SelectEndDate,
 }
 
 data class DatePickerDialogConfig(
     val type: DatePickerDialogType,
     val lowerLimit: LocalDate? = LocalDate.MIN,
     val upperLimit: LocalDate? = LocalDate.MAX,
-    val selectedUtcDateMillis: Long? = null
+    val selectedUtcDateMillis: Long? = null,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,24 +47,28 @@ data class DatePickerDialogConfig(
 fun FiltersDatePickerDialog(
     datePickerDialogConfig: DatePickerDialogConfig,
     onDateSelected: (Long?) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
-    val customSelectableDates = object : SelectableDates {
-        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-            val date = Instant.ofEpochMilli(utcTimeMillis)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()
+    val customSelectableDates =
+        object : SelectableDates {
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val date =
+                    Instant
+                        .ofEpochMilli(utcTimeMillis)
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
 
-            val min = datePickerDialogConfig.lowerLimit ?: LocalDate.MIN
-            val max = datePickerDialogConfig.upperLimit ?: LocalDate.MAX
-            return !date.isBefore(min) && !date.isAfter(max)
+                val min = datePickerDialogConfig.lowerLimit ?: LocalDate.MIN
+                val max = datePickerDialogConfig.upperLimit ?: LocalDate.MAX
+                return !date.isBefore(min) && !date.isAfter(max)
+            }
         }
-    }
 
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = datePickerDialogConfig.selectedUtcDateMillis,
-        selectableDates = customSelectableDates
-    )
+    val datePickerState =
+        rememberDatePickerState(
+            initialSelectedDateMillis = datePickerDialogConfig.selectedUtcDateMillis,
+            selectableDates = customSelectableDates,
+        )
     DatePickerDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
@@ -71,7 +76,7 @@ fun FiltersDatePickerDialog(
                 onClick = {
                     onDateSelected(datePickerState.selectedDateMillis)
                     onDismiss()
-                }
+                },
             ) {
                 Text(stringResource(R.string.generic_ok))
             }
@@ -80,7 +85,7 @@ fun FiltersDatePickerDialog(
             TextButton(onClick = onDismiss) {
                 Text(stringResource(R.string.generic_cancel))
             }
-        }
+        },
     ) {
         DatePicker(state = datePickerState)
     }

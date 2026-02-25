@@ -14,15 +14,15 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.dashboard.document_sign
+package com.k689.identid.ui.dashboard.sign
 
 import android.content.Context
 import android.net.Uri
-import com.k689.identid.interactor.dashboard.DocumentSignInteractor
-import com.k689.identid.ui.dashboard.document_sign.model.DocumentSignButtonUi
 import com.k689.identid.R
+import com.k689.identid.interactor.dashboard.DocumentSignInteractor
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.component.content.ContentErrorConfig
+import com.k689.identid.ui.dashboard.sign.model.DocumentSignButtonUi
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
@@ -34,13 +34,18 @@ data class State(
     val error: ContentErrorConfig? = null,
     val title: String,
     val subtitle: String,
-    val buttonUi: DocumentSignButtonUi
+    val buttonUi: DocumentSignButtonUi,
 ) : ViewState
 
 sealed class Event : ViewEvent {
     data object Pop : Event()
+
     data object OnSelectDocument : Event()
-    data class DocumentUriRetrieved(val context: Context, val uri: Uri) : Event()
+
+    data class DocumentUriRetrieved(
+        val context: Context,
+        val uri: Uri,
+    ) : Event()
 }
 
 sealed class Effect : ViewSideEffect {
@@ -48,7 +53,9 @@ sealed class Effect : ViewSideEffect {
         data object Pop : Navigation()
     }
 
-    data class OpenDocumentSelection(val selection: List<String>) : Effect()
+    data class OpenDocumentSelection(
+        val selection: List<String>,
+    ) : Effect()
 }
 
 @KoinViewModel
@@ -56,12 +63,12 @@ class DocumentSignViewModel(
     private val documentSignInteractor: DocumentSignInteractor,
     private val resourceProvider: ResourceProvider,
 ) : MviViewModel<Event, State, Effect>() {
-
-    override fun setInitialState(): State = State(
-        title = resourceProvider.getString(R.string.document_sign_title),
-        subtitle = resourceProvider.getString(R.string.document_sign_subtitle),
-        buttonUi = documentSignInteractor.getItemUi(),
-    )
+    override fun setInitialState(): State =
+        State(
+            title = resourceProvider.getString(R.string.document_sign_title),
+            subtitle = resourceProvider.getString(R.string.document_sign_subtitle),
+            buttonUi = documentSignInteractor.getItemUi(),
+        )
 
     override fun handleEvents(event: Event) {
         when (event) {
@@ -69,11 +76,16 @@ class DocumentSignViewModel(
                 setEffect { Effect.OpenDocumentSelection(listOf("application/pdf")) }
             }
 
-            is Event.Pop -> setEffect { Effect.Navigation.Pop }
-            is Event.DocumentUriRetrieved -> documentSignInteractor.launchRqesSdk(
-                event.context,
-                event.uri
-            )
+            is Event.Pop -> {
+                setEffect { Effect.Navigation.Pop }
+            }
+
+            is Event.DocumentUriRetrieved -> {
+                documentSignInteractor.launchRqesSdk(
+                    event.context,
+                    event.uri,
+                )
+            }
         }
     }
 }

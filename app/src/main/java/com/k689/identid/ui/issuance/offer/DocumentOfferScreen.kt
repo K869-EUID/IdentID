@@ -37,10 +37,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.config.OfferUiConfig
-import com.k689.identid.util.core.CoreActions
-import com.k689.identid.util.issuance.TestTag
 import com.k689.identid.R
+import com.k689.identid.config.ConfigNavigation
+import com.k689.identid.config.NavigationType
+import com.k689.identid.config.OfferUiConfig
+import com.k689.identid.extension.ui.cacheDeepLink
+import com.k689.identid.extension.ui.getPendingDeepLink
+import com.k689.identid.navigation.DashboardScreens
+import com.k689.identid.navigation.IssuanceScreens
+import com.k689.identid.navigation.helper.handleDeepLinkAction
 import com.k689.identid.ui.component.ErrorInfo
 import com.k689.identid.ui.component.ListItemDataUi
 import com.k689.identid.ui.component.ListItemMainContentDataUi
@@ -62,13 +67,8 @@ import com.k689.identid.ui.component.wrap.StickyBottomConfig
 import com.k689.identid.ui.component.wrap.StickyBottomType
 import com.k689.identid.ui.component.wrap.WrapListItem
 import com.k689.identid.ui.component.wrap.WrapStickyBottomContent
-import com.k689.identid.config.ConfigNavigation
-import com.k689.identid.config.NavigationType
-import com.k689.identid.extension.ui.cacheDeepLink
-import com.k689.identid.extension.ui.getPendingDeepLink
-import com.k689.identid.navigation.DashboardScreens
-import com.k689.identid.navigation.IssuanceScreens
-import com.k689.identid.navigation.helper.handleDeepLinkAction
+import com.k689.identid.util.core.CoreActions
+import com.k689.identid.util.issuance.TestTag
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -78,7 +78,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 @Composable
 fun DocumentOfferScreen(
     navController: NavController,
-    viewModel: DocumentOfferViewModel
+    viewModel: DocumentOfferViewModel,
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -90,41 +90,52 @@ fun DocumentOfferScreen(
         onBack = { viewModel.setEvent(Event.BackButtonPressed) },
         stickyBottom = { paddingValues ->
             WrapStickyBottomContent(
-                modifier = Modifier
-                    .testTag(TestTag.DocumentOfferScreen.BUTTON)
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-                stickyBottomConfig = StickyBottomConfig(
-                    type = StickyBottomType.OneButton(
-                        config = ButtonConfig(
-                            type = ButtonType.PRIMARY,
-                            enabled = !state.isLoading && !state.noDocument,
-                            onClick = { viewModel.setEvent(Event.StickyButtonPressed(context)) }
-                        )
-                    )
-                )
+                modifier =
+                    Modifier
+                        .testTag(TestTag.DocumentOfferScreen.BUTTON)
+                        .fillMaxWidth()
+                        .padding(paddingValues),
+                stickyBottomConfig =
+                    StickyBottomConfig(
+                        type =
+                            StickyBottomType.OneButton(
+                                config =
+                                    ButtonConfig(
+                                        type = ButtonType.PRIMARY,
+                                        enabled = !state.isLoading && !state.noDocument,
+                                        onClick = { viewModel.setEvent(Event.StickyButtonPressed(context)) },
+                                    ),
+                            ),
+                    ),
             ) {
                 Text(text = stringResource(R.string.issuance_document_offer_primary_button_text_add))
             }
         },
-        broadcastAction = BroadcastAction(
-            intentFilters = listOf(
-                CoreActions.VCI_RESUME_ACTION,
-                CoreActions.VCI_DYNAMIC_PRESENTATION
-            ),
-            callback = {
-                when (it?.action) {
-                    CoreActions.VCI_RESUME_ACTION -> it.extras?.getString("uri")?.let { link ->
-                        viewModel.setEvent(Event.OnResumeIssuance(link))
-                    }
-
-                    CoreActions.VCI_DYNAMIC_PRESENTATION -> it.extras?.getString("uri")
-                        ?.let { link ->
-                            viewModel.setEvent(Event.OnDynamicPresentation(link))
+        broadcastAction =
+            BroadcastAction(
+                intentFilters =
+                    listOf(
+                        CoreActions.VCI_RESUME_ACTION,
+                        CoreActions.VCI_DYNAMIC_PRESENTATION,
+                    ),
+                callback = {
+                    when (it?.action) {
+                        CoreActions.VCI_RESUME_ACTION -> {
+                            it.extras?.getString("uri")?.let { link ->
+                                viewModel.setEvent(Event.OnResumeIssuance(link))
+                            }
                         }
-                }
-            }
-        )
+
+                        CoreActions.VCI_DYNAMIC_PRESENTATION -> {
+                            it.extras
+                                ?.getString("uri")
+                                ?.let { link ->
+                                    viewModel.setEvent(Event.OnDynamicPresentation(link))
+                                }
+                        }
+                    }
+                },
+            ),
     ) { paddingValues ->
         Content(
             state = state,
@@ -138,14 +149,14 @@ fun DocumentOfferScreen(
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_PAUSE
+        lifecycleEvent = Lifecycle.Event.ON_PAUSE,
     ) {
         viewModel.setEvent(Event.OnPause)
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         viewModel.setEvent(Event.Init(context.getPendingDeepLink()))
     }
@@ -159,9 +170,10 @@ private fun Content(
     paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) {
         ContentHeader(
             modifier = Modifier.fillMaxWidth(),
@@ -172,7 +184,7 @@ private fun Content(
         if (state.noDocument) {
             ErrorInfo(
                 modifier = Modifier.fillMaxSize(),
-                informativeText = stringResource(id = R.string.issuance_document_offer_error_no_document)
+                informativeText = stringResource(id = R.string.issuance_document_offer_error_no_document),
             )
         } else {
             // Screen Main Content
@@ -184,11 +196,12 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
@@ -216,7 +229,7 @@ private fun MainContent(
 private fun handleNavigationEffect(
     context: Context,
     navigationEffect: Effect.Navigation,
-    navController: NavController
+    navController: NavController,
 ) {
     when (navigationEffect) {
         is Effect.Navigation.SwitchScreen -> {
@@ -232,7 +245,7 @@ private fun handleNavigationEffect(
         is Effect.Navigation.PopBackStackUpTo -> {
             navController.popBackStack(
                 route = navigationEffect.screenRoute,
-                inclusive = navigationEffect.inclusive
+                inclusive = navigationEffect.inclusive,
             )
         }
 
@@ -241,12 +254,14 @@ private fun handleNavigationEffect(
                 context.cacheDeepLink(navigationEffect.link)
                 navController.popBackStack(
                     route = it,
-                    inclusive = false
+                    inclusive = false,
                 )
             } ?: handleDeepLinkAction(navController, navigationEffect.link)
         }
 
-        is Effect.Navigation.Pop -> navController.popBackStack()
+        is Effect.Navigation.Pop -> {
+            navController.popBackStack()
+        }
     }
 }
 
@@ -254,39 +269,47 @@ private fun handleNavigationEffect(
 @Composable
 private fun ContentPreview() {
     PreviewTheme {
-        val previewState = State(
-            isLoading = false,
-            error = null,
-            isInitialised = true,
-            documents = listOf(
-                ListItemDataUi(
-                    itemId = "doc_1",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "PID")
-                )
-            ),
-            noDocument = false,
-            headerConfig = ContentHeaderConfig(
-                description = stringResource(R.string.issuance_document_offer_description),
-                mainText = stringResource(R.string.issuance_document_offer_header_main_text),
-                relyingPartyData = RelyingPartyDataUi(
-                    isVerified = true,
-                    name = stringResource(R.string.issuance_document_offer_relying_party_default_name),
-                    description = stringResource(R.string.issuance_document_offer_relying_party_description)
-                )
-            ),
-            offerUiConfig = OfferUiConfig(
-                offerUri = "",
-                onSuccessNavigation = ConfigNavigation(
-                    navigationType = NavigationType.PushScreen(
-                        screen = DashboardScreens.Dashboard,
-                        popUpToScreen = IssuanceScreens.AddDocument
-                    )
-                ),
-                onCancelNavigation = ConfigNavigation(
-                    navigationType = NavigationType.Pop
-                )
+        val previewState =
+            State(
+                isLoading = false,
+                error = null,
+                isInitialised = true,
+                documents =
+                    listOf(
+                        ListItemDataUi(
+                            itemId = "doc_1",
+                            mainContentData = ListItemMainContentDataUi.Text(text = "PID"),
+                        ),
+                    ),
+                noDocument = false,
+                headerConfig =
+                    ContentHeaderConfig(
+                        description = stringResource(R.string.issuance_document_offer_description),
+                        mainText = stringResource(R.string.issuance_document_offer_header_main_text),
+                        relyingPartyData =
+                            RelyingPartyDataUi(
+                                isVerified = true,
+                                name = stringResource(R.string.issuance_document_offer_relying_party_default_name),
+                                description = stringResource(R.string.issuance_document_offer_relying_party_description),
+                            ),
+                    ),
+                offerUiConfig =
+                    OfferUiConfig(
+                        offerUri = "",
+                        onSuccessNavigation =
+                            ConfigNavigation(
+                                navigationType =
+                                    NavigationType.PushScreen(
+                                        screen = DashboardScreens.Dashboard,
+                                        popUpToScreen = IssuanceScreens.AddDocument,
+                                    ),
+                            ),
+                        onCancelNavigation =
+                            ConfigNavigation(
+                                navigationType = NavigationType.Pop,
+                            ),
+                    ),
             )
-        )
 
         Content(
             state = previewState,

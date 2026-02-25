@@ -18,5 +18,5 @@ package com.k689.identid.model.common
 
 enum class PinFlow {
     CREATE,
-    UPDATE
+    UPDATE,
 }

@@ -22,8 +22,8 @@ import com.k689.identid.navigation.RouterHost
 import com.k689.identid.navigation.RouterHostImpl
 import com.k689.identid.ui.serializer.UiSerializer
 import com.k689.identid.ui.serializer.UiSerializerImpl
-import org.koin.core.annotation.Factory
 import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 
@@ -41,4 +41,3 @@ fun provideUiSerializer(): UiSerializer = UiSerializerImpl()
 
 @Single
 fun provideConfigUILogic(): ConfigUILogic = ConfigUILogicImpl()
-

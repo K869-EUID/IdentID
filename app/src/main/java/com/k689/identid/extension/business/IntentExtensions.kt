@@ -23,15 +23,14 @@ import androidx.annotation.CheckResult
 
 @CheckResult
 inline fun <reified T : Parcelable> Intent?.getParcelableArrayListExtra(
-    action: String
-): List<T>? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    action: String,
+): List<T>? =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         this?.getParcelableArrayListExtra(
             action,
-            T::class.java
+            T::class.java,
         )
     } else {
         @Suppress("DEPRECATION")
         this?.getParcelableArrayListExtra(action)
     }?.filterNotNull()
-}

@@ -16,17 +16,16 @@
 
 package com.k689.identid.storage.prefs
 
-import com.k689.identid.provider.authentication.PinStorageProvider
 import com.k689.identid.controller.crypto.CryptoController
 import com.k689.identid.controller.storage.PrefsController
 import com.k689.identid.extension.business.decodeFromBase64
 import com.k689.identid.extension.business.encodeToBase64String
+import com.k689.identid.provider.authentication.PinStorageProvider
 
 class PrefsPinStorageProvider(
     private val prefsController: PrefsController,
-    private val cryptoController: CryptoController
+    private val cryptoController: CryptoController,
 ) : PinStorageProvider {
-
     /**
      * Retrieves the stored PIN after decrypting it.
      *
@@ -55,16 +54,17 @@ class PrefsPinStorageProvider(
     override fun isPinValid(pin: String): Boolean = retrievePin() == pin
 
     private fun encryptAndStore(pin: String) {
+        val cipher =
+            cryptoController.getCipher(
+                encrypt = true,
+                userAuthenticationRequired = false,
+            )
 
-        val cipher = cryptoController.getCipher(
-            encrypt = true,
-            userAuthenticationRequired = false
-        )
-
-        val encryptedBytes = cryptoController.encryptDecrypt(
-            cipher = cipher,
-            byteArray = pin.toByteArray(Charsets.UTF_8)
-        )
+        val encryptedBytes =
+            cryptoController.encryptDecrypt(
+                cipher = cipher,
+                byteArray = pin.toByteArray(Charsets.UTF_8),
+            )
 
         val ivBytes = cipher?.iv ?: return
 
@@ -73,25 +73,32 @@ class PrefsPinStorageProvider(
     }
 
     private fun decryptedAndLoad(): String {
+        val encryptedBase64 =
+            prefsController
+                .getString(
+                    "PinEnc",
+                    "",
+                ).ifEmpty { return "" }
 
-        val encryptedBase64 = prefsController.getString(
-            "PinEnc", ""
-        ).ifEmpty { return "" }
+        val ivBase64 =
+            prefsController
+                .getString(
+                    "PinIv",
+                    "",
+                ).ifEmpty { return "" }
 
-        val ivBase64 = prefsController.getString(
-            "PinIv", ""
-        ).ifEmpty { return "" }
+        val cipher =
+            cryptoController.getCipher(
+                encrypt = false,
+                ivBytes = decodeFromBase64(ivBase64),
+                userAuthenticationRequired = false,
+            )
 
-        val cipher = cryptoController.getCipher(
-            encrypt = false,
-            ivBytes = decodeFromBase64(ivBase64),
-            userAuthenticationRequired = false
-        )
-
-        val decryptedBytes = cryptoController.encryptDecrypt(
-            cipher = cipher,
-            byteArray = decodeFromBase64(encryptedBase64)
-        )
+        val decryptedBytes =
+            cryptoController.encryptDecrypt(
+                cipher = cipher,
+                byteArray = decodeFromBase64(encryptedBase64),
+            )
 
         return String(decryptedBytes, Charsets.UTF_8)
     }

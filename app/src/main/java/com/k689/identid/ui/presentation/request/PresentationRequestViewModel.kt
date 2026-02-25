@@ -17,27 +17,27 @@
 package com.k689.identid.ui.presentation.request
 
 import androidx.lifecycle.viewModelScope
-import com.k689.identid.extension.business.ifEmptyOrNull
+import com.k689.identid.R
 import com.k689.identid.config.BiometricMode
 import com.k689.identid.config.BiometricUiConfig
-import com.k689.identid.config.OnBackNavigationConfig
-import com.k689.identid.config.RequestUriConfig
-import com.k689.identid.ui.common.request.Event
-import com.k689.identid.ui.common.request.RequestViewModel
-import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
-import com.k689.identid.interactor.presentation.PresentationRequestInteractor
-import com.k689.identid.interactor.presentation.PresentationRequestInteractorPartialState
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
-import com.k689.identid.ui.component.RelyingPartyDataUi
-import com.k689.identid.ui.component.content.ContentErrorConfig
-import com.k689.identid.ui.component.content.ContentHeaderConfig
 import com.k689.identid.config.ConfigNavigation
 import com.k689.identid.config.NavigationType
+import com.k689.identid.config.OnBackNavigationConfig
+import com.k689.identid.config.RequestUriConfig
+import com.k689.identid.extension.business.ifEmptyOrNull
+import com.k689.identid.interactor.presentation.PresentationRequestInteractor
+import com.k689.identid.interactor.presentation.PresentationRequestInteractorPartialState
 import com.k689.identid.navigation.CommonScreens
 import com.k689.identid.navigation.PresentationScreens
 import com.k689.identid.navigation.helper.generateComposableArguments
 import com.k689.identid.navigation.helper.generateComposableNavigationLink
+import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.common.request.Event
+import com.k689.identid.ui.common.request.RequestViewModel
+import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
+import com.k689.identid.ui.component.RelyingPartyDataUi
+import com.k689.identid.ui.component.content.ContentErrorConfig
+import com.k689.identid.ui.component.content.ContentHeaderConfig
 import com.k689.identid.ui.serializer.UiSerializer
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -48,132 +48,144 @@ class PresentationRequestViewModel(
     private val interactor: PresentationRequestInteractor,
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
-    @InjectedParam private val requestUriConfigRaw: String
+    @InjectedParam private val requestUriConfigRaw: String,
 ) : RequestViewModel() {
-
-    override fun getHeaderConfig(): ContentHeaderConfig {
-        return ContentHeaderConfig(
+    override fun getHeaderConfig(): ContentHeaderConfig =
+        ContentHeaderConfig(
             description = resourceProvider.getString(R.string.request_header_description),
             mainText = resourceProvider.getString(R.string.request_header_main_text),
-            relyingPartyData = getRelyingPartyData(
-                name = null,
-                isVerified = false,
-            ),
+            relyingPartyData =
+                getRelyingPartyData(
+                    name = null,
+                    isVerified = false,
+                ),
         )
-    }
 
-    override fun getNextScreen(): String {
-        return generateComposableNavigationLink(
+    override fun getNextScreen(): String =
+        generateComposableNavigationLink(
             screen = CommonScreens.Biometric,
-            arguments = generateComposableArguments(
-                mapOf(
-                    BiometricUiConfig.serializedKeyName to uiSerializer.toBase64(
-                        BiometricUiConfig(
-                            mode = BiometricMode.Default(
-                                descriptionWhenBiometricsEnabled = resourceProvider.getString(R.string.loading_biometry_biometrics_enabled_description),
-                                descriptionWhenBiometricsNotEnabled = resourceProvider.getString(R.string.loading_biometry_biometrics_not_enabled_description),
-                                textAbovePin = resourceProvider.getString(R.string.biometric_default_mode_text_above_pin_field),
-                            ),
-                            isPreAuthorization = false,
-                            shouldInitializeBiometricAuthOnCreate = true,
-                            onSuccessNavigation = ConfigNavigation(
-                                navigationType = NavigationType.PushScreen(PresentationScreens.PresentationLoading),
-                            ),
-                            onBackNavigationConfig = OnBackNavigationConfig(
-                                onBackNavigation = ConfigNavigation(
-                                    navigationType = NavigationType.PopTo(PresentationScreens.PresentationRequest),
-                                ),
-                                hasToolbarBackIcon = true
-                            )
-                        ),
-                        BiometricUiConfig.Parser
-                    ).orEmpty()
-                )
-            )
+            arguments =
+                generateComposableArguments(
+                    mapOf(
+                        BiometricUiConfig.serializedKeyName to
+                            uiSerializer
+                                .toBase64(
+                                    BiometricUiConfig(
+                                        mode =
+                                            BiometricMode.Default(
+                                                descriptionWhenBiometricsEnabled = resourceProvider.getString(R.string.loading_biometry_biometrics_enabled_description),
+                                                descriptionWhenBiometricsNotEnabled = resourceProvider.getString(R.string.loading_biometry_biometrics_not_enabled_description),
+                                                textAbovePin = resourceProvider.getString(R.string.biometric_default_mode_text_above_pin_field),
+                                            ),
+                                        isPreAuthorization = false,
+                                        shouldInitializeBiometricAuthOnCreate = true,
+                                        onSuccessNavigation =
+                                            ConfigNavigation(
+                                                navigationType = NavigationType.PushScreen(PresentationScreens.PresentationLoading),
+                                            ),
+                                        onBackNavigationConfig =
+                                            OnBackNavigationConfig(
+                                                onBackNavigation =
+                                                    ConfigNavigation(
+                                                        navigationType = NavigationType.PopTo(PresentationScreens.PresentationRequest),
+                                                    ),
+                                                hasToolbarBackIcon = true,
+                                            ),
+                                    ),
+                                    BiometricUiConfig.Parser,
+                                ).orEmpty(),
+                    ),
+                ),
         )
-    }
 
     override fun doWork() {
         setState {
             copy(
                 isLoading = true,
-                error = null
+                error = null,
             )
         }
 
-        val requestUriConfig = uiSerializer.fromBase64(
-            requestUriConfigRaw,
-            RequestUriConfig::class.java,
-            RequestUriConfig.Parser
-        ) ?: throw RuntimeException("RequestUriConfig:: is Missing or invalid")
+        val requestUriConfig =
+            uiSerializer.fromBase64(
+                requestUriConfigRaw,
+                RequestUriConfig::class.java,
+                RequestUriConfig.Parser,
+            ) ?: throw RuntimeException("RequestUriConfig:: is Missing or invalid")
 
         interactor.setConfig(requestUriConfig)
 
-        viewModelJob = viewModelScope.launch {
-            interactor.getRequestDocuments().collect { response ->
-                when (response) {
-                    is PresentationRequestInteractorPartialState.Failure -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(Event.DoWork) },
-                                    errorSubTitle = response.error,
-                                    onCancel = { setEvent(Event.Pop) }
+        viewModelJob =
+            viewModelScope.launch {
+                interactor.getRequestDocuments().collect { response ->
+                    when (response) {
+                        is PresentationRequestInteractorPartialState.Failure -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error =
+                                        ContentErrorConfig(
+                                            onRetry = { setEvent(Event.DoWork) },
+                                            errorSubTitle = response.error,
+                                            onCancel = { setEvent(Event.Pop) },
+                                        ),
                                 )
-                            )
+                            }
                         }
-                    }
 
-                    is PresentationRequestInteractorPartialState.Success -> {
-                        updateData(response.requestDocuments)
+                        is PresentationRequestInteractorPartialState.Success -> {
+                            updateData(response.requestDocuments)
 
-                        val updatedHeaderConfig = viewState.value.headerConfig.copy(
-                            relyingPartyData = getRelyingPartyData(
-                                name = response.verifierName,
-                                isVerified = response.verifierIsTrusted,
-                            )
-                        )
+                            val updatedHeaderConfig =
+                                viewState.value.headerConfig.copy(
+                                    relyingPartyData =
+                                        getRelyingPartyData(
+                                            name = response.verifierName,
+                                            isVerified = response.verifierIsTrusted,
+                                        ),
+                                )
 
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null,
-                                headerConfig = updatedHeaderConfig,
-                                items = response.requestDocuments,
-                            )
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = null,
+                                    headerConfig = updatedHeaderConfig,
+                                    items = response.requestDocuments,
+                                )
+                            }
                         }
-                    }
 
-                    is PresentationRequestInteractorPartialState.Disconnect -> {
-                        setEvent(Event.Pop)
-                    }
+                        is PresentationRequestInteractorPartialState.Disconnect -> {
+                            setEvent(Event.Pop)
+                        }
 
-                    is PresentationRequestInteractorPartialState.NoData -> {
-                        val updatedHeaderConfig = viewState.value.headerConfig.copy(
-                            relyingPartyData = getRelyingPartyData(
-                                name = response.verifierName,
-                                isVerified = response.verifierIsTrusted,
-                            )
-                        )
+                        is PresentationRequestInteractorPartialState.NoData -> {
+                            val updatedHeaderConfig =
+                                viewState.value.headerConfig.copy(
+                                    relyingPartyData =
+                                        getRelyingPartyData(
+                                            name = response.verifierName,
+                                            isVerified = response.verifierIsTrusted,
+                                        ),
+                                )
 
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null,
-                                headerConfig = updatedHeaderConfig,
-                                noItems = true,
-                            )
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = null,
+                                    headerConfig = updatedHeaderConfig,
+                                    noItems = true,
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
     }
 
     override fun updateData(
         updatedItems: List<RequestDocumentItemUi>,
-        allowShare: Boolean?
+        allowShare: Boolean?,
     ) {
         super.updateData(updatedItems, allowShare)
         interactor.updateRequestedDocuments(updatedItems)
@@ -187,13 +199,13 @@ class PresentationRequestViewModel(
     private fun getRelyingPartyData(
         name: String?,
         isVerified: Boolean,
-    ): RelyingPartyDataUi {
-        return RelyingPartyDataUi(
+    ): RelyingPartyDataUi =
+        RelyingPartyDataUi(
             isVerified = isVerified,
-            name = name.ifEmptyOrNull(
-                default = resourceProvider.getString(R.string.request_relying_party_default_name)
-            ),
+            name =
+                name.ifEmptyOrNull(
+                    default = resourceProvider.getString(R.string.request_relying_party_default_name),
+                ),
             description = resourceProvider.getString(R.string.request_relying_party_description),
         )
-    }
 }

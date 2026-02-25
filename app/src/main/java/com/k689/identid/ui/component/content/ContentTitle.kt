@@ -27,34 +27,37 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import com.k689.identid.R
+import com.k689.identid.extension.ui.optionalTestTag
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.VSpacer
-import com.k689.identid.extension.ui.optionalTestTag
 
 @Composable
 fun ContentTitle(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
-    titleStyle: TextStyle = MaterialTheme.typography.headlineSmall.copy(
-        color = MaterialTheme.colorScheme.onSurface
-    ),
-    subtitleStyle: TextStyle = MaterialTheme.typography.bodyMedium.copy(
-        color = MaterialTheme.colorScheme.onSurface
-    ),
+    titleStyle: TextStyle =
+        MaterialTheme.typography.headlineSmall.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+        ),
+    subtitleStyle: TextStyle =
+        MaterialTheme.typography.bodyMedium.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+        ),
     subTitleMaxLines: Int = Int.MAX_VALUE,
     titleTestTag: String? = null,
     subtitleTestTag: String? = null,
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
     ) {
         Text(
-            modifier = Modifier
-                .optionalTestTag(titleTestTag)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .optionalTestTag(titleTestTag)
+                    .fillMaxWidth(),
             text = title,
             style = titleStyle,
         )
@@ -62,13 +65,14 @@ fun ContentTitle(
 
         subtitle?.let { safeSubtitle ->
             Text(
-                modifier = Modifier
-                    .optionalTestTag(subtitleTestTag)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .optionalTestTag(subtitleTestTag)
+                        .fillMaxWidth(),
                 text = safeSubtitle,
                 style = subtitleStyle,
                 maxLines = subTitleMaxLines,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -81,7 +85,7 @@ private fun ContentTitlePreview() {
         ContentTitle(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(id = R.string.proximity_qr_title),
-            subtitle = stringResource(id = R.string.proximity_qr_subtitle)
+            subtitle = stringResource(id = R.string.proximity_qr_subtitle),
         )
     }
 }
@@ -93,7 +97,7 @@ private fun ContentTitleNoSubtitlePreview() {
         ContentTitle(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(id = R.string.proximity_qr_title),
-            subtitle = null
+            subtitle = null,
         )
     }
 }

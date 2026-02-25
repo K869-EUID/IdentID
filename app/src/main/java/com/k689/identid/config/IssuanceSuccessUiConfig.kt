@@ -18,26 +18,25 @@ package com.k689.identid.config
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import eu.europa.ec.eudi.wallet.document.DocumentId
 import com.k689.identid.config.ConfigNavigation
 import com.k689.identid.config.NavigationType
 import com.k689.identid.ui.serializer.UiSerializable
 import com.k689.identid.ui.serializer.UiSerializableParser
 import com.k689.identid.ui.serializer.adapter.SerializableTypeAdapter
+import eu.europa.ec.eudi.wallet.document.DocumentId
 
 data class IssuanceSuccessUiConfig(
     val documentIds: List<DocumentId>,
     val onSuccessNavigation: ConfigNavigation,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "issuanceSuccessConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
                 .registerTypeAdapter(
                     NavigationType::class.java,
-                    SerializableTypeAdapter<NavigationType>()
+                    SerializableTypeAdapter<NavigationType>(),
                 ).create()
-        }
     }
 }

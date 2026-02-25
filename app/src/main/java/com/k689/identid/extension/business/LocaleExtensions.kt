@@ -30,8 +30,7 @@ import java.util.Locale
  *
  * @receiver The Locale instance on which this extension function is called.
  */
-fun Locale.compareLocaleLanguage(localeToCompare: Locale?): Boolean =
-    localeToCompare?.let { this.language == it.language } == true
+fun Locale.compareLocaleLanguage(localeToCompare: Locale?): Boolean = localeToCompare?.let { this.language == it.language } == true
 
 /**
  * Retrieves a localized string from a list of items based on the user's locale.
@@ -54,14 +53,13 @@ fun <T> List<T>?.getLocalizedString(
     localeExtractor: (T) -> Locale?,
     stringExtractor: (T) -> String?,
     fallback: String,
-): String {
-    return this.getLocalizedValue(
+): String =
+    this.getLocalizedValue(
         userLocale = userLocale,
         localeExtractor = localeExtractor,
         valueExtractor = stringExtractor,
         fallback = fallback,
     ) ?: fallback
-}
 
 /**
  * Retrieves a localized value from a list of items based on the user's locale.
@@ -84,8 +82,8 @@ fun <T, M> List<T>?.getLocalizedValue(
     localeExtractor: (T) -> Locale?,
     valueExtractor: (T) -> M?,
     fallback: M?,
-): M? {
-    return try {
+): M? =
+    try {
         // Match based on locale
         this?.find { userLocale.compareLocaleLanguage(localeExtractor(it)) }?.let(valueExtractor)
             ?: this?.firstOrNull()?.let(valueExtractor) // If no matches: Use the first available
@@ -93,4 +91,3 @@ fun <T, M> List<T>?.getLocalizedValue(
     } catch (_: Exception) {
         fallback // If an exception occurs, return the fallback
     }
-}

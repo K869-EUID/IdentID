@@ -14,10 +14,10 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.dashboard.document_sign.model
+package com.k689.identid.ui.dashboard.sign.model
 
 import com.k689.identid.ui.component.ListItemDataUi
 
 data class DocumentSignButtonUi(
-    val data: ListItemDataUi
+    val data: ListItemDataUi,
 )

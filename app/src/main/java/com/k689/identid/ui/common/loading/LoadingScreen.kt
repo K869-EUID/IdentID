@@ -40,24 +40,26 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 fun LoadingScreen(
     navController: NavController,
-    viewModel: LoadingViewModel
+    viewModel: LoadingViewModel,
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     ContentScreen(
         isLoading = state.error != null,
-        navigatableAction = if (state.isCancellable) {
-            ScreenNavigateAction.CANCELABLE
-        } else {
-            ScreenNavigateAction.NONE
-        },
-        onBack = if (state.isCancellable) {
-            { viewModel.setEvent(Event.GoBack) }
-        } else {
-            null
-        },
-        contentErrorConfig = state.error
+        navigatableAction =
+            if (state.isCancellable) {
+                ScreenNavigateAction.CANCELABLE
+            } else {
+                ScreenNavigateAction.NONE
+            },
+        onBack =
+            if (state.isCancellable) {
+                { viewModel.setEvent(Event.GoBack) }
+            } else {
+                null
+            },
+        contentErrorConfig = state.error,
     ) { paddingValues ->
         Content(
             state = state,
@@ -75,12 +77,12 @@ fun LoadingScreen(
                     is Effect.Navigation.PopBackStackUpTo -> {
                         navController.popBackStack(
                             route = navigationEffect.screenRoute,
-                            inclusive = navigationEffect.inclusive
+                            inclusive = navigationEffect.inclusive,
                         )
                     }
                 }
             },
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 
@@ -95,15 +97,15 @@ private fun Content(
     state: State,
     effectFlow: Flow<Effect>,
     onNavigationRequested: (Effect.Navigation) -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
-        verticalArrangement = Arrangement.Top
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+        verticalArrangement = Arrangement.Top,
     ) {
-
         ContentHeader(
             modifier = Modifier.fillMaxWidth(),
             config = state.headerConfig,
@@ -111,10 +113,11 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }

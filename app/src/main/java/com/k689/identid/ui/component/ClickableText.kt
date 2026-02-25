@@ -54,13 +54,14 @@ fun ClickableText(
     onClick: (Int) -> Unit,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val pressIndicator = Modifier.pointerInput(onClick) {
-        detectTapGestures { pos ->
-            layoutResult.value?.let { layoutResult ->
-                onClick(layoutResult.getOffsetForPosition(pos))
+    val pressIndicator =
+        Modifier.pointerInput(onClick) {
+            detectTapGestures { pos ->
+                layoutResult.value?.let { layoutResult ->
+                    onClick(layoutResult.getOffsetForPosition(pos))
+                }
             }
         }
-    }
 
     Text(
         text = text,
@@ -72,6 +73,6 @@ fun ClickableText(
         onTextLayout = {
             layoutResult.value = it
             onTextLayout(it)
-        }
+        },
     )
 }

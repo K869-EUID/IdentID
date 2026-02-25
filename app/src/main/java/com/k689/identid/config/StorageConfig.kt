@@ -26,7 +26,7 @@ interface StorageConfig {
 
 class StorageConfigImpl(
     private val pinImpl: PinStorageProvider,
-    private val biometryImpl: BiometryStorageProvider
+    private val biometryImpl: BiometryStorageProvider,
 ) : StorageConfig {
     override val pinStorageProvider: PinStorageProvider
         get() = pinImpl

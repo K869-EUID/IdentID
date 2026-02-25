@@ -49,21 +49,22 @@ fun ScalableText(
         text = text,
         style = style.copy(fontSize = textSize),
         maxLines = maxLines,
-        modifier = modifier.then(
-            Modifier
-                .drawWithContent {
-                    if (readyToDraw) {
-                        drawContent()
-                    }
-                }
-        ),
+        modifier =
+            modifier.then(
+                Modifier
+                    .drawWithContent {
+                        if (readyToDraw) {
+                            drawContent()
+                        }
+                    },
+            ),
         onTextLayout = { textLayoutResult ->
             if (!readyToDraw && textLayoutResult.hasVisualOverflow) {
                 textSize *= 0.9 // Reduce the text size
             } else {
                 readyToDraw = true
             }
-        }
+        },
     )
 }
 
@@ -81,20 +82,23 @@ private fun ScalableTextPreview() {
         val screenWidth = 200.dp
 
         Column(
-            modifier = Modifier
-                .width(screenWidth)
+            modifier =
+                Modifier
+                    .width(screenWidth),
         ) {
             Text(
-                modifier = Modifier
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .wrapContentHeight(),
                 text = text,
-                style = textStyle
+                style = textStyle,
             )
             ScalableText(
-                modifier = Modifier
-                    .wrapContentHeight(),
+                modifier =
+                    Modifier
+                        .wrapContentHeight(),
                 text = text,
-                textStyle = textStyle
+                textStyle = textStyle,
             )
         }
     }

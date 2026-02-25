@@ -28,14 +28,14 @@ import kotlinx.coroutines.withContext
 
 interface FormValidator {
     suspend fun validateForm(form: Form): FormValidationResult
+
     suspend fun validateForms(forms: List<Form>): FormsValidationResult
 }
 
 class FormValidatorImpl(
     private val logController: LogController,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : FormValidator {
-
     override suspend fun validateForm(form: Form): FormValidationResult =
         withContext(dispatcher) {
             for (input in form.inputs) {
@@ -67,134 +67,184 @@ class FormValidatorImpl(
             return@withContext FormsValidationResult(allValid, errorMessages)
         }
 
-    private fun validateRule(rule: Rule, value: String): FormValidationResult? {
-        return when (rule) {
-            is Rule.ValidateEmail -> checkValidationResult(isEmailValid(value), rule.errorMessage)
-            is Rule.ValidateUrl -> checkValidationResult(
-                isValidUrl(
-                    value = value,
-                    shouldValidateSchema = rule.shouldValidateSchema,
-                    shouldValidateHost = rule.shouldValidateHost,
-                    shouldValidatePath = rule.shouldValidatePath,
-                    shouldValidateQuery = rule.shouldValidateQuery,
-                ),
-                rule.errorMessage
-            )
+    private fun validateRule(
+        rule: Rule,
+        value: String,
+    ): FormValidationResult? =
+        when (rule) {
+            is Rule.ValidateEmail -> {
+                checkValidationResult(isEmailValid(value), rule.errorMessage)
+            }
 
-            is Rule.ValidatePhoneNumber -> checkValidationResult(
-                isPhoneNumberValid(value, rule.countryCode),
-                rule.errorMessage
-            )
+            is Rule.ValidateUrl -> {
+                checkValidationResult(
+                    isValidUrl(
+                        value = value,
+                        shouldValidateSchema = rule.shouldValidateSchema,
+                        shouldValidateHost = rule.shouldValidateHost,
+                        shouldValidatePath = rule.shouldValidatePath,
+                        shouldValidateQuery = rule.shouldValidateQuery,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateStringLength -> checkValidationResult(
-                isStringLengthValid(
-                    value,
-                    rule.lengths
-                ), rule.errorMessage
-            )
+            is Rule.ValidatePhoneNumber -> {
+                checkValidationResult(
+                    isPhoneNumberValid(value, rule.countryCode),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateStringMaxLength -> checkValidationResult(
-                isStringMaxLengthValid(
-                    value,
-                    rule.length
-                ), rule.errorMessage
-            )
+            is Rule.ValidateStringLength -> {
+                checkValidationResult(
+                    isStringLengthValid(
+                        value,
+                        rule.lengths,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateStringMinLength -> checkValidationResult(
-                isStringMinLengthValid(value, rule.length),
-                rule.errorMessage
-            )
+            is Rule.ValidateStringMaxLength -> {
+                checkValidationResult(
+                    isStringMaxLengthValid(
+                        value,
+                        rule.length,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateNotEmpty -> checkValidationResult(value.isNotEmpty(), rule.errorMessage)
-            is Rule.ValidateRegex -> checkValidationResult(
-                isRegexMatching(value, rule.regex),
-                rule.errorMessage
-            )
+            is Rule.ValidateStringMinLength -> {
+                checkValidationResult(
+                    isStringMinLengthValid(value, rule.length),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ContainsRegex -> checkValidationResult(
-                isRegexIncluded(value, rule.regex),
-                rule.errorMessage
-            )
+            is Rule.ValidateNotEmpty -> {
+                checkValidationResult(value.isNotEmpty(), rule.errorMessage)
+            }
 
-            is Rule.ValidateStringRange -> checkValidationResult(
-                isInRange(value, rule.range),
-                rule.errorMessage
-            )
+            is Rule.ValidateRegex -> {
+                checkValidationResult(
+                    isRegexMatching(value, rule.regex),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateStringMatch -> checkValidationResult(
-                isStringMatching(
-                    value,
-                    rule.stringToMatch,
-                    rule.isCaseSensitive
-                ), rule.errorMessage
-            )
+            is Rule.ContainsRegex -> {
+                checkValidationResult(
+                    isRegexIncluded(value, rule.regex),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateDuplicateCharacterNotInConsecutiveOrder -> checkValidationResult(
-                duplicateCharacterNotInConsecutiveOrder(
-                    value,
-                    rule.maxTimesOfConsecutiveOrder
-                ), rule.errorMessage
-            )
+            is Rule.ValidateStringRange -> {
+                checkValidationResult(
+                    isInRange(value, rule.range),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateStringNotMatch -> checkValidationResult(
-                isStringNotMatching(
-                    value,
-                    rule.stringToMatch,
-                    rule.isCaseSensitive
-                ), rule.errorMessage
-            )
+            is Rule.ValidateStringMatch -> {
+                checkValidationResult(
+                    isStringMatching(
+                        value,
+                        rule.stringToMatch,
+                        rule.isCaseSensitive,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateNumericNotInConsecutiveSequenceOrder -> checkValidationResult(
-                numericNotInConsecutiveSequenceOrder(value, rule.minLength), rule.errorMessage
-            )
+            is Rule.ValidateDuplicateCharacterNotInConsecutiveOrder -> {
+                checkValidationResult(
+                    duplicateCharacterNotInConsecutiveOrder(
+                        value,
+                        rule.maxTimesOfConsecutiveOrder,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.StringShouldEndWithNumber -> checkValidationResult(
-                stringHasEndsWithNumber(value),
-                rule.errorMessage
-            )
+            is Rule.ValidateStringNotMatch -> {
+                checkValidationResult(
+                    isStringNotMatching(
+                        value,
+                        rule.stringToMatch,
+                        rule.isCaseSensitive,
+                    ),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateFileSizeMaxSize -> checkValidationResult(
-                isFileSizeValid(value, rule.size),
-                rule.errorMessage
-            )
+            is Rule.ValidateNumericNotInConsecutiveSequenceOrder -> {
+                checkValidationResult(
+                    numericNotInConsecutiveSequenceOrder(value, rule.minLength),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateFileExtension -> checkValidationResult(
-                isFileExtensionValid(value, rule.supportedExtensions),
-                rule.errorMessage
-            )
+            is Rule.StringShouldEndWithNumber -> {
+                checkValidationResult(
+                    stringHasEndsWithNumber(value),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateMinimumAmount -> checkValidationResult(
-                isMinimumAmountValid(value, rule.minimumAmount),
-                rule.errorMessage
-            )
+            is Rule.ValidateFileSizeMaxSize -> {
+                checkValidationResult(
+                    isFileSizeValid(value, rule.size),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateMaximumAmount -> checkValidationResult(
-                isMaximumAmountValid(value, rule.maximumAmount),
-                rule.errorMessage
-            )
+            is Rule.ValidateFileExtension -> {
+                checkValidationResult(
+                    isFileExtensionValid(value, rule.supportedExtensions),
+                    rule.errorMessage,
+                )
+            }
 
-            is Rule.ValidateFileName -> checkValidationResult(
-                isFileNameValid(value),
-                rule.errorMessage
-            )
+            is Rule.ValidateMinimumAmount -> {
+                checkValidationResult(
+                    isMinimumAmountValid(value, rule.minimumAmount),
+                    rule.errorMessage,
+                )
+            }
+
+            is Rule.ValidateMaximumAmount -> {
+                checkValidationResult(
+                    isMaximumAmountValid(value, rule.maximumAmount),
+                    rule.errorMessage,
+                )
+            }
+
+            is Rule.ValidateFileName -> {
+                checkValidationResult(
+                    isFileNameValid(value),
+                    rule.errorMessage,
+                )
+            }
         }
-    }
 
     @Suppress("KotlinConstantConditions")
     private fun checkValidationResult(
         isValid: Boolean,
-        errorMessage: String
-    ): FormValidationResult? {
-        return if (!isValid) {
+        errorMessage: String,
+    ): FormValidationResult? =
+        if (!isValid) {
             FormValidationResult(
                 isValid,
-                errorMessage
+                errorMessage,
             )
-        } else null
-    }
+        } else {
+            null
+        }
 
-    private fun isEmailValid(value: String): Boolean =
-        value.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
+    private fun isEmailValid(value: String): Boolean = value.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(value).matches()
 
     private fun isValidUrl(
         value: String,
@@ -226,14 +276,17 @@ class FormValidatorImpl(
         }
     }
 
-    private fun isPhoneNumberValid(value: String, countryCode: String): Boolean {
+    private fun isPhoneNumberValid(
+        value: String,
+        countryCode: String,
+    ): Boolean {
         val phoneNumberUtil = PhoneNumberUtil.getInstance()
         return try {
             phoneNumberUtil.isValidNumber(
                 phoneNumberUtil.parse(
                     value,
-                    countryCode
-                )
+                    countryCode,
+                ),
             )
         } catch (e: Exception) {
             logController.e(javaClass.simpleName, e)
@@ -241,44 +294,57 @@ class FormValidatorImpl(
         }
     }
 
-    private fun isStringLengthValid(value: String, lengths: List<Int>): Boolean =
-        value.length in lengths
+    private fun isStringLengthValid(
+        value: String,
+        lengths: List<Int>,
+    ): Boolean = value.length in lengths
 
-    private fun isStringMaxLengthValid(value: String, length: Int): Boolean =
-        value.length <= length
+    private fun isStringMaxLengthValid(
+        value: String,
+        length: Int,
+    ): Boolean = value.length <= length
 
-    private fun isStringMinLengthValid(value: String, length: Int): Boolean =
-        value.length >= length
+    private fun isStringMinLengthValid(
+        value: String,
+        length: Int,
+    ): Boolean = value.length >= length
 
-    private fun isRegexMatching(value: String, regex: Regex): Boolean =
-        value.matches(regex)
+    private fun isRegexMatching(
+        value: String,
+        regex: Regex,
+    ): Boolean = value.matches(regex)
 
-    private fun isRegexIncluded(value: String, regex: Regex): Boolean =
-        value.contains(regex)
+    private fun isRegexIncluded(
+        value: String,
+        regex: Regex,
+    ): Boolean = value.contains(regex)
 
-    private fun isInRange(value: String, range: IntRange): Boolean = value.length in range
+    private fun isInRange(
+        value: String,
+        range: IntRange,
+    ): Boolean = value.length in range
 
     private fun isStringMatching(
         value: String,
         stringToMatch: String,
-        isCaseSensitive: Boolean = false
+        isCaseSensitive: Boolean = false,
     ) = value.equals(
         stringToMatch,
-        !isCaseSensitive
+        !isCaseSensitive,
     )
 
     private fun isStringNotMatching(
         value: String,
         stringToMatch: String,
-        isCaseSensitive: Boolean = false
+        isCaseSensitive: Boolean = false,
     ) = !value.equals(
         stringToMatch,
-        !isCaseSensitive
+        !isCaseSensitive,
     )
 
     private fun duplicateCharacterNotInConsecutiveOrder(
         value: String,
-        maxTimesOfConsecutiveOrder: Int
+        maxTimesOfConsecutiveOrder: Int,
     ): Boolean {
         if (maxTimesOfConsecutiveOrder < 2) {
             return true
@@ -288,123 +354,159 @@ class FormValidatorImpl(
         return consecutiveOrderCount == 0
     }
 
-    private fun numericNotInConsecutiveSequenceOrder(value: String, minLength: Int): Boolean {
+    private fun numericNotInConsecutiveSequenceOrder(
+        value: String,
+        minLength: Int,
+    ): Boolean {
         if (value.isEmpty() || minLength < 2 || value.toIntOrNull() == null || value.length != minLength) return true
         val firstNumber = value.first()
         val isReversed = firstNumber > value[1]
-        val sequence = StringBuilder().apply {
-            append(firstNumber)
-            for (i in 1 until minLength) {
-                append(
-                    if (isReversed) {
-                        firstNumber - i
-                    } else {
-                        firstNumber + i
+        val sequence =
+            StringBuilder()
+                .apply {
+                    append(firstNumber)
+                    for (i in 1 until minLength) {
+                        append(
+                            if (isReversed) {
+                                firstNumber - i
+                            } else {
+                                firstNumber + i
+                            },
+                        )
                     }
-                )
-            }
-        }.toString()
+                }.toString()
         return !value.contains(sequence)
     }
 
-    private fun stringHasEndsWithNumber(text: String): Boolean {
-        return text.last().isDigit()
-    }
+    private fun stringHasEndsWithNumber(text: String): Boolean = text.last().isDigit()
 
-    private fun isFileSizeValid(text: String, size: Long): Boolean {
-        return text.toLong() <= size
-    }
+    private fun isFileSizeValid(
+        text: String,
+        size: Long,
+    ): Boolean = text.toLong() <= size
 
-    private fun isFileNameValid(text: String): Boolean {
-        return isRegexMatching(text, "^[a-zA-Z\\d-!@#\$%^&*()_+= ]+\$".toRegex())
-    }
+    private fun isFileNameValid(text: String): Boolean = isRegexMatching(text, "^[a-zA-Z\\d-!@#\$%^&*()_+= ]+\$".toRegex())
 
-    private fun isFileExtensionValid(text: String, extensions: List<String>): Boolean {
-        return extensions.any { text.endsWith(it) }
-    }
+    private fun isFileExtensionValid(
+        text: String,
+        extensions: List<String>,
+    ): Boolean = extensions.any { text.endsWith(it) }
 
-    private fun isMinimumAmountValid(value: String, minimumAmount: Int?): Boolean =
+    private fun isMinimumAmountValid(
+        value: String,
+        minimumAmount: Int?,
+    ): Boolean =
         safeLet(
             minimumAmount?.toBigInteger(),
-            value.toBigIntegerOrNull()
+            value.toBigIntegerOrNull(),
         ) { min, current ->
             current >= min
         } ?: false
 
-    private fun isMaximumAmountValid(value: String, maximumAmount: Int?): Boolean =
+    private fun isMaximumAmountValid(
+        value: String,
+        maximumAmount: Int?,
+    ): Boolean =
         safeLet(
             maximumAmount?.toBigInteger(),
-            value.toBigIntegerOrNull()
+            value.toBigIntegerOrNull(),
         ) { max, current ->
             current <= max
         } ?: false
 }
 
-data class Form(val inputs: Map<List<Rule>, String>)
-data class FormValidationResult(val isValid: Boolean, val message: String = "")
-data class FormsValidationResult(val isValid: Boolean, val messages: List<String> = listOf())
+data class Form(
+    val inputs: Map<List<Rule>, String>,
+)
 
-sealed class Rule(val errorMsg: String) {
-    data class ValidateNotEmpty(val errorMessage: String) : Rule(errorMessage)
-    data class ValidateEmail(val errorMessage: String) : Rule(errorMessage)
+data class FormValidationResult(
+    val isValid: Boolean,
+    val message: String = "",
+)
+
+data class FormsValidationResult(
+    val isValid: Boolean,
+    val messages: List<String> = listOf(),
+)
+
+sealed class Rule(
+    val errorMsg: String,
+) {
+    data class ValidateNotEmpty(
+        val errorMessage: String,
+    ) : Rule(errorMessage)
+
+    data class ValidateEmail(
+        val errorMessage: String,
+    ) : Rule(errorMessage)
+
     data class ValidateUrl(
         val shouldValidateSchema: Boolean,
         val shouldValidateHost: Boolean,
         val shouldValidatePath: Boolean,
         val shouldValidateQuery: Boolean,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
-    data class ValidatePhoneNumber(val errorMessage: String, val countryCode: String) :
-        Rule(errorMessage)
+    data class ValidatePhoneNumber(
+        val errorMessage: String,
+        val countryCode: String,
+    ) : Rule(errorMessage)
 
     data class ValidateStringLength(
         val lengths: List<Int>,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateStringMaxLength(
         val length: Int,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateStringMinLength(
         val length: Int,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
-    data class ValidateRegex(val regex: Regex, val errorMessage: String) : Rule(errorMessage)
-    data class ContainsRegex(val regex: Regex, val errorMessage: String) : Rule(errorMessage)
+    data class ValidateRegex(
+        val regex: Regex,
+        val errorMessage: String,
+    ) : Rule(errorMessage)
+
+    data class ContainsRegex(
+        val regex: Regex,
+        val errorMessage: String,
+    ) : Rule(errorMessage)
 
     data class ValidateStringRange(
         val range: IntRange,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateStringMatch(
         val stringToMatch: String,
         val errorMessage: String,
-        val isCaseSensitive: Boolean = false
+        val isCaseSensitive: Boolean = false,
     ) : Rule(errorMessage)
 
     data class ValidateStringNotMatch(
         val stringToMatch: String,
         val errorMessage: String,
-        val isCaseSensitive: Boolean = false
+        val isCaseSensitive: Boolean = false,
     ) : Rule(errorMessage)
 
     data class ValidateDuplicateCharacterNotInConsecutiveOrder(
         val maxTimesOfConsecutiveOrder: Int,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateNumericNotInConsecutiveSequenceOrder(
         val minLength: Int,
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class StringShouldEndWithNumber(
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateFileSizeMaxSize(
@@ -422,13 +524,12 @@ sealed class Rule(val errorMsg: String) {
         val errorMessage: String,
     ) : Rule(errorMessage)
 
-
     data class ValidateMaximumAmount(
         val maximumAmount: Int,
         val errorMessage: String,
     ) : Rule(errorMessage)
 
     data class ValidateFileName(
-        val errorMessage: String
+        val errorMessage: String,
     ) : Rule(errorMessage)
 }

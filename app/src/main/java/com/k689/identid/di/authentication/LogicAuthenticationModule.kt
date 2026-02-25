@@ -22,15 +22,15 @@ import com.k689.identid.controller.authentication.BiometricAuthenticationControl
 import com.k689.identid.controller.authentication.BiometricAuthenticationControllerImpl
 import com.k689.identid.controller.authentication.DeviceAuthenticationController
 import com.k689.identid.controller.authentication.DeviceAuthenticationControllerImpl
+import com.k689.identid.controller.crypto.CryptoController
 import com.k689.identid.controller.storage.BiometryStorageController
 import com.k689.identid.controller.storage.BiometryStorageControllerImpl
 import com.k689.identid.controller.storage.PinStorageController
 import com.k689.identid.controller.storage.PinStorageControllerImpl
-import com.k689.identid.storage.prefs.PrefsBiometryStorageProvider
-import com.k689.identid.storage.prefs.PrefsPinStorageProvider
-import com.k689.identid.controller.crypto.CryptoController
 import com.k689.identid.controller.storage.PrefsController
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.storage.prefs.PrefsBiometryStorageProvider
+import com.k689.identid.storage.prefs.PrefsPinStorageProvider
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -43,40 +43,41 @@ class LogicAuthenticationModule
 @Single
 fun provideStorageConfig(
     prefsController: PrefsController,
-    cryptoController: CryptoController
-): StorageConfig = StorageConfigImpl(
-    pinImpl = PrefsPinStorageProvider(prefsController, cryptoController),
-    biometryImpl = PrefsBiometryStorageProvider(prefsController)
-)
+    cryptoController: CryptoController,
+): StorageConfig =
+    StorageConfigImpl(
+        pinImpl = PrefsPinStorageProvider(prefsController, cryptoController),
+        biometryImpl = PrefsBiometryStorageProvider(prefsController),
+    )
 
 @Factory
 fun provideBiometricAuthenticationController(
     cryptoController: CryptoController,
     biometryStorageController: BiometryStorageController,
-    resourceProvider: ResourceProvider
+    resourceProvider: ResourceProvider,
 ): BiometricAuthenticationController =
     BiometricAuthenticationControllerImpl(
         resourceProvider,
         cryptoController,
-        biometryStorageController
+        biometryStorageController,
     )
 
 @Factory
 fun provideDeviceAuthenticationController(
     resourceProvider: ResourceProvider,
-    biometricAuthenticationController: BiometricAuthenticationController
+    biometricAuthenticationController: BiometricAuthenticationController,
 ): DeviceAuthenticationController =
     DeviceAuthenticationControllerImpl(
         resourceProvider,
-        biometricAuthenticationController
+        biometricAuthenticationController,
     )
 
 @Factory
 fun providePinStorageController(
-    storageConfig: StorageConfig
+    storageConfig: StorageConfig,
 ): PinStorageController = PinStorageControllerImpl(storageConfig)
 
 @Factory
 fun provideBiometryStorageController(
-    storageConfig: StorageConfig
+    storageConfig: StorageConfig,
 ): BiometryStorageController = BiometryStorageControllerImpl(storageConfig)

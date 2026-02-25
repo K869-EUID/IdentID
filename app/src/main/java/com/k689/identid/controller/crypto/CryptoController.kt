@@ -24,7 +24,6 @@ import javax.crypto.spec.GCMParameterSpec
 typealias GUID = String
 
 interface CryptoController {
-
     /**
      * Generates a code verifier for Proof Key for Code Exchange (PKCE).
      *
@@ -37,7 +36,6 @@ interface CryptoController {
      * @return A [String] representing the generated code verifier.
      */
     fun generateCodeVerifier(): String
-
 
     /**
      * Retrieves a [Cipher] instance configured for either encryption or decryption.
@@ -65,9 +63,8 @@ interface CryptoController {
     fun getCipher(
         encrypt: Boolean = false,
         ivBytes: ByteArray? = null,
-        userAuthenticationRequired: Boolean = true
+        userAuthenticationRequired: Boolean = true,
     ): Cipher?
-
 
     /**
      * Returns the [ByteArray] after the encryption/decryption from the given [Cipher].
@@ -75,13 +72,15 @@ interface CryptoController {
      * returned.
      * [byteArray] that needed to be encrypted or decrypted (Depending always on [Cipher] provided.
      */
-    fun encryptDecrypt(cipher: Cipher?, byteArray: ByteArray): ByteArray
+    fun encryptDecrypt(
+        cipher: Cipher?,
+        byteArray: ByteArray,
+    ): ByteArray
 }
 
 class CryptoControllerImpl(
-    private val keystoreController: KeystoreController
+    private val keystoreController: KeystoreController,
 ) : CryptoController {
-
     companion object {
         private const val AES_EXTERNAL_TRANSFORMATION = "AES/GCM/NoPadding"
         private const val IV_SIZE = 128
@@ -99,20 +98,20 @@ class CryptoControllerImpl(
     override fun getCipher(
         encrypt: Boolean,
         ivBytes: ByteArray?,
-        userAuthenticationRequired: Boolean
+        userAuthenticationRequired: Boolean,
     ): Cipher? =
         try {
             Cipher.getInstance(AES_EXTERNAL_TRANSFORMATION).apply {
                 if (encrypt) {
                     init(
                         Cipher.ENCRYPT_MODE,
-                        keystoreController.retrieveOrGenerateSecretKey(userAuthenticationRequired)
+                        keystoreController.retrieveOrGenerateSecretKey(userAuthenticationRequired),
                     )
                 } else {
                     init(
                         Cipher.DECRYPT_MODE,
                         keystoreController.retrieveOrGenerateSecretKey(userAuthenticationRequired),
-                        GCMParameterSpec(IV_SIZE, ivBytes)
+                        GCMParameterSpec(IV_SIZE, ivBytes),
                     )
                 }
             }
@@ -120,8 +119,8 @@ class CryptoControllerImpl(
             null
         }
 
-
-    override fun encryptDecrypt(cipher: Cipher?, byteArray: ByteArray): ByteArray {
-        return cipher?.doFinal(byteArray) ?: ByteArray(0)
-    }
+    override fun encryptDecrypt(
+        cipher: Cipher?,
+        byteArray: ByteArray,
+    ): ByteArray = cipher?.doFinal(byteArray) ?: ByteArray(0)
 }

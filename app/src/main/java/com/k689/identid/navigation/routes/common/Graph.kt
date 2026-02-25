@@ -28,84 +28,90 @@ import com.k689.identid.config.BiometricUiConfig
 import com.k689.identid.config.QrScanUiConfig
 import com.k689.identid.config.SuccessUIConfig
 import com.k689.identid.model.common.PinFlow
-import com.k689.identid.ui.common.biometric.BiometricScreen
-import com.k689.identid.ui.common.pin.PinScreen
-import com.k689.identid.ui.common.qr_scan.QrScanScreen
-import com.k689.identid.ui.common.success.SuccessScreen
 import com.k689.identid.navigation.CommonScreens
 import com.k689.identid.navigation.ModuleRoute
+import com.k689.identid.ui.common.biometric.BiometricScreen
+import com.k689.identid.ui.common.pin.PinScreen
+import com.k689.identid.ui.common.scan.QrScanScreen
+import com.k689.identid.ui.common.success.SuccessScreen
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.featureCommonGraph(navController: NavController) {
     navigation(
         startDestination = CommonScreens.Biometric.screenRoute,
-        route = ModuleRoute.CommonModule.route
+        route = ModuleRoute.CommonModule.route,
     ) {
         composable(
             route = CommonScreens.Biometric.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        BuildConfig.DEEPLINK + CommonScreens.Biometric.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument(BiometricUiConfig.serializedKeyName) {
-                    type = NavType.StringType
-                }
-            )
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern =
+                            BuildConfig.DEEPLINK + CommonScreens.Biometric.screenRoute
+                    },
+                ),
+            arguments =
+                listOf(
+                    navArgument(BiometricUiConfig.serializedKeyName) {
+                        type = NavType.StringType
+                    },
+                ),
         ) {
             BiometricScreen(
                 navController,
                 koinViewModel(
                     parameters = {
                         parametersOf(
-                            it.arguments?.getString(BiometricUiConfig.serializedKeyName).orEmpty()
+                            it.arguments?.getString(BiometricUiConfig.serializedKeyName).orEmpty(),
                         )
-                    }
-                )
+                    },
+                ),
             )
         }
 
         composable(
             route = CommonScreens.Success.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        BuildConfig.DEEPLINK + CommonScreens.Success.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument(SuccessUIConfig.serializedKeyName) {
-                    type = NavType.StringType
-                }
-            )
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern =
+                            BuildConfig.DEEPLINK + CommonScreens.Success.screenRoute
+                    },
+                ),
+            arguments =
+                listOf(
+                    navArgument(SuccessUIConfig.serializedKeyName) {
+                        type = NavType.StringType
+                    },
+                ),
         ) {
             SuccessScreen(
                 navController,
                 koinViewModel(
                     parameters = {
                         parametersOf(
-                            it.arguments?.getString(SuccessUIConfig.serializedKeyName).orEmpty()
+                            it.arguments?.getString(SuccessUIConfig.serializedKeyName).orEmpty(),
                         )
-                    }
-                )
+                    },
+                ),
             )
         }
 
         composable(
             route = CommonScreens.QuickPin.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = BuildConfig.DEEPLINK + CommonScreens.QuickPin.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument("pinFlow") {
-                    type = NavType.StringType
-                }
-            )
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern = BuildConfig.DEEPLINK + CommonScreens.QuickPin.screenRoute
+                    },
+                ),
+            arguments =
+                listOf(
+                    navArgument("pinFlow") {
+                        type = NavType.StringType
+                    },
+                ),
         ) {
             PinScreen(
                 navController,
@@ -113,37 +119,39 @@ fun NavGraphBuilder.featureCommonGraph(navController: NavController) {
                     parameters = {
                         parametersOf(
                             PinFlow.valueOf(
-                                it.arguments?.getString("pinFlow").orEmpty()
-                            )
+                                it.arguments?.getString("pinFlow").orEmpty(),
+                            ),
                         )
-                    }
-                )
+                    },
+                ),
             )
         }
 
         composable(
             route = CommonScreens.QrScan.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        BuildConfig.DEEPLINK + CommonScreens.QrScan.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument(QrScanUiConfig.serializedKeyName) {
-                    type = NavType.StringType
-                }
-            )
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern =
+                            BuildConfig.DEEPLINK + CommonScreens.QrScan.screenRoute
+                    },
+                ),
+            arguments =
+                listOf(
+                    navArgument(QrScanUiConfig.serializedKeyName) {
+                        type = NavType.StringType
+                    },
+                ),
         ) {
             QrScanScreen(
                 navController,
                 koinViewModel(
                     parameters = {
                         parametersOf(
-                            it.arguments?.getString(QrScanUiConfig.serializedKeyName).orEmpty()
+                            it.arguments?.getString(QrScanUiConfig.serializedKeyName).orEmpty(),
                         )
-                    }
-                )
+                    },
+                ),
             )
         }
     }

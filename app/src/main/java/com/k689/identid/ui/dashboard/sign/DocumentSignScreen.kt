@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.dashboard.document_sign
+package com.k689.identid.ui.dashboard.sign
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,7 +33,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.ui.dashboard.document_sign.model.DocumentSignButtonUi
 import com.k689.identid.R
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
@@ -48,6 +47,7 @@ import com.k689.identid.ui.component.utils.SPACING_LARGE
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.VSpacer
 import com.k689.identid.ui.component.wrap.WrapListItem
+import com.k689.identid.ui.dashboard.sign.model.DocumentSignButtonUi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -65,7 +65,7 @@ internal fun DocumentSignScreen(
         isLoading = state.isLoading,
         navigatableAction = ScreenNavigateAction.CANCELABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
-        contentErrorConfig = state.error
+        contentErrorConfig = state.error,
     ) { contentPadding ->
         Content(
             state = state,
@@ -76,11 +76,10 @@ internal fun DocumentSignScreen(
                     Effect.Navigation.Pop -> navController.popBackStack()
                 }
             },
-            paddingValues = contentPadding
+            paddingValues = contentPadding,
         )
     }
 }
-
 
 @Composable
 private fun Content(
@@ -90,13 +89,13 @@ private fun Content(
     onNavigationRequested: (Effect.Navigation) -> Unit,
     paddingValues: PaddingValues,
 ) {
-
     val context = LocalContext.current
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) {
         ContentTitle(
             title = state.title,
@@ -112,23 +111,30 @@ private fun Content(
         )
     }
 
-    val selectPdfLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument(),
-    ) { uri ->
-        uri?.let {
-            onEventSend(Event.DocumentUriRetrieved(context, it))
+    val selectPdfLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.OpenDocument(),
+        ) { uri ->
+            uri?.let {
+                onEventSend(Event.DocumentUriRetrieved(context, it))
+            }
         }
-    }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation.Pop -> onNavigationRequested(effect)
-                is Effect.OpenDocumentSelection -> selectPdfLauncher.launch(
-                    effect.selection.toTypedArray()
-                )
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation.Pop -> {
+                        onNavigationRequested(effect)
+                    }
+
+                    is Effect.OpenDocumentSelection -> {
+                        selectPdfLauncher.launch(
+                            effect.selection.toTypedArray(),
+                        )
+                    }
+                }
+            }.collect()
     }
 }
 
@@ -154,21 +160,26 @@ private fun SignButton(
 private fun DocumentSignScreenPreview() {
     PreviewTheme {
         Content(
-            state = State(
-                title = stringResource(R.string.document_sign_title),
-                subtitle = stringResource(R.string.document_sign_subtitle),
-                buttonUi = DocumentSignButtonUi(
-                    data = ListItemDataUi(
-                        itemId = "0",
-                        mainContentData = ListItemMainContentDataUi.Text(
-                            text = stringResource(R.string.document_sign_select_document),
+            state =
+                State(
+                    title = stringResource(R.string.document_sign_title),
+                    subtitle = stringResource(R.string.document_sign_subtitle),
+                    buttonUi =
+                        DocumentSignButtonUi(
+                            data =
+                                ListItemDataUi(
+                                    itemId = "0",
+                                    mainContentData =
+                                        ListItemMainContentDataUi.Text(
+                                            text = stringResource(R.string.document_sign_select_document),
+                                        ),
+                                    trailingContentData =
+                                        ListItemTrailingContentDataUi.Icon(
+                                            iconData = AppIcons.Add,
+                                        ),
+                                ),
                         ),
-                        trailingContentData = ListItemTrailingContentDataUi.Icon(
-                            iconData = AppIcons.Add
-                        ),
-                    )
-                )
-            ),
+                ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSend = {},
             onNavigationRequested = {},

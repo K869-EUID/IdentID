@@ -30,7 +30,7 @@ import com.k689.identid.theme.values.divider
 
 sealed interface StickyBottomType {
     data class OneButton(
-        val config: ButtonConfig
+        val config: ButtonConfig,
     ) : StickyBottomType
 
     data class TwoButtons(
@@ -57,19 +57,19 @@ fun WrapStickyBottomContent(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 if (stickyBottomConfig.showDivider) {
                     HorizontalDivider(
                         thickness = 1.dp,
-                        color = MaterialTheme.colorScheme.divider
+                        color = MaterialTheme.colorScheme.divider,
                     )
                 }
 
                 Row(
                     modifier = modifier,
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     WrapButton(
                         modifier = Modifier.fillMaxWidth(),
@@ -85,17 +85,17 @@ fun WrapStickyBottomContent(
             Row(
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceEvenly
+                horizontalArrangement = Arrangement.SpaceEvenly,
             ) {
                 WrapButton(
                     modifier = Modifier.weight(1f),
-                    buttonConfig = stickyBottomType.primaryButtonConfig
+                    buttonConfig = stickyBottomType.primaryButtonConfig,
                 ) {
                     content()
                 }
                 WrapButton(
                     modifier = Modifier.weight(1f),
-                    buttonConfig = stickyBottomType.secondaryButtonConfig
+                    buttonConfig = stickyBottomType.secondaryButtonConfig,
                 ) {
                     content()
                 }

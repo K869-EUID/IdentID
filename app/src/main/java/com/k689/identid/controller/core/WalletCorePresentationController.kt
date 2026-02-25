@@ -17,12 +17,12 @@
 package com.k689.identid.controller.core
 
 import androidx.activity.ComponentActivity
-import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.extension.business.addOrReplace
 import com.k689.identid.extension.business.safeAsync
 import com.k689.identid.extension.business.toUri
-import com.k689.identid.controller.core.WalletPresentationScope
+import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.model.core.AuthenticationData
+import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.util.core.EudiWalletListenerWrapper
 import eu.europa.ec.eudi.iso18013.transfer.response.DisclosedDocument
 import eu.europa.ec.eudi.iso18013.transfer.response.DisclosedDocuments
@@ -31,7 +31,6 @@ import eu.europa.ec.eudi.iso18013.transfer.response.RequestedDocument
 import eu.europa.ec.eudi.iso18013.transfer.toKotlinResult
 import eu.europa.ec.eudi.wallet.EudiWallet
 import eu.europa.ec.eudi.wallet.document.DocumentExtensions.getDefaultKeyUnlockData
-import com.k689.identid.provider.resources.ResourceProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,19 +51,34 @@ import org.koin.core.annotation.Scope
 import org.koin.core.annotation.Scoped
 import java.net.URI
 
-sealed class PresentationControllerConfig(val initiatorRoute: String) {
-    data class OpenId4VP(val uri: String, val initiator: String) :
-        PresentationControllerConfig(initiator)
+sealed class PresentationControllerConfig(
+    val initiatorRoute: String,
+) {
+    data class OpenId4VP(
+        val uri: String,
+        val initiator: String,
+    ) : PresentationControllerConfig(initiator)
 
-    data class Ble(val initiator: String) : PresentationControllerConfig(initiator)
+    data class Ble(
+        val initiator: String,
+    ) : PresentationControllerConfig(initiator)
 }
 
 sealed class TransferEventPartialState {
     data object Connected : TransferEventPartialState()
+
     data object Connecting : TransferEventPartialState()
+
     data object Disconnected : TransferEventPartialState()
-    data class Error(val error: String) : TransferEventPartialState()
-    data class QrEngagementReady(val qrCode: String) : TransferEventPartialState()
+
+    data class Error(
+        val error: String,
+    ) : TransferEventPartialState()
+
+    data class QrEngagementReady(
+        val qrCode: String,
+    ) : TransferEventPartialState()
+
     data class RequestReceived(
         val requestData: List<RequestedDocument>,
         val verifierName: String?,
@@ -72,12 +86,19 @@ sealed class TransferEventPartialState {
     ) : TransferEventPartialState()
 
     data object ResponseSent : TransferEventPartialState()
-    data class Redirect(val uri: URI) : TransferEventPartialState()
+
+    data class Redirect(
+        val uri: URI,
+    ) : TransferEventPartialState()
+
     data object IntentToSend : TransferEventPartialState()
 }
 
 sealed class CheckKeyUnlockPartialState {
-    data class Failure(val error: String) : CheckKeyUnlockPartialState()
+    data class Failure(
+        val error: String,
+    ) : CheckKeyUnlockPartialState()
+
     data class UserAuthenticationRequired(
         val authenticationData: List<AuthenticationData>,
     ) : CheckKeyUnlockPartialState()
@@ -86,14 +107,23 @@ sealed class CheckKeyUnlockPartialState {
 }
 
 sealed class SendRequestedDocumentsPartialState {
-    data class Failure(val error: String) : SendRequestedDocumentsPartialState()
+    data class Failure(
+        val error: String,
+    ) : SendRequestedDocumentsPartialState()
+
     data object RequestSent : SendRequestedDocumentsPartialState()
 }
 
 sealed class ResponseReceivedPartialState {
     data object Success : ResponseReceivedPartialState()
-    data class Redirect(val uri: URI) : ResponseReceivedPartialState()
-    data class Failure(val error: String) : ResponseReceivedPartialState()
+
+    data class Redirect(
+        val uri: URI,
+    ) : ResponseReceivedPartialState()
+
+    data class Failure(
+        val error: String,
+    ) : ResponseReceivedPartialState()
 }
 
 sealed class WalletCorePartialState {
@@ -101,9 +131,16 @@ sealed class WalletCorePartialState {
         val authenticationData: List<AuthenticationData>,
     ) : WalletCorePartialState()
 
-    data class Failure(val error: String) : WalletCorePartialState()
+    data class Failure(
+        val error: String,
+    ) : WalletCorePartialState()
+
     data object Success : WalletCorePartialState()
-    data class Redirect(val uri: URI) : WalletCorePartialState()
+
+    data class Redirect(
+        val uri: URI,
+    ) : WalletCorePartialState()
+
     data object RequestIsReadyToBeSent : WalletCorePartialState()
 }
 
@@ -162,7 +199,10 @@ interface WalletCorePresentationController {
     /**
      * Enable/Disable NFC service
      * */
-    fun toggleNfcEngagement(componentActivity: ComponentActivity, toggle: Boolean)
+    fun toggleNfcEngagement(
+        componentActivity: ComponentActivity,
+        toggle: Boolean,
+    )
 
     /**
      * Transform UI models to Domain and create -> sent the request.
@@ -201,12 +241,11 @@ class WalletCorePresentationControllerImpl(
     private val resourceProvider: ResourceProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : WalletCorePresentationController {
-
     private val genericErrorMessage = resourceProvider.genericErrorMessage()
 
     private val coroutineScope = CoroutineScope(dispatcher + SupervisorJob())
 
-    private lateinit var _config: PresentationControllerConfig
+    private lateinit var presentationConfig: PresentationControllerConfig
 
     override var disclosedDocuments: MutableList<DisclosedDocument>? = null
 
@@ -218,104 +257,114 @@ class WalletCorePresentationControllerImpl(
 
     override val initiatorRoute: String
         get() {
-            val config = requireInit { _config }
+            val config = requireInit { presentationConfig }
             return config.initiatorRoute
         }
 
     override var redirectUri: URI? = null
 
     override fun setConfig(config: PresentationControllerConfig) {
-        _config = config
+        presentationConfig = config
     }
 
-    override val events: SharedFlow<TransferEventPartialState> = callbackFlow {
-        val eventListenerWrapper = EudiWalletListenerWrapper(
-            onQrEngagementReady = { qrCode ->
-                trySendBlocking(
-                    TransferEventPartialState.QrEngagementReady(qrCode = qrCode)
-                )
-            },
-            onConnected = {
-                trySendBlocking(
-                    TransferEventPartialState.Connected
-                )
-            },
-            onConnecting = {
-                trySendBlocking(
-                    TransferEventPartialState.Connecting
-                )
-            },
-            onDisconnected = {
-                trySendBlocking(
-                    TransferEventPartialState.Disconnected
-                )
-            },
-            onError = { errorMessage ->
-                trySendBlocking(
-                    TransferEventPartialState.Error(
-                        error = errorMessage.ifEmpty { genericErrorMessage }
-                    )
-                )
-            },
-            onRequestReceived = { requestedDocumentData ->
-                trySendBlocking(
-                    requestedDocumentData.getOrNull()?.let { requestedDocuments ->
-
-                        processedRequest = requestedDocuments
-
-                        verifierName = requestedDocuments.requestedDocuments
-                            .firstOrNull()?.readerAuth?.readerCommonName
-
-                        val isTrusted = requestedDocuments.requestedDocuments
-                            .firstOrNull()?.readerAuth?.isVerified == true
-                        verifierIsTrusted = isTrusted
-
-                        TransferEventPartialState.RequestReceived(
-                            requestData = requestedDocuments.requestedDocuments,
-                            verifierName = verifierName,
-                            verifierIsTrusted = isTrusted
+    override val events: SharedFlow<TransferEventPartialState> =
+        callbackFlow {
+            val eventListenerWrapper =
+                EudiWalletListenerWrapper(
+                    onQrEngagementReady = { qrCode ->
+                        trySendBlocking(
+                            TransferEventPartialState.QrEngagementReady(qrCode = qrCode),
                         )
-                    } ?: TransferEventPartialState.Error(error = genericErrorMessage)
-                )
-            },
-            onResponseSent = {
-                trySendBlocking(
-                    TransferEventPartialState.ResponseSent
-                )
-            },
-            onRedirect = { uri ->
-                redirectUri = uri
+                    },
+                    onConnected = {
+                        trySendBlocking(
+                            TransferEventPartialState.Connected,
+                        )
+                    },
+                    onConnecting = {
+                        trySendBlocking(
+                            TransferEventPartialState.Connecting,
+                        )
+                    },
+                    onDisconnected = {
+                        trySendBlocking(
+                            TransferEventPartialState.Disconnected,
+                        )
+                    },
+                    onError = { errorMessage ->
+                        trySendBlocking(
+                            TransferEventPartialState.Error(
+                                error = errorMessage.ifEmpty { genericErrorMessage },
+                            ),
+                        )
+                    },
+                    onRequestReceived = { requestedDocumentData ->
+                        trySendBlocking(
+                            requestedDocumentData.getOrNull()?.let { requestedDocuments ->
 
-                trySendBlocking(
-                    TransferEventPartialState.Redirect(
-                        uri = uri
-                    )
-                )
-            },
+                                processedRequest = requestedDocuments
 
-            intentToSend = {
-                trySendBlocking(
-                    TransferEventPartialState.IntentToSend
+                                verifierName =
+                                    requestedDocuments.requestedDocuments
+                                        .firstOrNull()
+                                        ?.readerAuth
+                                        ?.readerCommonName
+
+                                val isTrusted =
+                                    requestedDocuments.requestedDocuments
+                                        .firstOrNull()
+                                        ?.readerAuth
+                                        ?.isVerified == true
+                                verifierIsTrusted = isTrusted
+
+                                TransferEventPartialState.RequestReceived(
+                                    requestData = requestedDocuments.requestedDocuments,
+                                    verifierName = verifierName,
+                                    verifierIsTrusted = isTrusted,
+                                )
+                            } ?: TransferEventPartialState.Error(error = genericErrorMessage),
+                        )
+                    },
+                    onResponseSent = {
+                        trySendBlocking(
+                            TransferEventPartialState.ResponseSent,
+                        )
+                    },
+                    onRedirect = { uri ->
+                        redirectUri = uri
+
+                        trySendBlocking(
+                            TransferEventPartialState.Redirect(
+                                uri = uri,
+                            ),
+                        )
+                    },
+                    intentToSend = {
+                        trySendBlocking(
+                            TransferEventPartialState.IntentToSend,
+                        )
+                    },
                 )
+
+            addListener(eventListenerWrapper)
+            awaitClose {
+                removeListener(eventListenerWrapper)
+                eudiWallet.stopProximityPresentation()
             }
-        )
-
-        addListener(eventListenerWrapper)
-        awaitClose {
-            removeListener(eventListenerWrapper)
-            eudiWallet.stopProximityPresentation()
-        }
-    }.safeAsync {
-        TransferEventPartialState.Error(
-            error = it.localizedMessage ?: resourceProvider.genericErrorMessage()
-        )
-    }.shareIn(coroutineScope, SharingStarted.Lazily, 2)
+        }.safeAsync {
+            TransferEventPartialState.Error(
+                error = it.localizedMessage ?: resourceProvider.genericErrorMessage(),
+            )
+        }.shareIn(coroutineScope, SharingStarted.Lazily, 2)
 
     override fun startQrEngagement() {
         eudiWallet.startProximityPresentation()
     }
 
-    override fun toggleNfcEngagement(componentActivity: ComponentActivity, toggle: Boolean) {
+    override fun toggleNfcEngagement(
+        componentActivity: ComponentActivity,
+        toggle: Boolean,
+    ) {
         try {
             if (toggle) {
                 eudiWallet.enableNFCEngagement(componentActivity)
@@ -326,147 +375,150 @@ class WalletCorePresentationControllerImpl(
         }
     }
 
-    override fun checkForKeyUnlock() = flow {
-        disclosedDocuments?.let { documents ->
+    override fun checkForKeyUnlock() =
+        flow {
+            disclosedDocuments?.let { documents ->
 
-            val authenticationData = mutableListOf<AuthenticationData>()
+                val authenticationData = mutableListOf<AuthenticationData>()
 
-            if (eudiWallet.config.userAuthenticationRequired) {
+                if (eudiWallet.config.userAuthenticationRequired) {
+                    val keyUnlockDataMap =
+                        documents.associateWith { disclosedDocument ->
+                            eudiWallet.getDefaultKeyUnlockData(documentId = disclosedDocument.documentId)
+                        }
 
-                val keyUnlockDataMap = documents.associateWith { disclosedDocument ->
-                    eudiWallet.getDefaultKeyUnlockData(documentId = disclosedDocument.documentId)
-                }
+                    for ((doc, kud) in keyUnlockDataMap) {
+                        val cryptoObject = kud?.getCryptoObjectForSigning()
 
-                for ((doc, kud) in keyUnlockDataMap) {
-
-                    val cryptoObject = kud?.getCryptoObjectForSigning()
-
-                    authenticationData.add(
-                        AuthenticationData(
-                            crypto = BiometricCrypto(cryptoObject),
-                            onAuthenticationSuccess = {
-                                disclosedDocuments?.addOrReplace(
-                                    value = doc.copy(keyUnlockData = kud),
-                                    replaceCondition = { disclosedDocument ->
-                                        disclosedDocument.documentId == doc.documentId
-                                    }
-                                )
-                            }
+                        authenticationData.add(
+                            AuthenticationData(
+                                crypto = BiometricCrypto(cryptoObject),
+                                onAuthenticationSuccess = {
+                                    disclosedDocuments?.addOrReplace(
+                                        value = doc.copy(keyUnlockData = kud),
+                                        replaceCondition = { disclosedDocument ->
+                                            disclosedDocument.documentId == doc.documentId
+                                        },
+                                    )
+                                },
+                            ),
                         )
+                    }
+
+                    emit(
+                        CheckKeyUnlockPartialState.UserAuthenticationRequired(
+                            authenticationData,
+                        ),
+                    )
+                } else {
+                    emit(
+                        CheckKeyUnlockPartialState.RequestIsReadyToBeSent,
                     )
                 }
-
-                emit(
-                    CheckKeyUnlockPartialState.UserAuthenticationRequired(
-                        authenticationData
-                    )
-                )
-
-            } else {
-                emit(
-                    CheckKeyUnlockPartialState.RequestIsReadyToBeSent
-                )
             }
+        }.safeAsync {
+            CheckKeyUnlockPartialState.Failure(
+                error = it.localizedMessage ?: genericErrorMessage,
+            )
         }
-    }.safeAsync {
-        CheckKeyUnlockPartialState.Failure(
-            error = it.localizedMessage ?: genericErrorMessage
-        )
-    }
 
-    override fun sendRequestedDocuments(): SendRequestedDocumentsPartialState {
-        return disclosedDocuments?.let { safeDisclosedDocuments ->
+    override fun sendRequestedDocuments(): SendRequestedDocumentsPartialState =
+        disclosedDocuments?.let { safeDisclosedDocuments ->
 
             var result: SendRequestedDocumentsPartialState =
                 SendRequestedDocumentsPartialState.RequestSent
 
-            processedRequest?.generateResponse(DisclosedDocuments(safeDisclosedDocuments.toList()))
+            processedRequest
+                ?.generateResponse(DisclosedDocuments(safeDisclosedDocuments.toList()))
                 ?.toKotlinResult()
                 ?.onFailure {
                     val errorMessage = it.localizedMessage ?: genericErrorMessage
-                    result = SendRequestedDocumentsPartialState.Failure(
-                        error = errorMessage
-                    )
-                }
-                ?.onSuccess {
+                    result =
+                        SendRequestedDocumentsPartialState.Failure(
+                            error = errorMessage,
+                        )
+                }?.onSuccess {
                     eudiWallet.sendResponse(it.response)
                     result = SendRequestedDocumentsPartialState.RequestSent
                 }
             result
         } ?: SendRequestedDocumentsPartialState.Failure(
-            error = genericErrorMessage
+            error = genericErrorMessage,
         )
-    }
 
-    override fun mappedCallbackStateFlow(): Flow<ResponseReceivedPartialState> {
-        return events.mapNotNull { response ->
-            when (response) {
+    override fun mappedCallbackStateFlow(): Flow<ResponseReceivedPartialState> =
+        events
+            .mapNotNull { response ->
+                when (response) {
+                    // Fix: Wallet core should return Success state here
+                    is TransferEventPartialState.Error -> {
+                        if (response.error == "Peer disconnected without proper session termination") {
+                            ResponseReceivedPartialState.Success
+                        } else {
+                            ResponseReceivedPartialState.Failure(error = response.error)
+                        }
+                    }
 
-                // Fix: Wallet core should return Success state here
-                is TransferEventPartialState.Error -> {
-                    if (response.error == "Peer disconnected without proper session termination") {
+                    is TransferEventPartialState.Redirect -> {
+                        ResponseReceivedPartialState.Redirect(uri = response.uri)
+                    }
+
+                    is TransferEventPartialState.Disconnected -> {
+                        when {
+                            events.replayCache.firstOrNull() is TransferEventPartialState.Redirect -> null
+                            else -> ResponseReceivedPartialState.Success
+                        }
+                    }
+
+                    is TransferEventPartialState.ResponseSent -> {
                         ResponseReceivedPartialState.Success
-                    } else {
-                        ResponseReceivedPartialState.Failure(error = response.error)
+                    }
+
+                    else -> {
+                        null
                     }
                 }
-
-                is TransferEventPartialState.Redirect -> {
-                    ResponseReceivedPartialState.Redirect(uri = response.uri)
-                }
-
-                is TransferEventPartialState.Disconnected -> {
-                    when {
-                        events.replayCache.firstOrNull() is TransferEventPartialState.Redirect -> null
-                        else -> ResponseReceivedPartialState.Success
-                    }
-                }
-
-                is TransferEventPartialState.ResponseSent -> ResponseReceivedPartialState.Success
-
-                else -> null
+            }.safeAsync {
+                ResponseReceivedPartialState.Failure(
+                    error = it.localizedMessage ?: genericErrorMessage,
+                )
             }
-        }.safeAsync {
-            ResponseReceivedPartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMessage
-            )
-        }
-    }
 
     override fun observeSentDocumentsRequest(): Flow<WalletCorePartialState> =
-        merge(checkForKeyUnlock(), mappedCallbackStateFlow()).mapNotNull {
-            when (it) {
-                is CheckKeyUnlockPartialState.Failure -> {
-                    WalletCorePartialState.Failure(it.error)
-                }
+        merge(checkForKeyUnlock(), mappedCallbackStateFlow())
+            .mapNotNull {
+                when (it) {
+                    is CheckKeyUnlockPartialState.Failure -> {
+                        WalletCorePartialState.Failure(it.error)
+                    }
 
-                is CheckKeyUnlockPartialState.UserAuthenticationRequired -> {
-                    WalletCorePartialState.UserAuthenticationRequired(it.authenticationData)
-                }
+                    is CheckKeyUnlockPartialState.UserAuthenticationRequired -> {
+                        WalletCorePartialState.UserAuthenticationRequired(it.authenticationData)
+                    }
 
-                is ResponseReceivedPartialState.Failure -> {
-                    WalletCorePartialState.Failure(it.error)
-                }
+                    is ResponseReceivedPartialState.Failure -> {
+                        WalletCorePartialState.Failure(it.error)
+                    }
 
-                is ResponseReceivedPartialState.Redirect -> {
-                    WalletCorePartialState.Redirect(
-                        uri = it.uri
-                    )
-                }
+                    is ResponseReceivedPartialState.Redirect -> {
+                        WalletCorePartialState.Redirect(
+                            uri = it.uri,
+                        )
+                    }
 
-                is CheckKeyUnlockPartialState.RequestIsReadyToBeSent -> {
-                    WalletCorePartialState.RequestIsReadyToBeSent
-                }
+                    is CheckKeyUnlockPartialState.RequestIsReadyToBeSent -> {
+                        WalletCorePartialState.RequestIsReadyToBeSent
+                    }
 
-                else -> {
-                    WalletCorePartialState.Success
+                    else -> {
+                        WalletCorePartialState.Success
+                    }
                 }
+            }.safeAsync {
+                WalletCorePartialState.Failure(
+                    error = it.localizedMessage ?: genericErrorMessage,
+                )
             }
-        }.safeAsync {
-            WalletCorePartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMessage
-            )
-        }
 
     override fun updateRequestedDocuments(disclosedDocuments: MutableList<DisclosedDocument>?) {
         this.disclosedDocuments = disclosedDocuments
@@ -480,7 +532,7 @@ class WalletCorePresentationControllerImpl(
     }
 
     private fun addListener(listener: EudiWalletListenerWrapper) {
-        val config = requireInit { _config }
+        val config = requireInit { presentationConfig }
         eudiWallet.addTransferEventListener(listener)
         if (config is PresentationControllerConfig.OpenId4VP) {
             eudiWallet.startRemotePresentation(config.uri.toUri())
@@ -488,12 +540,12 @@ class WalletCorePresentationControllerImpl(
     }
 
     private fun removeListener(listener: EudiWalletListenerWrapper) {
-        requireInit { _config }
+        requireInit { presentationConfig }
         eudiWallet.removeTransferEventListener(listener)
     }
 
     private fun <T> requireInit(block: () -> T): T {
-        if (!::_config.isInitialized) {
+        if (!::presentationConfig.isInitialized) {
             throw IllegalStateException("setConfig() must be called before using the WalletCorePresentationController")
         }
         return block()

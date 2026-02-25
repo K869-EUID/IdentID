@@ -16,14 +16,15 @@
 
 package com.k689.identid.interactor.dashboard
 
-import com.k689.identid.extension.business.safeAsync
-import com.k689.identid.provider.UuidProvider
 import com.k689.identid.controller.core.DeleteAllDocumentsPartialState
 import com.k689.identid.controller.core.DeleteDocumentPartialState
 import com.k689.identid.controller.core.WalletCoreDocumentsController
+import com.k689.identid.extension.business.safeAsync
 import com.k689.identid.extension.core.localizedIssuerMetadata
 import com.k689.identid.model.core.DocumentIdentifier
 import com.k689.identid.model.core.toDocumentIdentifier
+import com.k689.identid.provider.UuidProvider
+import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.dashboard.documents.detail.model.DocumentDetailsDomain
 import com.k689.identid.ui.dashboard.documents.detail.transformer.DocumentDetailsTransformer
 import com.k689.identid.ui.dashboard.documents.detail.transformer.DocumentDetailsTransformer.createDocumentCredentialsInfoUi
@@ -32,7 +33,6 @@ import eu.europa.ec.eudi.wallet.document.DocumentId
 import eu.europa.ec.eudi.wallet.document.IssuedDocument
 import eu.europa.ec.eudi.wallet.document.format.MsoMdocFormat
 import eu.europa.ec.eudi.wallet.document.format.SdJwtVcFormat
-import com.k689.identid.provider.resources.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -48,20 +48,24 @@ sealed class DocumentDetailsInteractorPartialState {
         val documentCredentialsInfoUi: DocumentCredentialsInfoUi,
     ) : DocumentDetailsInteractorPartialState()
 
-    data class Failure(val error: String) : DocumentDetailsInteractorPartialState()
+    data class Failure(
+        val error: String,
+    ) : DocumentDetailsInteractorPartialState()
 }
 
 sealed class DocumentDetailsInteractorDeleteDocumentPartialState {
     data object SingleDocumentDeleted : DocumentDetailsInteractorDeleteDocumentPartialState()
+
     data object AllDocumentsDeleted : DocumentDetailsInteractorDeleteDocumentPartialState()
+
     data class Failure(
-        val errorMessage: String
+        val errorMessage: String,
     ) : DocumentDetailsInteractorDeleteDocumentPartialState()
 }
 
 sealed class DocumentDetailsInteractorStoreBookmarkPartialState {
     data class Success(
-        val bookmarkId: String
+        val bookmarkId: String,
     ) : DocumentDetailsInteractorStoreBookmarkPartialState()
 
     data object Failure : DocumentDetailsInteractorStoreBookmarkPartialState()
@@ -69,6 +73,7 @@ sealed class DocumentDetailsInteractorStoreBookmarkPartialState {
 
 sealed class DocumentDetailsInteractorDeleteBookmarkPartialState {
     data object Success : DocumentDetailsInteractorDeleteBookmarkPartialState()
+
     data object Failure : DocumentDetailsInteractorDeleteBookmarkPartialState()
 }
 
@@ -78,15 +83,15 @@ interface DocumentDetailsInteractor {
     ): Flow<DocumentDetailsInteractorPartialState>
 
     fun deleteDocument(
-        documentId: DocumentId
+        documentId: DocumentId,
     ): Flow<DocumentDetailsInteractorDeleteDocumentPartialState>
 
     fun storeBookmark(
-        documentId: String
+        documentId: String,
     ): Flow<DocumentDetailsInteractorStoreBookmarkPartialState>
 
     fun deleteBookmark(
-        documentId: String
+        documentId: String,
     ): Flow<DocumentDetailsInteractorDeleteBookmarkPartialState>
 }
 
@@ -95,7 +100,6 @@ class DocumentDetailsInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
 ) : DocumentDetailsInteractor {
-
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
@@ -105,26 +109,27 @@ class DocumentDetailsInteractorImpl(
         flow {
             val issuedDocument =
                 walletCoreDocumentsController.getDocumentById(documentId = documentId)
-                        as? IssuedDocument
+                    as? IssuedDocument
 
             issuedDocument?.let { safeIssuedDocument ->
                 val documentDetailsDomainResult =
                     DocumentDetailsTransformer.transformToDocumentDetailsDomain(
                         document = safeIssuedDocument,
                         resourceProvider = resourceProvider,
-                        uuidProvider = uuidProvider
+                        uuidProvider = uuidProvider,
                     )
                 val documentDetailsDomain = documentDetailsDomainResult.getOrThrow()
 
                 val documentIsLowOnCredentials =
                     walletCoreDocumentsController.isDocumentLowOnCredentials(
-                        document = safeIssuedDocument
+                        document = safeIssuedDocument,
                     )
-                val documentCredentialsInfo = createDocumentCredentialsInfoUi(
-                    document = safeIssuedDocument,
-                    isLowOnCredentials = documentIsLowOnCredentials,
-                    resourceProvider = resourceProvider
-                )
+                val documentCredentialsInfo =
+                    createDocumentCredentialsInfoUi(
+                        document = safeIssuedDocument,
+                        isLowOnCredentials = documentIsLowOnCredentials,
+                        resourceProvider = resourceProvider,
+                    )
 
                 val userLocale = resourceProvider.getLocale()
                 val issuerName = safeIssuedDocument.localizedIssuerMetadata(userLocale)?.name
@@ -143,17 +148,17 @@ class DocumentDetailsInteractorImpl(
                         issuerLogo = issuerLogo?.uri,
                         isRevoked = documentIsRevoked,
                         documentCredentialsInfoUi = documentCredentialsInfo,
-                    )
+                    ),
                 )
             } ?: emit(DocumentDetailsInteractorPartialState.Failure(error = genericErrorMsg))
         }.safeAsync {
             DocumentDetailsInteractorPartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMsg
+                error = it.localizedMessage ?: genericErrorMsg,
             )
         }
 
     override fun deleteDocument(
-        documentId: DocumentId
+        documentId: DocumentId,
     ): Flow<DocumentDetailsInteractorDeleteDocumentPartialState> =
         flow {
             val document = walletCoreDocumentsController.getDocumentById(documentId = documentId)
@@ -163,13 +168,14 @@ class DocumentDetailsInteractorImpl(
 
             val shouldDeleteAllDocuments: Boolean =
                 if (docIdentifier == DocumentIdentifier.MdocPid || docIdentifier == DocumentIdentifier.SdJwtPid) {
-
-                    val allPidDocuments = walletCoreDocumentsController.getAllDocumentsByType(
-                        documentIdentifiers = listOf(
-                            DocumentIdentifier.MdocPid,
-                            DocumentIdentifier.SdJwtPid
+                    val allPidDocuments =
+                        walletCoreDocumentsController.getAllDocumentsByType(
+                            documentIdentifiers =
+                                listOf(
+                                    DocumentIdentifier.MdocPid,
+                                    DocumentIdentifier.SdJwtPid,
+                                ),
                         )
-                    )
 
                     if (allPidDocuments.count() > 1) {
                         walletCoreDocumentsController.getMainPidDocument()?.id == documentId
@@ -181,24 +187,33 @@ class DocumentDetailsInteractorImpl(
                 }
 
             if (shouldDeleteAllDocuments) {
-                walletCoreDocumentsController.deleteAllDocuments()
+                walletCoreDocumentsController
+                    .deleteAllDocuments()
                     .map {
                         when (it) {
-                            is DeleteAllDocumentsPartialState.Failure -> DocumentDetailsInteractorDeleteDocumentPartialState.Failure(
-                                errorMessage = it.errorMessage
-                            )
+                            is DeleteAllDocumentsPartialState.Failure -> {
+                                DocumentDetailsInteractorDeleteDocumentPartialState.Failure(
+                                    errorMessage = it.errorMessage,
+                                )
+                            }
 
-                            is DeleteAllDocumentsPartialState.Success -> DocumentDetailsInteractorDeleteDocumentPartialState.AllDocumentsDeleted
+                            is DeleteAllDocumentsPartialState.Success -> {
+                                DocumentDetailsInteractorDeleteDocumentPartialState.AllDocumentsDeleted
+                            }
                         }
                     }
             } else {
                 walletCoreDocumentsController.deleteDocument(documentId = documentId).map {
                     when (it) {
-                        is DeleteDocumentPartialState.Failure -> DocumentDetailsInteractorDeleteDocumentPartialState.Failure(
-                            errorMessage = it.errorMessage
-                        )
+                        is DeleteDocumentPartialState.Failure -> {
+                            DocumentDetailsInteractorDeleteDocumentPartialState.Failure(
+                                errorMessage = it.errorMessage,
+                            )
+                        }
 
-                        is DeleteDocumentPartialState.Success -> DocumentDetailsInteractorDeleteDocumentPartialState.SingleDocumentDeleted
+                        is DeleteDocumentPartialState.Success -> {
+                            DocumentDetailsInteractorDeleteDocumentPartialState.SingleDocumentDeleted
+                        }
                     }
                 }
             }.collect {
@@ -206,7 +221,7 @@ class DocumentDetailsInteractorImpl(
             }
         }.safeAsync {
             DocumentDetailsInteractorDeleteDocumentPartialState.Failure(
-                errorMessage = it.localizedMessage ?: genericErrorMsg
+                errorMessage = it.localizedMessage ?: genericErrorMsg,
             )
         }
 

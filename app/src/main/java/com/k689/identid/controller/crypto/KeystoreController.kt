@@ -33,9 +33,8 @@ interface KeystoreController {
 class KeystoreControllerImpl(
     private val prefKeys: PrefKeys,
     private val logController: LogController,
-    private val uuidProvider: UuidProvider
+    private val uuidProvider: UuidProvider,
 ) : KeystoreController {
-
     companion object {
         private const val STORE_TYPE = "AndroidKeyStore"
     }
@@ -72,8 +71,8 @@ class KeystoreControllerImpl(
      * @return The retrieved or newly generated [SecretKey], or `null` if the Android KeyStore
      *         is unavailable or if any other error occurs during the process.
      */
-    override fun retrieveOrGenerateSecretKey(userAuthenticationRequired: Boolean): SecretKey? {
-        return androidKeyStore?.let {
+    override fun retrieveOrGenerateSecretKey(userAuthenticationRequired: Boolean): SecretKey? =
+        androidKeyStore?.let {
             val alias = prefKeys.getCryptoAlias()
             if (alias.isEmpty()) {
                 val newAlias = createPublicKey()
@@ -84,41 +83,48 @@ class KeystoreControllerImpl(
                 getSecretKey(it, alias)
             }
         }
-    }
 
     @Suppress("DEPRECATION")
-    private fun generateSecretKey(alias: String, userAuthenticationRequired: Boolean) {
+    private fun generateSecretKey(
+        alias: String,
+        userAuthenticationRequired: Boolean,
+    ) {
         val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, STORE_TYPE)
 
-        val builder = KeyGenParameterSpec.Builder(
-            alias,
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        ).apply {
-            setKeySize(256)
-            setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-            setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            if (userAuthenticationRequired) {
-                setUserAuthenticationRequired(true)
-                setInvalidatedByBiometricEnrollment(true)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    setUserAuthenticationParameters(
-                        0,
-                        KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG
-                    )
-                } else {
-                    setUserAuthenticationValidityDurationSeconds(-1)
+        val builder =
+            KeyGenParameterSpec
+                .Builder(
+                    alias,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT,
+                ).apply {
+                    setKeySize(256)
+                    setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    if (userAuthenticationRequired) {
+                        setUserAuthenticationRequired(true)
+                        setInvalidatedByBiometricEnrollment(true)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            setUserAuthenticationParameters(
+                                0,
+                                KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG,
+                            )
+                        } else {
+                            setUserAuthenticationValidityDurationSeconds(-1)
+                        }
+                    }
                 }
-            }
-        }
 
         keyGenerator.init(
-            builder.build()
+            builder.build(),
         )
 
         keyGenerator.generateKey()
     }
 
-    private fun getSecretKey(keyStore: KeyStore, alias: String): SecretKey {
+    private fun getSecretKey(
+        keyStore: KeyStore,
+        alias: String,
+    ): SecretKey {
         keyStore.load(null)
         return keyStore.getKey(alias, null) as SecretKey
     }

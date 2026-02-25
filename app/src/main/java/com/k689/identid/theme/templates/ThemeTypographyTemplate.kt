@@ -50,26 +50,27 @@ data class ThemeTypographyTemplate(
     val bodySmall: ThemeTextStyle,
     val labelLarge: ThemeTextStyle,
     val labelMedium: ThemeTextStyle,
-    val labelSmall: ThemeTextStyle
+    val labelSmall: ThemeTextStyle,
 ) {
     companion object {
-        fun ThemeTypographyTemplate.toTypography(): Typography = Typography(
-            displayLarge = displayLarge.toTextStyle(),
-            displayMedium = displayMedium.toTextStyle(),
-            displaySmall = displaySmall.toTextStyle(),
-            headlineLarge = headlineLarge.toTextStyle(),
-            headlineMedium = headlineMedium.toTextStyle(),
-            headlineSmall = headlineSmall.toTextStyle(),
-            titleLarge = titleLarge.toTextStyle(),
-            titleMedium = titleMedium.toTextStyle(),
-            titleSmall = titleSmall.toTextStyle(),
-            bodyLarge = bodyLarge.toTextStyle(),
-            bodyMedium = bodyMedium.toTextStyle(),
-            bodySmall = bodySmall.toTextStyle(),
-            labelLarge = labelLarge.toTextStyle(),
-            labelMedium = labelMedium.toTextStyle(),
-            labelSmall = labelSmall.toTextStyle()
-        )
+        fun ThemeTypographyTemplate.toTypography(): Typography =
+            Typography(
+                displayLarge = displayLarge.toTextStyle(),
+                displayMedium = displayMedium.toTextStyle(),
+                displaySmall = displaySmall.toTextStyle(),
+                headlineLarge = headlineLarge.toTextStyle(),
+                headlineMedium = headlineMedium.toTextStyle(),
+                headlineSmall = headlineSmall.toTextStyle(),
+                titleLarge = titleLarge.toTextStyle(),
+                titleMedium = titleMedium.toTextStyle(),
+                titleSmall = titleSmall.toTextStyle(),
+                bodyLarge = bodyLarge.toTextStyle(),
+                bodyMedium = bodyMedium.toTextStyle(),
+                bodySmall = bodySmall.toTextStyle(),
+                labelLarge = labelLarge.toTextStyle(),
+                labelMedium = labelMedium.toTextStyle(),
+                labelSmall = labelSmall.toTextStyle(),
+            )
     }
 }
 
@@ -87,54 +88,71 @@ data class ThemeTextStyle(
     companion object {
         fun ThemeTextStyle.toTextStyle(): TextStyle {
             // Transform values.
-            val mColor = try {
-                when (color) {
-                    null -> Color.Unspecified
-                    else -> Color(color)
+            val mColor =
+                try {
+                    when (color) {
+                        null -> Color.Unspecified
+                        else -> Color(color)
+                    }
+                } catch (exception: Exception) {
+                    throw IllegalArgumentException("Invalid color $color")
                 }
-            } catch (exception: Exception) {
-                throw IllegalArgumentException("Invalid color $color")
-            }
-            val mFontSize = try {
-                when (fontSize) {
-                    null -> TextUnit.Unspecified
-                    else -> TextUnit(
-                        value = fontSize.toFloat(),
-                        type = TextUnitType.Sp
-                    )
-                }
-            } catch (exception: Exception) {
-                throw IllegalArgumentException("Invalid fontSize $fontSize")
-            }
-            val mLetterSpacing = try {
-                when (letterSpacing) {
-                    null -> TextUnit.Unspecified
-                    else -> TextUnit(
-                        value = letterSpacing,
-                        type = TextUnitType.Sp
-                    )
-                }
-            } catch (exception: Exception) {
-                throw IllegalArgumentException("Invalid letterSpacing $letterSpacing")
-            }
-            val mBackground = try {
-                when (color) {
-                    null -> Color.Unspecified
-                    else -> Color(color)
-                }
-            } catch (exception: Exception) {
-                throw IllegalArgumentException("Invalid background $background")
-            }
+            val mFontSize =
+                try {
+                    when (fontSize) {
+                        null -> {
+                            TextUnit.Unspecified
+                        }
 
-            val mFontFamily = when {
-                fontFamily.isNullOrEmpty() -> {
-                    FontFamily.Default
+                        else -> {
+                            TextUnit(
+                                value = fontSize.toFloat(),
+                                type = TextUnitType.Sp,
+                            )
+                        }
+                    }
+                } catch (exception: Exception) {
+                    throw IllegalArgumentException("Invalid fontSize $fontSize")
+                }
+            val mLetterSpacing =
+                try {
+                    when (letterSpacing) {
+                        null -> {
+                            TextUnit.Unspecified
+                        }
+
+                        else -> {
+                            TextUnit(
+                                value = letterSpacing,
+                                type = TextUnitType.Sp,
+                            )
+                        }
+                    }
+                } catch (exception: Exception) {
+                    throw IllegalArgumentException("Invalid letterSpacing $letterSpacing")
+                }
+            val mBackground =
+                try {
+                    when (color) {
+                        null -> Color.Unspecified
+                        else -> Color(color)
+                    }
+                } catch (exception: Exception) {
+                    throw IllegalArgumentException("Invalid background $background")
                 }
 
-                else -> FontFamily(
-                    fontFamily.map { font -> font.toFont() }
-                )
-            }
+            val mFontFamily =
+                when {
+                    fontFamily.isNullOrEmpty() -> {
+                        FontFamily.Default
+                    }
+
+                    else -> {
+                        FontFamily(
+                            fontFamily.map { font -> font.toFont() },
+                        )
+                    }
+                }
 
             return TextStyle(
                 color = mColor,
@@ -145,7 +163,7 @@ data class ThemeTextStyle(
                 letterSpacing = mLetterSpacing,
                 background = mBackground,
                 textDecoration = textDecoration?.toTextDecoration(),
-                textAlign = textAlign?.toTextAlign() ?: TextAlign.Unspecified
+                textAlign = textAlign?.toTextAlign() ?: TextAlign.Unspecified,
             )
         }
     }

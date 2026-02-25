@@ -22,10 +22,10 @@ import com.k689.identid.ui.proximity.request.ProximityRequestViewModel
 @Composable
 fun ProximityRequestScreen(
     navController: NavController,
-    viewModel: ProximityRequestViewModel
+    viewModel: ProximityRequestViewModel,
 ) {
     RequestScreen(
         navController = navController,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }

@@ -53,7 +53,7 @@ private fun ImageOrPlaceholderPreview() {
     PreviewTheme {
         ImageOrPlaceholder(
             base64Image = "",
-            modifier = Modifier
+            modifier = Modifier,
         )
     }
 }

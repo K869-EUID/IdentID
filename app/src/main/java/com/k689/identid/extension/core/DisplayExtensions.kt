@@ -38,14 +38,13 @@ import java.util.Locale
 fun List<IssuerMetadata.Claim.Display>?.getLocalizedClaimName(
     userLocale: Locale,
     fallback: String,
-): String {
-    return this.getLocalizedString(
+): String =
+    this.getLocalizedString(
         userLocale = userLocale,
         localeExtractor = { it.locale },
         stringExtractor = { it.name },
         fallback = fallback,
     )
-}
 
 /**
  * Retrieves the localized display name of a document based on the user's locale.
@@ -65,14 +64,13 @@ fun List<IssuerMetadata.Claim.Display>?.getLocalizedClaimName(
 fun CredentialMetadata?.getLocalizedDisplayName(
     userLocale: Locale,
     fallback: String,
-): String {
-    return this?.display.getLocalizedString(
+): String =
+    this?.display.getLocalizedString(
         userLocale = userLocale,
         localeExtractor = { it.locale },
         stringExtractor = { it.name },
         fallback = fallback,
     )
-}
 
 /**
  * Retrieves the localized display name of a document based on the user's locale.
@@ -92,11 +90,10 @@ fun CredentialMetadata?.getLocalizedDisplayName(
 fun IssuerMetadata?.getLocalizedDocumentName(
     userLocale: Locale,
     fallback: String,
-): String {
-    return this?.display.getLocalizedString(
+): String =
+    this?.display.getLocalizedString(
         userLocale = userLocale,
         localeExtractor = { it.locale },
         stringExtractor = { it.name },
         fallback = fallback,
     )
-}

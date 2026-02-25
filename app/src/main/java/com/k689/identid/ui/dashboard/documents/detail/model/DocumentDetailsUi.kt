@@ -17,11 +17,15 @@
 package com.k689.identid.ui.dashboard.documents.detail.model
 
 import com.k689.identid.model.core.DocumentIdentifier
-import eu.europa.ec.eudi.wallet.document.DocumentId
 import com.k689.identid.ui.component.wrap.ExpandableListItemUi
+import eu.europa.ec.eudi.wallet.document.DocumentId
 
 enum class DocumentIssuanceStateUi {
-    Issued, Pending, Failed, Expired, Revoked
+    Issued,
+    Pending,
+    Failed,
+    Expired,
+    Revoked,
 }
 
 data class DocumentDetailsUi(

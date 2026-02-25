@@ -29,7 +29,7 @@ class EudiWalletListenerWrapper(
     private val onRequestReceived: (RequestProcessor.ProcessedRequest) -> Unit,
     private val onResponseSent: () -> Unit,
     private val onRedirect: (URI) -> Unit,
-    private val intentToSend: () -> Unit
+    private val intentToSend: () -> Unit,
 ) : TransferEvent.Listener {
     override fun onTransferEvent(event: TransferEvent) {
         when (event) {

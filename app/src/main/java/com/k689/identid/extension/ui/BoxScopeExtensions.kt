@@ -45,14 +45,14 @@ fun BoxScope.IconWarningIndicator(
     WrapIcon(
         iconData = iconData,
         customTint = customTint,
-        modifier = Modifier
-            .align(Alignment.TopEnd)
-            .background(
-                color = backgroundColor,
-                shape = CircleShape
-            )
-            .padding(SIZE_EXTRA_SMALL.dp)
-            .size(20.dp)
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .background(
+                    color = backgroundColor,
+                    shape = CircleShape,
+                ).padding(SIZE_EXTRA_SMALL.dp)
+                .size(20.dp),
     )
 }
 
@@ -63,10 +63,10 @@ private fun IconWarningIndicatorPreview() {
         Box {
             WrapIcon(
                 iconData = AppIcons.Id,
-                customTint = MaterialTheme.colorScheme.primary
+                customTint = MaterialTheme.colorScheme.primary,
             )
             IconWarningIndicator(
-                backgroundColor = MaterialTheme.colorScheme.surface
+                backgroundColor = MaterialTheme.colorScheme.surface,
             )
         }
     }

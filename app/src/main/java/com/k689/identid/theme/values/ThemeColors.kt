@@ -158,176 +158,188 @@ class ThemeColors {
         const val eudiw_theme_dark_background_preview: Long =
             eudiw_theme_dark_surface
 
-        internal val lightColors = ThemeColorsTemplate(
-            primary = eudiw_theme_light_primary,
-            onPrimary = eudiw_theme_light_onPrimary,
-            primaryContainer = eudiw_theme_light_primaryContainer,
-            onPrimaryContainer = eudiw_theme_light_onPrimaryContainer,
-            secondary = eudiw_theme_light_secondary,
-            onSecondary = eudiw_theme_light_onSecondary,
-            secondaryContainer = eudiw_theme_light_secondaryContainer,
-            onSecondaryContainer = eudiw_theme_light_onSecondaryContainer,
-            tertiary = eudiw_theme_light_tertiary,
-            onTertiary = eudiw_theme_light_onTertiary,
-            tertiaryContainer = eudiw_theme_light_tertiaryContainer,
-            onTertiaryContainer = eudiw_theme_light_onTertiaryContainer,
-            error = eudiw_theme_light_error,
-            errorContainer = eudiw_theme_light_errorContainer,
-            onError = eudiw_theme_light_onError,
-            onErrorContainer = eudiw_theme_light_onErrorContainer,
-            background = eudiw_theme_light_background,
-            onBackground = eudiw_theme_light_onBackground,
-            surface = eudiw_theme_light_surface,
-            onSurface = eudiw_theme_light_onSurface,
-            surfaceVariant = eudiw_theme_light_surfaceVariant,
-            onSurfaceVariant = eudiw_theme_light_onSurfaceVariant,
-            outline = eudiw_theme_light_outline,
-            inverseOnSurface = eudiw_theme_light_inverseOnSurface,
-            inverseSurface = eudiw_theme_light_inverseSurface,
-            inversePrimary = eudiw_theme_light_inversePrimary,
-            surfaceTint = eudiw_theme_light_surfaceTint,
-            outlineVariant = eudiw_theme_light_outlineVariant,
-            scrim = eudiw_theme_light_scrim,
-            surfaceBright = eudiw_theme_light_surfaceBright,
-            surfaceDim = eudiw_theme_light_surfaceDim,
-            surfaceContainer = eudiw_theme_light_surfaceContainer,
-            surfaceContainerHigh = eudiw_theme_light_surfaceContainerHigh,
-            surfaceContainerHighest = eudiw_theme_light_surfaceContainerHighest,
-            surfaceContainerLow = eudiw_theme_light_surfaceContainerLow,
-            surfaceContainerLowest = eudiw_theme_light_surfaceContainerLowest,
-            primaryFixed = eudiw_theme_light_primaryFixed,
-            primaryFixedDim = eudiw_theme_light_primaryFixedDim,
-            onPrimaryFixed = eudiw_theme_light_onPrimaryFixed,
-            onPrimaryFixedVariant = eudiw_theme_light_onPrimaryFixedVariant,
-            secondaryFixed = eudiw_theme_light_secondaryFixed,
-            secondaryFixedDim = eudiw_theme_light_secondaryFixedDim,
-            onSecondaryFixed = eudiw_theme_light_onSecondaryFixed,
-            onSecondaryFixedVariant = eudiw_theme_light_onSecondaryFixedVariant,
-            tertiaryFixed = eudiw_theme_light_tertiaryFixed,
-            tertiaryFixedDim = eudiw_theme_light_tertiaryFixedDim,
-            onTertiaryFixed = eudiw_theme_light_onTertiaryFixed,
-            onTertiaryFixedVariant = eudiw_theme_light_onTertiaryFixedVariant,
-        )
+        internal val lightColors =
+            ThemeColorsTemplate(
+                primary = eudiw_theme_light_primary,
+                onPrimary = eudiw_theme_light_onPrimary,
+                primaryContainer = eudiw_theme_light_primaryContainer,
+                onPrimaryContainer = eudiw_theme_light_onPrimaryContainer,
+                secondary = eudiw_theme_light_secondary,
+                onSecondary = eudiw_theme_light_onSecondary,
+                secondaryContainer = eudiw_theme_light_secondaryContainer,
+                onSecondaryContainer = eudiw_theme_light_onSecondaryContainer,
+                tertiary = eudiw_theme_light_tertiary,
+                onTertiary = eudiw_theme_light_onTertiary,
+                tertiaryContainer = eudiw_theme_light_tertiaryContainer,
+                onTertiaryContainer = eudiw_theme_light_onTertiaryContainer,
+                error = eudiw_theme_light_error,
+                errorContainer = eudiw_theme_light_errorContainer,
+                onError = eudiw_theme_light_onError,
+                onErrorContainer = eudiw_theme_light_onErrorContainer,
+                background = eudiw_theme_light_background,
+                onBackground = eudiw_theme_light_onBackground,
+                surface = eudiw_theme_light_surface,
+                onSurface = eudiw_theme_light_onSurface,
+                surfaceVariant = eudiw_theme_light_surfaceVariant,
+                onSurfaceVariant = eudiw_theme_light_onSurfaceVariant,
+                outline = eudiw_theme_light_outline,
+                inverseOnSurface = eudiw_theme_light_inverseOnSurface,
+                inverseSurface = eudiw_theme_light_inverseSurface,
+                inversePrimary = eudiw_theme_light_inversePrimary,
+                surfaceTint = eudiw_theme_light_surfaceTint,
+                outlineVariant = eudiw_theme_light_outlineVariant,
+                scrim = eudiw_theme_light_scrim,
+                surfaceBright = eudiw_theme_light_surfaceBright,
+                surfaceDim = eudiw_theme_light_surfaceDim,
+                surfaceContainer = eudiw_theme_light_surfaceContainer,
+                surfaceContainerHigh = eudiw_theme_light_surfaceContainerHigh,
+                surfaceContainerHighest = eudiw_theme_light_surfaceContainerHighest,
+                surfaceContainerLow = eudiw_theme_light_surfaceContainerLow,
+                surfaceContainerLowest = eudiw_theme_light_surfaceContainerLowest,
+                primaryFixed = eudiw_theme_light_primaryFixed,
+                primaryFixedDim = eudiw_theme_light_primaryFixedDim,
+                onPrimaryFixed = eudiw_theme_light_onPrimaryFixed,
+                onPrimaryFixedVariant = eudiw_theme_light_onPrimaryFixedVariant,
+                secondaryFixed = eudiw_theme_light_secondaryFixed,
+                secondaryFixedDim = eudiw_theme_light_secondaryFixedDim,
+                onSecondaryFixed = eudiw_theme_light_onSecondaryFixed,
+                onSecondaryFixedVariant = eudiw_theme_light_onSecondaryFixedVariant,
+                tertiaryFixed = eudiw_theme_light_tertiaryFixed,
+                tertiaryFixedDim = eudiw_theme_light_tertiaryFixedDim,
+                onTertiaryFixed = eudiw_theme_light_onTertiaryFixed,
+                onTertiaryFixedVariant = eudiw_theme_light_onTertiaryFixedVariant,
+            )
 
-        internal val darkColors = ThemeColorsTemplate(
-            primary = eudiw_theme_dark_primary,
-            onPrimary = eudiw_theme_dark_onPrimary,
-            primaryContainer = eudiw_theme_dark_primaryContainer,
-            onPrimaryContainer = eudiw_theme_dark_onPrimaryContainer,
-            secondary = eudiw_theme_dark_secondary,
-            onSecondary = eudiw_theme_dark_onSecondary,
-            secondaryContainer = eudiw_theme_dark_secondaryContainer,
-            onSecondaryContainer = eudiw_theme_dark_onSecondaryContainer,
-            tertiary = eudiw_theme_dark_tertiary,
-            onTertiary = eudiw_theme_dark_onTertiary,
-            tertiaryContainer = eudiw_theme_dark_tertiaryContainer,
-            onTertiaryContainer = eudiw_theme_dark_onTertiaryContainer,
-            error = eudiw_theme_dark_error,
-            errorContainer = eudiw_theme_dark_errorContainer,
-            onError = eudiw_theme_dark_onError,
-            onErrorContainer = eudiw_theme_dark_onErrorContainer,
-            background = eudiw_theme_dark_background,
-            onBackground = eudiw_theme_dark_onBackground,
-            surface = eudiw_theme_dark_surface,
-            onSurface = eudiw_theme_dark_onSurface,
-            surfaceVariant = eudiw_theme_dark_surfaceVariant,
-            onSurfaceVariant = eudiw_theme_dark_onSurfaceVariant,
-            outline = eudiw_theme_dark_outline,
-            inverseOnSurface = eudiw_theme_dark_inverseOnSurface,
-            inverseSurface = eudiw_theme_dark_inverseSurface,
-            inversePrimary = eudiw_theme_dark_inversePrimary,
-            surfaceTint = eudiw_theme_dark_surfaceTint,
-            outlineVariant = eudiw_theme_dark_outlineVariant,
-            scrim = eudiw_theme_dark_scrim,
-            surfaceBright = eudiw_theme_dark_surfaceBright,
-            surfaceDim = eudiw_theme_dark_surfaceDim,
-            surfaceContainer = eudiw_theme_dark_surfaceContainer,
-            surfaceContainerHigh = eudiw_theme_dark_surfaceContainerHigh,
-            surfaceContainerHighest = eudiw_theme_dark_surfaceContainerHighest,
-            surfaceContainerLow = eudiw_theme_dark_surfaceContainerLow,
-            surfaceContainerLowest = eudiw_theme_dark_surfaceContainerLowest,
-            primaryFixed = eudiw_theme_dark_primaryFixed,
-            primaryFixedDim = eudiw_theme_dark_primaryFixedDim,
-            onPrimaryFixed = eudiw_theme_dark_onPrimaryFixed,
-            onPrimaryFixedVariant = eudiw_theme_dark_onPrimaryFixedVariant,
-            secondaryFixed = eudiw_theme_dark_secondaryFixed,
-            secondaryFixedDim = eudiw_theme_dark_secondaryFixedDim,
-            onSecondaryFixed = eudiw_theme_dark_onSecondaryFixed,
-            onSecondaryFixedVariant = eudiw_theme_dark_onSecondaryFixedVariant,
-            tertiaryFixed = eudiw_theme_dark_tertiaryFixed,
-            tertiaryFixedDim = eudiw_theme_dark_tertiaryFixedDim,
-            onTertiaryFixed = eudiw_theme_dark_onTertiaryFixed,
-            onTertiaryFixedVariant = eudiw_theme_dark_onTertiaryFixedVariant,
-        )
+        internal val darkColors =
+            ThemeColorsTemplate(
+                primary = eudiw_theme_dark_primary,
+                onPrimary = eudiw_theme_dark_onPrimary,
+                primaryContainer = eudiw_theme_dark_primaryContainer,
+                onPrimaryContainer = eudiw_theme_dark_onPrimaryContainer,
+                secondary = eudiw_theme_dark_secondary,
+                onSecondary = eudiw_theme_dark_onSecondary,
+                secondaryContainer = eudiw_theme_dark_secondaryContainer,
+                onSecondaryContainer = eudiw_theme_dark_onSecondaryContainer,
+                tertiary = eudiw_theme_dark_tertiary,
+                onTertiary = eudiw_theme_dark_onTertiary,
+                tertiaryContainer = eudiw_theme_dark_tertiaryContainer,
+                onTertiaryContainer = eudiw_theme_dark_onTertiaryContainer,
+                error = eudiw_theme_dark_error,
+                errorContainer = eudiw_theme_dark_errorContainer,
+                onError = eudiw_theme_dark_onError,
+                onErrorContainer = eudiw_theme_dark_onErrorContainer,
+                background = eudiw_theme_dark_background,
+                onBackground = eudiw_theme_dark_onBackground,
+                surface = eudiw_theme_dark_surface,
+                onSurface = eudiw_theme_dark_onSurface,
+                surfaceVariant = eudiw_theme_dark_surfaceVariant,
+                onSurfaceVariant = eudiw_theme_dark_onSurfaceVariant,
+                outline = eudiw_theme_dark_outline,
+                inverseOnSurface = eudiw_theme_dark_inverseOnSurface,
+                inverseSurface = eudiw_theme_dark_inverseSurface,
+                inversePrimary = eudiw_theme_dark_inversePrimary,
+                surfaceTint = eudiw_theme_dark_surfaceTint,
+                outlineVariant = eudiw_theme_dark_outlineVariant,
+                scrim = eudiw_theme_dark_scrim,
+                surfaceBright = eudiw_theme_dark_surfaceBright,
+                surfaceDim = eudiw_theme_dark_surfaceDim,
+                surfaceContainer = eudiw_theme_dark_surfaceContainer,
+                surfaceContainerHigh = eudiw_theme_dark_surfaceContainerHigh,
+                surfaceContainerHighest = eudiw_theme_dark_surfaceContainerHighest,
+                surfaceContainerLow = eudiw_theme_dark_surfaceContainerLow,
+                surfaceContainerLowest = eudiw_theme_dark_surfaceContainerLowest,
+                primaryFixed = eudiw_theme_dark_primaryFixed,
+                primaryFixedDim = eudiw_theme_dark_primaryFixedDim,
+                onPrimaryFixed = eudiw_theme_dark_onPrimaryFixed,
+                onPrimaryFixedVariant = eudiw_theme_dark_onPrimaryFixedVariant,
+                secondaryFixed = eudiw_theme_dark_secondaryFixed,
+                secondaryFixedDim = eudiw_theme_dark_secondaryFixedDim,
+                onSecondaryFixed = eudiw_theme_dark_onSecondaryFixed,
+                onSecondaryFixedVariant = eudiw_theme_dark_onSecondaryFixedVariant,
+                tertiaryFixed = eudiw_theme_dark_tertiaryFixed,
+                tertiaryFixedDim = eudiw_theme_dark_tertiaryFixedDim,
+                onTertiaryFixed = eudiw_theme_dark_onTertiaryFixed,
+                onTertiaryFixedVariant = eudiw_theme_dark_onTertiaryFixedVariant,
+            )
 
         val primary: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_primary)
-            } else {
-                Color(eudiw_theme_light_primary)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_primary)
+                } else {
+                    Color(eudiw_theme_light_primary)
+                }
 
         val success: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_success)
-            } else {
-                Color(eudiw_theme_light_success)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_success)
+                } else {
+                    Color(eudiw_theme_light_success)
+                }
 
         val warning: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_warning)
-            } else {
-                Color(eudiw_theme_light_warning)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_warning)
+                } else {
+                    Color(eudiw_theme_light_warning)
+                }
 
         val pending: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_pending)
-            } else {
-                Color(eudiw_theme_light_pending)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_pending)
+                } else {
+                    Color(eudiw_theme_light_pending)
+                }
 
         val error: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_error)
-            } else {
-                Color(eudiw_theme_light_error)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_error)
+                } else {
+                    Color(eudiw_theme_light_error)
+                }
 
         val divider: Color
-            get() = if (isInDarkMode) {
-                Color(eudiw_theme_dark_divider)
-            } else {
-                Color(eudiw_theme_light_divider)
-            }
+            get() =
+                if (isInDarkMode) {
+                    Color(eudiw_theme_dark_divider)
+                } else {
+                    Color(eudiw_theme_light_divider)
+                }
     }
 }
 
 val ColorScheme.success: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color(ThemeColors.eudiw_theme_dark_success)
-    } else {
-        Color(ThemeColors.eudiw_theme_light_success)
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color(ThemeColors.eudiw_theme_dark_success)
+        } else {
+            Color(ThemeColors.eudiw_theme_light_success)
+        }
 
 val ColorScheme.warning: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color(ThemeColors.eudiw_theme_dark_warning)
-    } else {
-        Color(ThemeColors.eudiw_theme_light_warning)
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color(ThemeColors.eudiw_theme_dark_warning)
+        } else {
+            Color(ThemeColors.eudiw_theme_light_warning)
+        }
 
 val ColorScheme.pending: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color(ThemeColors.eudiw_theme_dark_pending)
-    } else {
-        Color(ThemeColors.eudiw_theme_light_pending)
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color(ThemeColors.eudiw_theme_dark_pending)
+        } else {
+            Color(ThemeColors.eudiw_theme_light_pending)
+        }
 
 val ColorScheme.divider: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color(ThemeColors.eudiw_theme_dark_divider)
-    } else {
-        Color(ThemeColors.eudiw_theme_light_divider)
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color(ThemeColors.eudiw_theme_dark_divider)
+        } else {
+            Color(ThemeColors.eudiw_theme_light_divider)
+        }

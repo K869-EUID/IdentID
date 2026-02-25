@@ -57,13 +57,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.model.core.DocumentIdentifier
-import com.k689.identid.util.core.CoreActions
-import com.k689.identid.ui.dashboard.documents.detail.model.DocumentDetailsUi
-import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
-import com.k689.identid.ui.dashboard.documents.model.DocumentCredentialsInfoUi
-import com.k689.identid.util.dashboard.TestTag
 import com.k689.identid.R
+import com.k689.identid.extension.ui.clickableNoRipple
+import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.model.core.DocumentIdentifier
 import com.k689.identid.theme.values.success
 import com.k689.identid.theme.values.warning
 import com.k689.identid.ui.component.AppIcons
@@ -98,8 +95,11 @@ import com.k689.identid.ui.component.wrap.WrapCard
 import com.k689.identid.ui.component.wrap.WrapListItems
 import com.k689.identid.ui.component.wrap.WrapModalBottomSheet
 import com.k689.identid.ui.component.wrap.WrapText
-import com.k689.identid.extension.ui.clickableNoRipple
-import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.ui.dashboard.documents.detail.model.DocumentDetailsUi
+import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
+import com.k689.identid.ui.dashboard.documents.model.DocumentCredentialsInfoUi
+import com.k689.identid.util.core.CoreActions
+import com.k689.identid.util.dashboard.TestTag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -119,30 +119,33 @@ fun DocumentDetailsScreen(
 
     val isBottomSheetOpen = state.isBottomSheetOpen
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
 
-    val toolbarConfig = ToolbarConfig(
-        actions = if (state.error == null) {
-            listOf(
-                ToolbarActionUi(
-                    icon = if (state.isDocumentBookmarked) AppIcons.BookmarkFilled else AppIcons.Bookmark,
-                    onClick = { viewModel.setEvent(Event.BookmarkPressed) },
-                    enabled = !state.isLoading,
-                    throttleClicks = true,
-                ),
-                ToolbarActionUi(
-                    icon = if (state.hideSensitiveContent) AppIcons.VisibilityOff else AppIcons.Visibility,
-                    onClick = { viewModel.setEvent(Event.ChangeContentVisibility) },
-                    enabled = !state.isLoading,
-                    throttleClicks = false,
-                )
-            )
-        } else {
-            emptyList()
-        }
-    )
+    val toolbarConfig =
+        ToolbarConfig(
+            actions =
+                if (state.error == null) {
+                    listOf(
+                        ToolbarActionUi(
+                            icon = if (state.isDocumentBookmarked) AppIcons.BookmarkFilled else AppIcons.Bookmark,
+                            onClick = { viewModel.setEvent(Event.BookmarkPressed) },
+                            enabled = !state.isLoading,
+                            throttleClicks = true,
+                        ),
+                        ToolbarActionUi(
+                            icon = if (state.hideSensitiveContent) AppIcons.VisibilityOff else AppIcons.Visibility,
+                            onClick = { viewModel.setEvent(Event.ChangeContentVisibility) },
+                            enabled = !state.isLoading,
+                            throttleClicks = false,
+                        ),
+                    )
+                } else {
+                    emptyList()
+                },
+        )
 
     ContentScreen(
         isLoading = state.isLoading,
@@ -150,19 +153,22 @@ fun DocumentDetailsScreen(
         navigatableAction = ScreenNavigateAction.BACKABLE,
         onBack = { viewModel.setEvent(Event.Pop) },
         toolBarConfig = toolbarConfig,
-        broadcastAction = BroadcastAction(
-            intentFilters = listOf(
-                CoreActions.REVOCATION_WORK_REFRESH_DETAILS_ACTION
-            ),
-            callback = {
-                val ids = it
-                    ?.getStringArrayListExtra(CoreActions.REVOCATION_IDS_DETAILS_EXTRA)
-                    ?.toList()
-                    ?: emptyList()
+        broadcastAction =
+            BroadcastAction(
+                intentFilters =
+                    listOf(
+                        CoreActions.REVOCATION_WORK_REFRESH_DETAILS_ACTION,
+                    ),
+                callback = {
+                    val ids =
+                        it
+                            ?.getStringArrayListExtra(CoreActions.REVOCATION_IDS_DETAILS_EXTRA)
+                            ?.toList()
+                            ?: emptyList()
 
-                viewModel.setEvent(Event.OnRevocationStatusChanged(ids))
-            }
-        )
+                    viewModel.setEvent(Event.OnRevocationStatusChanged(ids))
+                },
+            ),
     ) { paddingValues ->
         Content(
             state = state,
@@ -181,17 +187,17 @@ fun DocumentDetailsScreen(
                 onDismissRequest = {
                     viewModel.setEvent(
                         Event.BottomSheet.UpdateBottomSheetState(
-                            isOpen = false
-                        )
+                            isOpen = false,
+                        ),
                     )
                 },
-                sheetState = bottomSheetState
+                sheetState = bottomSheetState,
             ) {
                 SheetContent(
                     sheetContent = state.sheetContent,
                     onEventSent = {
                         viewModel.setEvent(it)
-                    }
+                    },
                 )
             }
         }
@@ -199,7 +205,7 @@ fun DocumentDetailsScreen(
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         viewModel.setEvent(Event.Init)
     }
@@ -220,7 +226,9 @@ private fun handleNavigationEffect(
             }
         }
 
-        is Effect.Navigation.Pop -> navController.popBackStack()
+        is Effect.Navigation.Pop -> {
+            navController.popBackStack()
+        }
     }
 }
 
@@ -237,10 +245,10 @@ private fun Content(
 ) {
     state.documentDetailsUi?.let { safeDocumentDetailsUi ->
         Column(
-            modifier = Modifier
-                .paddingFrom(paddingValues, bottom = false)
+            modifier =
+                Modifier
+                    .paddingFrom(paddingValues, bottom = false),
         ) {
-
             // Screen title
             state.title?.let { safeTitle ->
                 ContentTitle(
@@ -249,29 +257,34 @@ private fun Content(
             }
 
             AnimatedVisibility(
-                visible = state.isRevoked
+                visible = state.isRevoked,
             ) {
                 WrapCard(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth(),
                     shape = MaterialTheme.shapes.small,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        ),
                 ) {
                     Column(
-                        modifier = Modifier
-                            .padding(SPACING_MEDIUM.dp)
+                        modifier =
+                            Modifier
+                                .padding(SPACING_MEDIUM.dp),
                     ) {
                         WrapText(
-                            text = stringResource(
-                                R.string.document_details_revoked_document_message
-                            ),
-                            textConfig = TextConfig(
-                                style = MaterialTheme.typography.bodyMedium,
-                                maxLines = Int.MAX_VALUE
-                            )
+                            text =
+                                stringResource(
+                                    R.string.document_details_revoked_document_message,
+                                ),
+                            textConfig =
+                                TextConfig(
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = Int.MAX_VALUE,
+                                ),
                         )
                     }
                 }
@@ -280,22 +293,24 @@ private fun Content(
             }
 
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
             ) {
                 state.documentCredentialsInfoUi?.let { safeDocumentCredentialsInfo ->
                     ExpandableDocumentCredentialsSection(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = SPACING_SMALL.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = SPACING_SMALL.dp),
                         documentCredentialsInfoUi = safeDocumentCredentialsInfo,
                         onExpandedStateChanged = {
                             onEventSend(Event.ToggleExpansionStateOfDocumentCredentialsSection)
                         },
                         onPrimaryButtonClicked = {
                             onEventSend(Event.DocumentCredentialsSectionPrimaryButtonPressed)
-                        }
+                        },
                     )
                     VSpacer.ExtraLarge()
                 }
@@ -320,40 +335,44 @@ private fun Content(
                 }
 
                 ButtonsSection(
-                    onEventSend = onEventSend
+                    onEventSend = onEventSend,
                 )
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> {
+                        onNavigationRequested(effect)
+                    }
 
-                is Effect.CloseBottomSheet -> {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }.invokeOnCompletion {
-                        if (!modalBottomSheetState.isVisible) {
-                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
-                        }
+                    is Effect.CloseBottomSheet -> {
+                        coroutineScope
+                            .launch {
+                                modalBottomSheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!modalBottomSheetState.isVisible) {
+                                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                                }
+                            }
+                    }
+
+                    is Effect.ShowBottomSheet -> {
+                        onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                    }
+
+                    is Effect.BookmarkStored -> {
+                        onEventSend(Event.OnBookmarkStored)
+                    }
+
+                    is Effect.BookmarkRemoved -> {
+                        onEventSend(Event.OnBookmarkRemoved)
                     }
                 }
-
-                is Effect.ShowBottomSheet -> {
-                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
-                }
-
-                is Effect.BookmarkStored -> {
-                    onEventSend(Event.OnBookmarkStored)
-                }
-
-                is Effect.BookmarkRemoved -> {
-                    onEventSend(Event.OnBookmarkRemoved)
-                }
-            }
-        }.collect()
+            }.collect()
     }
 }
 
@@ -363,19 +382,22 @@ private fun SheetContent(
     onEventSent: (event: Event) -> Unit,
 ) {
     when (sheetContent) {
-        is DocumentDetailsBottomSheetContent.DeleteDocumentConfirmation ->
+        is DocumentDetailsBottomSheetContent.DeleteDocumentConfirmation -> {
             DialogBottomSheet(
-                textData = BottomSheetTextDataUi(
-                    title = stringResource(
-                        id = R.string.document_details_bottom_sheet_delete_title
+                textData =
+                    BottomSheetTextDataUi(
+                        title =
+                            stringResource(
+                                id = R.string.document_details_bottom_sheet_delete_title,
+                            ),
+                        message =
+                            stringResource(
+                                id = R.string.document_details_bottom_sheet_delete_subtitle,
+                            ),
+                        positiveButtonText = stringResource(id = R.string.document_details_bottom_sheet_delete_primary_button_text),
+                        negativeButtonText = stringResource(id = R.string.document_details_bottom_sheet_delete_secondary_button_text),
+                        isPositiveButtonWarning = true,
                     ),
-                    message = stringResource(
-                        id = R.string.document_details_bottom_sheet_delete_subtitle
-                    ),
-                    positiveButtonText = stringResource(id = R.string.document_details_bottom_sheet_delete_primary_button_text),
-                    negativeButtonText = stringResource(id = R.string.document_details_bottom_sheet_delete_secondary_button_text),
-                    isPositiveButtonWarning = true,
-                ),
                 leadingIcon = AppIcons.Delete,
                 leadingIconTint = MaterialTheme.colorScheme.error,
                 onPositiveClick = { onEventSent(Event.BottomSheet.Delete.PrimaryButtonPressed) },
@@ -383,6 +405,7 @@ private fun SheetContent(
                 onNegativeClick = { onEventSent(Event.BottomSheet.Delete.SecondaryButtonPressed) },
                 negativeButtonTestTag = TestTag.DocumentDetailsScreen.BOTTOM_SHEET_DELETE_DOCUMENT_NEGATIVE_BUTTON,
             )
+        }
 
         is DocumentDetailsBottomSheetContent.BookmarkStoredInfo -> {
             SimpleBottomSheet(
@@ -419,7 +442,7 @@ private fun IssuerDetails(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     ) {
         SectionTitle(
             modifier = Modifier.fillMaxWidth(),
@@ -427,11 +450,12 @@ private fun IssuerDetails(
         )
         IssuerDetailsCard(
             modifier = Modifier.fillMaxWidth(),
-            item = IssuerDetailsCardDataUi(
-                issuerName = issuerName,
-                issuerLogo = issuerLogo,
-                issuerIsVerified = false,
-            ),
+            item =
+                IssuerDetailsCardDataUi(
+                    issuerName = issuerName,
+                    issuerLogo = issuerLogo,
+                    issuerIsVerified = false,
+                ),
             onClick = null,
         )
     }
@@ -491,23 +515,25 @@ private fun ExpandedDocumentCredentials(
 ) {
     with(sharedTransitionScope) {
         WrapCard(
-            modifier = modifier
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(key = SHARED_BOUNDS_KEY),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
-                )
+            modifier =
+                modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = SHARED_BOUNDS_KEY),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                    ),
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(all = SPACING_MEDIUM.dp),
-                verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_LARGE.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(all = SPACING_MEDIUM.dp),
+                verticalArrangement = Arrangement.spacedBy(SPACING_EXTRA_LARGE.dp),
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
                         text = title,
@@ -524,36 +550,39 @@ private fun ExpandedDocumentCredentials(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     WrapButton(
                         modifier = Modifier.wrapContentWidth(),
-                        buttonConfig = ButtonConfig(
-                            type = ButtonType.PRIMARY,
-                            onClick = onHideClicked,
-                            buttonColors = ButtonDefaults.filledTonalButtonColors(
-                                containerColor = Color.Transparent,
-                                contentColor = MaterialTheme.colorScheme.primary
+                        buttonConfig =
+                            ButtonConfig(
+                                type = ButtonType.PRIMARY,
+                                onClick = onHideClicked,
+                                buttonColors =
+                                    ButtonDefaults.filledTonalButtonColors(
+                                        containerColor = Color.Transparent,
+                                        contentColor = MaterialTheme.colorScheme.primary,
+                                    ),
                             ),
-                        )
                     ) {
                         Text(
                             text = expandedInfo.hideButtonText,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
 
                     expandedInfo.updateNowButtonText?.let { safeUpdateNowButtonText ->
                         WrapButton(
                             modifier = Modifier.wrapContentWidth(),
-                            buttonConfig = ButtonConfig(
-                                type = ButtonType.PRIMARY,
-                                onClick = onUpdateClicked,
-                            )
+                            buttonConfig =
+                                ButtonConfig(
+                                    type = ButtonType.PRIMARY,
+                                    onClick = onUpdateClicked,
+                                ),
                         ) {
                             Text(
                                 text = safeUpdateNowButtonText,
-                                style = MaterialTheme.typography.labelLarge
+                                style = MaterialTheme.typography.labelLarge,
                             )
                         }
                     }
@@ -575,24 +604,26 @@ private fun CollapsedDocumentCredentials(
 ) {
     with(sharedTransitionScope) {
         Row(
-            modifier = modifier
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(key = SHARED_BOUNDS_KEY),
-                    animatedVisibilityScope = animatedVisibilityScope,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
-                ),
+            modifier =
+                modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState(key = SHARED_BOUNDS_KEY),
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                        resizeMode = SharedTransitionScope.ResizeMode.RemeasureToBounds,
+                    ),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             WrapCard {
                 Text(
-                    modifier = Modifier
-                        .padding(
-                            vertical = SPACING_SMALL.dp,
-                            horizontal = SPACING_MEDIUM.dp
-                        ),
+                    modifier =
+                        Modifier
+                            .padding(
+                                vertical = SPACING_SMALL.dp,
+                                horizontal = SPACING_MEDIUM.dp,
+                            ),
                     text = title,
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.success,
@@ -600,9 +631,10 @@ private fun CollapsedDocumentCredentials(
             }
 
             Text(
-                modifier = Modifier.clickableNoRipple(
-                    onClick = onMoreInfoClicked
-                ),
+                modifier =
+                    Modifier.clickableNoRipple(
+                        onClick = onMoreInfoClicked,
+                    ),
                 text = collapsedInfo.moreInfoText,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
@@ -622,7 +654,7 @@ private fun DocumentDetails(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     ) {
         SectionTitle(
             modifier = Modifier.fillMaxWidth(),
@@ -645,26 +677,28 @@ private fun DocumentDetails(
 @Composable
 private fun ButtonsSection(onEventSend: (Event) -> Unit) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                vertical = SPACING_MEDIUM.dp
-            )
-            .navigationBarsPadding()
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    vertical = SPACING_MEDIUM.dp,
+                ).navigationBarsPadding(),
     ) {
         WrapButton(
-            modifier = Modifier
-                .testTag(TestTag.DocumentDetailsScreen.DELETE_BUTTON)
-                .fillMaxWidth(),
-            buttonConfig = ButtonConfig(
-                type = ButtonType.SECONDARY,
-                onClick = { onEventSend(Event.SecondaryButtonPressed) },
-                isWarning = true,
-            )
+            modifier =
+                Modifier
+                    .testTag(TestTag.DocumentDetailsScreen.DELETE_BUTTON)
+                    .fillMaxWidth(),
+            buttonConfig =
+                ButtonConfig(
+                    type = ButtonType.SECONDARY,
+                    onClick = { onEventSend(Event.SecondaryButtonPressed) },
+                    isWarning = true,
+                ),
         ) {
             Text(
                 text = stringResource(id = R.string.document_details_secondary_button_text),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
         }
     }
@@ -679,70 +713,82 @@ private fun DocumentDetailsScreenPreview() {
     PreviewTheme {
         val availableCredentials = 3
         val totalCredentials = 15
-        val state = State(
-            documentCredentialsInfoUi = DocumentCredentialsInfoUi(
-                availableCredentials = availableCredentials,
-                totalCredentials = totalCredentials,
-                title = stringResource(
-                    R.string.document_details_document_credentials_info_text,
-                    availableCredentials,
-                    totalCredentials
-                ),
-                collapsedInfo = DocumentCredentialsInfoUi.CollapsedInfo(
-                    moreInfoText = stringResource(R.string.document_details_document_credentials_info_more_info_text),
-                ),
-                expandedInfo = DocumentCredentialsInfoUi.ExpandedInfo(
-                    subtitle = stringResource(R.string.document_details_document_credentials_info_expanded_text_subtitle),
-                    updateNowButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_update_now_text),
-                    hideButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_hide_text),
-                ),
-                isExpanded = false,
-            ),
-            documentDetailsSectionTitle = stringResource(R.string.document_details_main_section_text),
-            documentIssuerSectionTitle = stringResource(R.string.document_details_issuer_section_text),
-            documentDetailsUi = DocumentDetailsUi(
-                documentId = "1",
-                documentName = "Mobile Driving License",
-                documentIdentifier = DocumentIdentifier.OTHER(formatType = "org.iso.18013.5.1.mDL"),
-                documentClaims = listOf(
-                    ExpandableListItemUi.SingleListItem(
-                        header = ListItemDataUi(
-                            itemId = "1",
-                            mainContentData = ListItemMainContentDataUi.Text(text = ""),
-                            overlineText = "A reproduction of the mDL holder’s portrait.",
-                            leadingContentData = ListItemLeadingContentDataUi.UserImage(
-                                userBase64Image = ""
+        val state =
+            State(
+                documentCredentialsInfoUi =
+                    DocumentCredentialsInfoUi(
+                        availableCredentials = availableCredentials,
+                        totalCredentials = totalCredentials,
+                        title =
+                            stringResource(
+                                R.string.document_details_document_credentials_info_text,
+                                availableCredentials,
+                                totalCredentials,
                             ),
-                        )
+                        collapsedInfo =
+                            DocumentCredentialsInfoUi.CollapsedInfo(
+                                moreInfoText = stringResource(R.string.document_details_document_credentials_info_more_info_text),
+                            ),
+                        expandedInfo =
+                            DocumentCredentialsInfoUi.ExpandedInfo(
+                                subtitle = stringResource(R.string.document_details_document_credentials_info_expanded_text_subtitle),
+                                updateNowButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_update_now_text),
+                                hideButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_hide_text),
+                            ),
+                        isExpanded = false,
                     ),
-                    ExpandableListItemUi.SingleListItem(
-                        header = ListItemDataUi(
-                            itemId = "2",
-                            mainContentData = ListItemMainContentDataUi.Text(text = "GR"),
-                            overlineText = "Alpha-2 country code, as defined in ISO 3166-1 of the issuing authority’s country or territory.",
-                        )
+                documentDetailsSectionTitle = stringResource(R.string.document_details_main_section_text),
+                documentIssuerSectionTitle = stringResource(R.string.document_details_issuer_section_text),
+                documentDetailsUi =
+                    DocumentDetailsUi(
+                        documentId = "1",
+                        documentName = "Mobile Driving License",
+                        documentIdentifier = DocumentIdentifier.OTHER(formatType = "org.iso.18013.5.1.mDL"),
+                        documentClaims =
+                            listOf(
+                                ExpandableListItemUi.SingleListItem(
+                                    header =
+                                        ListItemDataUi(
+                                            itemId = "1",
+                                            mainContentData = ListItemMainContentDataUi.Text(text = ""),
+                                            overlineText = "A reproduction of the mDL holder’s portrait.",
+                                            leadingContentData =
+                                                ListItemLeadingContentDataUi.UserImage(
+                                                    userBase64Image = "",
+                                                ),
+                                        ),
+                                ),
+                                ExpandableListItemUi.SingleListItem(
+                                    header =
+                                        ListItemDataUi(
+                                            itemId = "2",
+                                            mainContentData = ListItemMainContentDataUi.Text(text = "GR"),
+                                            overlineText = "Alpha-2 country code, as defined in ISO 3166-1 of the issuing authority’s country or territory.",
+                                        ),
+                                ),
+                                ExpandableListItemUi.SingleListItem(
+                                    header =
+                                        ListItemDataUi(
+                                            itemId = "3",
+                                            mainContentData = ListItemMainContentDataUi.Text(text = "12345678900"),
+                                            overlineText = "An audit control number assigned by the issuing authority.",
+                                        ),
+                                ),
+                                ExpandableListItemUi.SingleListItem(
+                                    header =
+                                        ListItemDataUi(
+                                            itemId = "4",
+                                            mainContentData = ListItemMainContentDataUi.Text(text = "31 Dec 2040"),
+                                            overlineText = "Date when mDL expires.",
+                                        ),
+                                ),
+                            ),
+                        documentIssuanceStateUi = DocumentIssuanceStateUi.Issued,
                     ),
-                    ExpandableListItemUi.SingleListItem(
-                        header = ListItemDataUi(
-                            itemId = "3",
-                            mainContentData = ListItemMainContentDataUi.Text(text = "12345678900"),
-                            overlineText = "An audit control number assigned by the issuing authority.",
-                        )
-                    ),
-                    ExpandableListItemUi.SingleListItem(
-                        header = ListItemDataUi(
-                            itemId = "4",
-                            mainContentData = ListItemMainContentDataUi.Text(text = "31 Dec 2040"),
-                            overlineText = "Date when mDL expires.",
-                        )
-                    )
-                ),
-                documentIssuanceStateUi = DocumentIssuanceStateUi.Issued,
-            ),
-            issuerName = "Digital Credentials Issuer",
-            hideSensitiveContent = false,
-            sheetContent = DocumentDetailsBottomSheetContent.DeleteDocumentConfirmation
-        )
+                issuerName = "Digital Credentials Issuer",
+                hideSensitiveContent = false,
+                sheetContent = DocumentDetailsBottomSheetContent.DeleteDocumentConfirmation,
+            )
 
         Content(
             state = state,
@@ -762,30 +808,35 @@ private fun ExpandableDocumentCredentialsSectionPreview() {
     PreviewTheme {
         val availableCredentials = 3
         val totalCredentials = 15
-        val documentCredentialsInfoUi = DocumentCredentialsInfoUi(
-            availableCredentials = availableCredentials,
-            totalCredentials = totalCredentials,
-            title = stringResource(
-                R.string.document_details_document_credentials_info_text,
-                availableCredentials,
-                totalCredentials
-            ),
-            collapsedInfo = DocumentCredentialsInfoUi.CollapsedInfo(
-                moreInfoText = stringResource(R.string.document_details_document_credentials_info_more_info_text),
-            ),
-            expandedInfo = DocumentCredentialsInfoUi.ExpandedInfo(
-                subtitle = stringResource(R.string.document_details_document_credentials_info_expanded_text_subtitle),
-                updateNowButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_update_now_text),
-                hideButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_hide_text),
-            ),
-            isExpanded = false,
-        )
+        val documentCredentialsInfoUi =
+            DocumentCredentialsInfoUi(
+                availableCredentials = availableCredentials,
+                totalCredentials = totalCredentials,
+                title =
+                    stringResource(
+                        R.string.document_details_document_credentials_info_text,
+                        availableCredentials,
+                        totalCredentials,
+                    ),
+                collapsedInfo =
+                    DocumentCredentialsInfoUi.CollapsedInfo(
+                        moreInfoText = stringResource(R.string.document_details_document_credentials_info_more_info_text),
+                    ),
+                expandedInfo =
+                    DocumentCredentialsInfoUi.ExpandedInfo(
+                        subtitle = stringResource(R.string.document_details_document_credentials_info_expanded_text_subtitle),
+                        updateNowButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_update_now_text),
+                        hideButtonText = stringResource(R.string.document_details_document_credentials_info_expanded_button_hide_text),
+                    ),
+                isExpanded = false,
+            )
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(all = SPACING_MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(all = SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
         ) {
             ExpandableDocumentCredentialsSection(
                 modifier = Modifier.fillMaxWidth(),
@@ -796,23 +847,26 @@ private fun ExpandableDocumentCredentialsSectionPreview() {
 
             ExpandableDocumentCredentialsSection(
                 modifier = Modifier.fillMaxWidth(),
-                documentCredentialsInfoUi = documentCredentialsInfoUi
-                    .copy(
-                        isExpanded = true,
-                    ),
+                documentCredentialsInfoUi =
+                    documentCredentialsInfoUi
+                        .copy(
+                            isExpanded = true,
+                        ),
                 onExpandedStateChanged = {},
                 onPrimaryButtonClicked = {},
             )
 
             ExpandableDocumentCredentialsSection(
                 modifier = Modifier.fillMaxWidth(),
-                documentCredentialsInfoUi = documentCredentialsInfoUi
-                    .copy(
-                        isExpanded = true,
-                        expandedInfo = documentCredentialsInfoUi.expandedInfo?.copy(
-                            updateNowButtonText = null
-                        )
-                    ),
+                documentCredentialsInfoUi =
+                    documentCredentialsInfoUi
+                        .copy(
+                            isExpanded = true,
+                            expandedInfo =
+                                documentCredentialsInfoUi.expandedInfo?.copy(
+                                    updateNowButtonText = null,
+                                ),
+                        ),
                 onExpandedStateChanged = {},
                 onPrimaryButtonClicked = {},
             )

@@ -17,9 +17,10 @@
 package com.k689.identid.util.ui
 
 object TestTag {
-
     fun pinTextField(index: Int) = "pin_text_field_$index"
 
-    fun buttonInBottomSheetWithTwoBigIcons(hostTab: String, index: Int) =
-        "${hostTab}_tab_bottom_sheet_button_${index}"
+    fun buttonInBottomSheetWithTwoBigIcons(
+        hostTab: String,
+        index: Int,
+    ) = "${hostTab}_tab_bottom_sheet_button_$index"
 }

@@ -17,8 +17,6 @@
 package com.k689.identid.di.core
 
 import android.content.Context
-import com.k689.identid.controller.log.LogController
-import com.k689.identid.provider.UuidProvider
 import com.k689.identid.config.WalletCoreConfig
 import com.k689.identid.config.WalletCoreConfigImpl
 import com.k689.identid.controller.core.WalletCoreDocumentsController
@@ -27,15 +25,17 @@ import com.k689.identid.controller.core.WalletCoreLogController
 import com.k689.identid.controller.core.WalletCoreLogControllerImpl
 import com.k689.identid.controller.core.WalletCoreTransactionLogController
 import com.k689.identid.controller.core.WalletCoreTransactionLogControllerImpl
+import com.k689.identid.controller.core.WalletPresentationScope
+import com.k689.identid.controller.log.LogController
+import com.k689.identid.network.repository.WalletAttestationRepository
+import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.core.WalletCoreAttestationProvider
 import com.k689.identid.provider.core.WalletCoreAttestationProviderImpl
-import eu.europa.ec.eudi.wallet.EudiWallet
-import com.k689.identid.network.repository.WalletAttestationRepository
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.storage.dao.BookmarkDao
 import com.k689.identid.storage.dao.RevokedDocumentDao
 import com.k689.identid.storage.dao.TransactionLogDao
-import com.k689.identid.controller.core.WalletPresentationScope
+import eu.europa.ec.eudi.wallet.EudiWallet
 import io.ktor.client.HttpClient
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
@@ -56,16 +56,17 @@ fun provideEudiWallet(
     walletCoreLogController: WalletCoreLogController,
     walletCoreTransactionLogController: WalletCoreTransactionLogController,
     walletCoreAttestationProvider: WalletCoreAttestationProvider,
-    httpClient: HttpClient
-): EudiWallet = EudiWallet(
-    context = context,
-    config = walletCoreConfig.config,
-    walletProvider = walletCoreAttestationProvider
-) {
-    withLogger(walletCoreLogController)
-    withTransactionLogger(walletCoreTransactionLogController)
-    withKtorHttpClientFactory { httpClient }
-}
+    httpClient: HttpClient,
+): EudiWallet =
+    EudiWallet(
+        context = context,
+        config = walletCoreConfig.config,
+        walletProvider = walletCoreAttestationProvider,
+    ) {
+        withLogger(walletCoreLogController)
+        withTransactionLogger(walletCoreTransactionLogController)
+        withKtorHttpClientFactory { httpClient }
+    }
 
 @Single
 fun provideWalletCoreConfig(
@@ -73,26 +74,26 @@ fun provideWalletCoreConfig(
 ): WalletCoreConfig = WalletCoreConfigImpl(context)
 
 @Single
-fun provideWalletCoreLogController(logController: LogController): WalletCoreLogController =
-    WalletCoreLogControllerImpl(logController)
+fun provideWalletCoreLogController(logController: LogController): WalletCoreLogController = WalletCoreLogControllerImpl(logController)
 
 @Single
 fun provideWalletCoreTransactionLogController(
     transactionLogDao: TransactionLogDao,
-    uuidProvider: UuidProvider
-): WalletCoreTransactionLogController = WalletCoreTransactionLogControllerImpl(
-    transactionLogDao = transactionLogDao,
-    uuidProvider = uuidProvider
-)
+    uuidProvider: UuidProvider,
+): WalletCoreTransactionLogController =
+    WalletCoreTransactionLogControllerImpl(
+        transactionLogDao = transactionLogDao,
+        uuidProvider = uuidProvider,
+    )
 
 @Single
 fun provideWalletCoreAttestationProvider(
     walletAttestationRepository: WalletAttestationRepository,
-    walletCoreConfig: WalletCoreConfig
+    walletCoreConfig: WalletCoreConfig,
 ): WalletCoreAttestationProvider =
     WalletCoreAttestationProviderImpl(
         walletCoreConfig = walletCoreConfig,
-        walletAttestationRepository = walletAttestationRepository
+        walletAttestationRepository = walletAttestationRepository,
     )
 
 @Factory
@@ -102,7 +103,7 @@ fun provideWalletCoreDocumentsController(
     walletCoreConfig: WalletCoreConfig,
     bookmarkDao: BookmarkDao,
     transactionLogDao: TransactionLogDao,
-    revokedDocumentDao: RevokedDocumentDao
+    revokedDocumentDao: RevokedDocumentDao,
 ): WalletCoreDocumentsController =
     WalletCoreDocumentsControllerImpl(
         resourceProvider,
@@ -110,11 +111,10 @@ fun provideWalletCoreDocumentsController(
         walletCoreConfig,
         bookmarkDao,
         transactionLogDao,
-        revokedDocumentDao
+        revokedDocumentDao,
     )
 
 /**
  * Get Koin scope that lives during document presentation flow
  * */
-fun getOrCreatePresentationScope(): org.koin.core.scope.Scope =
-    KoinPlatform.getKoin().getOrCreateScope<WalletPresentationScope>(PRESENTATION_SCOPE_ID)
+fun getOrCreatePresentationScope(): org.koin.core.scope.Scope = KoinPlatform.getKoin().getOrCreateScope<WalletPresentationScope>(PRESENTATION_SCOPE_ID)

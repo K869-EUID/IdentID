@@ -37,6 +37,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.navigation.IssuanceScreens
 import com.k689.identid.ui.component.AppIconAndText
 import com.k689.identid.ui.component.AppIconAndTextDataUi
 import com.k689.identid.ui.component.content.ContentScreen
@@ -48,8 +50,6 @@ import com.k689.identid.ui.component.utils.SPACING_LARGE
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.WrapPinTextField
-import com.k689.identid.extension.ui.paddingFrom
-import com.k689.identid.navigation.IssuanceScreens
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -59,7 +59,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 @Composable
 fun DocumentOfferCodeScreen(
     navController: NavController,
-    viewModel: DocumentOfferCodeViewModel
+    viewModel: DocumentOfferCodeViewModel,
 ) {
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -81,7 +81,7 @@ fun DocumentOfferCodeScreen(
             onNavigationRequested = { navigationEffect ->
                 handleNavigationEffect(navigationEffect, navController)
             },
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 }
@@ -95,64 +95,71 @@ private fun Content(
     effectFlow: Flow<Effect>,
     onEventSend: (Event) -> Unit,
     onNavigationRequested: (Effect.Navigation) -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .paddingFrom(paddingValues, bottom = false)
-            .verticalScroll(rememberScrollState())
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .paddingFrom(paddingValues, bottom = false)
+                .verticalScroll(rememberScrollState()),
     ) {
         AppIconAndText(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = SPACING_LARGE.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = SPACING_LARGE.dp),
             appIconAndTextData = AppIconAndTextDataUi(),
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = SPACING_LARGE.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Top)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = SPACING_LARGE.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Top),
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                style =
+                    MaterialTheme.typography.headlineMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
 
             Text(
                 text = subTitle,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                style =
+                    MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
         }
 
         CodeFieldLayout(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = SPACING_LARGE.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = SPACING_LARGE.dp),
             length = pinCodeLength,
             onPinInput = { quickPin ->
                 onEventSend(
                     Event.OnPinChange(
                         code = quickPin,
-                        context = context
-                    )
+                        context = context,
+                    ),
                 )
-            }
+            },
         )
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
@@ -171,13 +178,13 @@ private fun CodeFieldLayout(
         visualTransformation = PasswordVisualTransformation(),
         pinWidth = 42.dp,
         focusOnCreate = true,
-        shouldHideKeyboardOnCompletion = true
+        shouldHideKeyboardOnCompletion = true,
     )
 }
 
 private fun handleNavigationEffect(
     navigationEffect: Effect.Navigation,
-    navController: NavController
+    navController: NavController,
 ) {
     when (navigationEffect) {
         is Effect.Navigation.SwitchScreen -> {
@@ -188,7 +195,9 @@ private fun handleNavigationEffect(
             }
         }
 
-        is Effect.Navigation.Pop -> navController.popBackStack()
+        is Effect.Navigation.Pop -> {
+            navController.popBackStack()
+        }
     }
 }
 
@@ -204,7 +213,7 @@ private fun DocumentOfferCodeScreenEmptyPreview() {
             onEventSend = {},
             onNavigationRequested = {},
             paddingValues = PaddingValues(SPACING_MEDIUM.dp),
-            context = LocalContext.current
+            context = LocalContext.current,
         )
     }
 }

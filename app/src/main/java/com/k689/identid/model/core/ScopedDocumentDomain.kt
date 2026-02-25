@@ -21,5 +21,5 @@ data class ScopedDocumentDomain(
     val configurationId: String,
     val credentialIssuerId: String,
     val formatType: FormatType?,
-    val isPid: Boolean
+    val isPid: Boolean,
 )

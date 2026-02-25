@@ -20,29 +20,37 @@ import com.k689.identid.navigation.Screen
 
 data class ConfigNavigation(
     val navigationType: NavigationType,
-    val indicateFlowCompletion: FlowCompletion = FlowCompletion.NONE
+    val indicateFlowCompletion: FlowCompletion = FlowCompletion.NONE,
 )
 
 sealed interface NavigationType {
     data object Pop : NavigationType
+
     data object Finish : NavigationType
+
     data class PushScreen(
         val screen: Screen,
         val arguments: Map<String, String?> = emptyMap(),
-        val popUpToScreen: Screen? = null
+        val popUpToScreen: Screen? = null,
     ) : NavigationType
 
     data class PushRoute(
         val route: String,
-        val popUpToRoute: String? = null
+        val popUpToRoute: String? = null,
     ) : NavigationType
 
-    data class PopTo(val screen: Screen) : NavigationType
-    data class Deeplink(val link: String, val routeToPop: String? = null) : NavigationType
+    data class PopTo(
+        val screen: Screen,
+    ) : NavigationType
+
+    data class Deeplink(
+        val link: String,
+        val routeToPop: String? = null,
+    ) : NavigationType
 }
 
 enum class FlowCompletion {
     CANCEL,
     SUCCESS,
-    NONE
+    NONE,
 }

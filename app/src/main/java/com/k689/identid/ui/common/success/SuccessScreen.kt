@@ -39,9 +39,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.config.SuccessUIConfig
-import com.k689.identid.util.common.TestTag
 import com.k689.identid.R
+import com.k689.identid.config.ConfigNavigation
+import com.k689.identid.config.NavigationType
+import com.k689.identid.config.SuccessUIConfig
+import com.k689.identid.extension.ui.cacheDeepLink
+import com.k689.identid.navigation.StartupScreens
 import com.k689.identid.theme.values.ThemeColors
 import com.k689.identid.theme.values.success
 import com.k689.identid.ui.component.AppIcons
@@ -57,10 +60,7 @@ import com.k689.identid.ui.component.wrap.ButtonConfig
 import com.k689.identid.ui.component.wrap.ButtonType
 import com.k689.identid.ui.component.wrap.WrapButton
 import com.k689.identid.ui.component.wrap.WrapImage
-import com.k689.identid.config.ConfigNavigation
-import com.k689.identid.config.NavigationType
-import com.k689.identid.extension.ui.cacheDeepLink
-import com.k689.identid.navigation.StartupScreens
+import com.k689.identid.util.common.TestTag
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -70,7 +70,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 @Composable
 fun SuccessScreen(
     navController: NavController,
-    viewModel: SuccessViewModel
+    viewModel: SuccessViewModel,
 ) {
     val context = LocalContext.current
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
@@ -78,7 +78,7 @@ fun SuccessScreen(
     ContentScreen(
         isLoading = false,
         onBack = { viewModel.setEvent(Event.BackPressed) },
-        navigatableAction = ScreenNavigateAction.NONE
+        navigatableAction = ScreenNavigateAction.NONE,
     ) { paddingValues ->
         SuccessScreenView(
             state = state,
@@ -99,7 +99,7 @@ fun SuccessScreen(
                     is Effect.Navigation.PopBackStackUpTo -> {
                         navController.popBackStack(
                             route = navigationEffect.screenRoute,
-                            inclusive = navigationEffect.inclusive
+                            inclusive = navigationEffect.inclusive,
                         )
                     }
 
@@ -108,15 +108,17 @@ fun SuccessScreen(
                         navigationEffect.routeToPop?.let {
                             navController.popBackStack(
                                 route = it,
-                                inclusive = false
+                                inclusive = false,
                             )
                         } ?: navController.popBackStack()
                     }
 
-                    is Effect.Navigation.Pop -> navController.popBackStack()
+                    is Effect.Navigation.Pop -> {
+                        navController.popBackStack()
+                    }
                 }
             },
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 }
@@ -127,12 +129,13 @@ private fun SuccessScreenView(
     effectFlow: Flow<Effect>,
     onEventSent: (Event) -> Unit,
     onNavigationRequested: (Effect.Navigation) -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) {
         ContentHeader(
             modifier = Modifier.fillMaxWidth(),
@@ -141,90 +144,103 @@ private fun SuccessScreenView(
 
         val imageConfig = state.successConfig.imageConfig
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (imageConfig.type) {
-                is SuccessUIConfig.ImageConfig.Type.Default -> WrapImage(
-                    modifier = Modifier.fillMaxWidth(imageConfig.screenPercentageSize),
-                    iconData = AppIcons.Success,
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.success),
-                    contentScale = ContentScale.FillWidth
-                )
+                is SuccessUIConfig.ImageConfig.Type.Default -> {
+                    WrapImage(
+                        modifier = Modifier.fillMaxWidth(imageConfig.screenPercentageSize),
+                        iconData = AppIcons.Success,
+                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.success),
+                        contentScale = ContentScale.FillWidth,
+                    )
+                }
 
-                is SuccessUIConfig.ImageConfig.Type.Drawable -> WrapImage(
-                    modifier = Modifier.fillMaxWidth(imageConfig.screenPercentageSize),
-                    iconData = imageConfig.type.icon,
-                    colorFilter = imageConfig.tint?.let { safeImageColorTint ->
-                        ColorFilter.tint(safeImageColorTint)
-                    },
-                    contentScale = ContentScale.FillWidth
-                )
+                is SuccessUIConfig.ImageConfig.Type.Drawable -> {
+                    WrapImage(
+                        modifier = Modifier.fillMaxWidth(imageConfig.screenPercentageSize),
+                        iconData = imageConfig.type.icon,
+                        colorFilter =
+                            imageConfig.tint?.let { safeImageColorTint ->
+                                ColorFilter.tint(safeImageColorTint)
+                            },
+                        contentScale = ContentScale.FillWidth,
+                    )
+                }
             }
 
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = SPACING_SMALL.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SPACING_SMALL.dp),
                 text = state.successConfig.textElementsConfig.text,
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    color = state.successConfig.textElementsConfig.color
-                ),
+                style =
+                    MaterialTheme.typography.headlineLarge.copy(
+                        color = state.successConfig.textElementsConfig.color,
+                    ),
                 textAlign = TextAlign.Center,
             )
 
             Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = SPACING_SMALL.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SPACING_SMALL.dp),
                 text = state.successConfig.textElementsConfig.description,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
+                style =
+                    MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
                 textAlign = TextAlign.Center,
             )
         }
 
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             state.successConfig.buttonConfig.forEach { buttonConfig ->
                 Button(
                     onEventSent = onEventSent,
-                    config = buttonConfig
+                    config = buttonConfig,
                 )
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
 @Composable
 private fun Button(
     onEventSent: (Event) -> Unit,
-    config: SuccessUIConfig.ButtonConfig
+    config: SuccessUIConfig.ButtonConfig,
 ) {
     when (config.style) {
         SuccessUIConfig.ButtonConfig.Style.PRIMARY -> {
             WrapButton(
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.PRIMARY,
-                    onClick = { onEventSent(Event.ButtonClicked(config)) },
-                ),
-                modifier = Modifier
-                    .testTag(TestTag.SuccessScreen.PRIMARY_BUTTON)
-                    .fillMaxWidth(),
+                buttonConfig =
+                    ButtonConfig(
+                        type = ButtonType.PRIMARY,
+                        onClick = { onEventSent(Event.ButtonClicked(config)) },
+                    ),
+                modifier =
+                    Modifier
+                        .testTag(TestTag.SuccessScreen.PRIMARY_BUTTON)
+                        .fillMaxWidth(),
             ) {
                 ButtonRow(text = config.text)
             }
@@ -232,13 +248,15 @@ private fun Button(
 
         SuccessUIConfig.ButtonConfig.Style.OUTLINE -> {
             WrapButton(
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.SECONDARY,
-                    onClick = { onEventSent(Event.ButtonClicked(config)) },
-                ),
-                modifier = Modifier
-                    .testTag(TestTag.SuccessScreen.SECONDARY_BUTTON)
-                    .fillMaxWidth(),
+                buttonConfig =
+                    ButtonConfig(
+                        type = ButtonType.SECONDARY,
+                        onClick = { onEventSent(Event.ButtonClicked(config)) },
+                    ),
+                modifier =
+                    Modifier
+                        .testTag(TestTag.SuccessScreen.SECONDARY_BUTTON)
+                        .fillMaxWidth(),
             ) {
                 ButtonRow(text = config.text)
             }
@@ -252,7 +270,7 @@ private fun ButtonRow(text: String) {
         Text(
             text = text,
             textAlign = TextAlign.Center,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
     }
 }
@@ -262,31 +280,37 @@ private fun ButtonRow(text: String) {
 private fun SuccessDefaultPreview() {
     PreviewTheme {
         SuccessScreenView(
-            state = State(
-                successConfig = SuccessUIConfig(
-                    textElementsConfig = SuccessUIConfig.TextElementsConfig(
-                        text = stringResource(R.string.generic_success),
-                        description = stringResource(R.string.quick_pin_change_success_description),
-                    ),
-                    imageConfig = SuccessUIConfig.ImageConfig(),
-                    buttonConfig = listOf(
-                        SuccessUIConfig.ButtonConfig(
-                            text = "Back",
-                            style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
-                            navigation = ConfigNavigation(
-                                navigationType = NavigationType.PopTo(StartupScreens.Splash),
-                            )
-                        )
-                    ),
-                    onBackScreenToNavigate = ConfigNavigation(
-                        navigationType = NavigationType.PopTo(StartupScreens.Splash),
-                    ),
-                )
-            ),
+            state =
+                State(
+                    successConfig =
+                        SuccessUIConfig(
+                            textElementsConfig =
+                                SuccessUIConfig.TextElementsConfig(
+                                    text = stringResource(R.string.generic_success),
+                                    description = stringResource(R.string.quick_pin_change_success_description),
+                                ),
+                            imageConfig = SuccessUIConfig.ImageConfig(),
+                            buttonConfig =
+                                listOf(
+                                    SuccessUIConfig.ButtonConfig(
+                                        text = "Back",
+                                        style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
+                                        navigation =
+                                            ConfigNavigation(
+                                                navigationType = NavigationType.PopTo(StartupScreens.Splash),
+                                            ),
+                                    ),
+                                ),
+                            onBackScreenToNavigate =
+                                ConfigNavigation(
+                                    navigationType = NavigationType.PopTo(StartupScreens.Splash),
+                                ),
+                        ),
+                ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSent = {},
             onNavigationRequested = {},
-            paddingValues = PaddingValues(SIZE_MEDIUM.dp)
+            paddingValues = PaddingValues(SIZE_MEDIUM.dp),
         )
     }
 }
@@ -296,36 +320,43 @@ private fun SuccessDefaultPreview() {
 private fun SuccessPendingPreview() {
     PreviewTheme {
         SuccessScreenView(
-            state = State(
-                successConfig = SuccessUIConfig(
-                    textElementsConfig = SuccessUIConfig.TextElementsConfig(
-                        text = stringResource(R.string.issuance_add_document_deferred_success_text),
-                        description = stringResource(R.string.issuance_add_document_deferred_success_description),
-                        color = ThemeColors.pending,
-                    ),
-                    imageConfig = SuccessUIConfig.ImageConfig(
-                        type = SuccessUIConfig.ImageConfig.Type.Drawable(icon = AppIcons.InProgress),
-                        tint = ThemeColors.primary,
-                        screenPercentageSize = PERCENTAGE_25,
-                    ),
-                    buttonConfig = listOf(
-                        SuccessUIConfig.ButtonConfig(
-                            text = "back",
-                            style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
-                            navigation = ConfigNavigation(
-                                navigationType = NavigationType.PopTo(StartupScreens.Splash),
-                            )
-                        )
-                    ),
-                    onBackScreenToNavigate = ConfigNavigation(
-                        navigationType = NavigationType.PopTo(StartupScreens.Splash),
-                    ),
-                )
-            ),
+            state =
+                State(
+                    successConfig =
+                        SuccessUIConfig(
+                            textElementsConfig =
+                                SuccessUIConfig.TextElementsConfig(
+                                    text = stringResource(R.string.issuance_add_document_deferred_success_text),
+                                    description = stringResource(R.string.issuance_add_document_deferred_success_description),
+                                    color = ThemeColors.pending,
+                                ),
+                            imageConfig =
+                                SuccessUIConfig.ImageConfig(
+                                    type = SuccessUIConfig.ImageConfig.Type.Drawable(icon = AppIcons.InProgress),
+                                    tint = ThemeColors.primary,
+                                    screenPercentageSize = PERCENTAGE_25,
+                                ),
+                            buttonConfig =
+                                listOf(
+                                    SuccessUIConfig.ButtonConfig(
+                                        text = "back",
+                                        style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
+                                        navigation =
+                                            ConfigNavigation(
+                                                navigationType = NavigationType.PopTo(StartupScreens.Splash),
+                                            ),
+                                    ),
+                                ),
+                            onBackScreenToNavigate =
+                                ConfigNavigation(
+                                    navigationType = NavigationType.PopTo(StartupScreens.Splash),
+                                ),
+                        ),
+                ),
             effectFlow = Channel<Effect>().receiveAsFlow(),
             onEventSent = {},
             onNavigationRequested = {},
-            paddingValues = PaddingValues(SIZE_MEDIUM.dp)
+            paddingValues = PaddingValues(SIZE_MEDIUM.dp),
         )
     }
 }

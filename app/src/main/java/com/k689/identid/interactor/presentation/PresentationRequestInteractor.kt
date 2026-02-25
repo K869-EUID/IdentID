@@ -16,16 +16,16 @@
 
 package com.k689.identid.interactor.presentation
 
-import com.k689.identid.extension.business.safeAsync
-import com.k689.identid.provider.UuidProvider
 import com.k689.identid.config.RequestUriConfig
 import com.k689.identid.config.toDomainConfig
-import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
-import com.k689.identid.ui.common.request.transformer.RequestTransformer
 import com.k689.identid.controller.core.TransferEventPartialState
 import com.k689.identid.controller.core.WalletCoreDocumentsController
 import com.k689.identid.controller.core.WalletCorePresentationController
+import com.k689.identid.extension.business.safeAsync
+import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
+import com.k689.identid.ui.common.request.transformer.RequestTransformer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
@@ -33,7 +33,7 @@ sealed class PresentationRequestInteractorPartialState {
     data class Success(
         val verifierName: String?,
         val verifierIsTrusted: Boolean,
-        val requestDocuments: List<RequestDocumentItemUi>
+        val requestDocuments: List<RequestDocumentItemUi>,
     ) : PresentationRequestInteractorPartialState()
 
     data class NoData(
@@ -41,14 +41,20 @@ sealed class PresentationRequestInteractorPartialState {
         val verifierIsTrusted: Boolean,
     ) : PresentationRequestInteractorPartialState()
 
-    data class Failure(val error: String) : PresentationRequestInteractorPartialState()
+    data class Failure(
+        val error: String,
+    ) : PresentationRequestInteractorPartialState()
+
     data object Disconnect : PresentationRequestInteractorPartialState()
 }
 
 interface PresentationRequestInteractor {
     fun getRequestDocuments(): Flow<PresentationRequestInteractorPartialState>
+
     fun stopPresentation()
+
     fun updateRequestedDocuments(items: List<RequestDocumentItemUi>)
+
     fun setConfig(config: RequestUriConfig)
 }
 
@@ -56,9 +62,8 @@ class PresentationRequestInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val uuidProvider: UuidProvider,
     private val walletCorePresentationController: WalletCorePresentationController,
-    private val walletCoreDocumentsController: WalletCoreDocumentsController
+    private val walletCoreDocumentsController: WalletCoreDocumentsController,
 ) : PresentationRequestInteractor {
-
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
@@ -67,58 +72,64 @@ class PresentationRequestInteractorImpl(
     }
 
     override fun getRequestDocuments(): Flow<PresentationRequestInteractorPartialState> =
-        walletCorePresentationController.events.mapNotNull { response ->
-            when (response) {
-                is TransferEventPartialState.RequestReceived -> {
-                    if (response.requestData.all { it.requestedItems.isEmpty() }) {
-                        PresentationRequestInteractorPartialState.NoData(
-                            verifierName = response.verifierName,
-                            verifierIsTrusted = response.verifierIsTrusted,
-                        )
-                    } else {
-                        val documentsDomain = RequestTransformer.transformToDomainItems(
-                            storageDocuments = walletCoreDocumentsController.getAllIssuedDocuments(),
-                            requestDocuments = response.requestData,
-                            resourceProvider = resourceProvider,
-                            uuidProvider = uuidProvider
-                        ).getOrThrow()
-                            .filterNot {
-                                walletCoreDocumentsController.isDocumentRevoked(it.docId)
-                            }
-
-                        if (documentsDomain.isNotEmpty()) {
-                            PresentationRequestInteractorPartialState.Success(
-                                verifierName = response.verifierName,
-                                verifierIsTrusted = response.verifierIsTrusted,
-                                requestDocuments = RequestTransformer.transformToUiItems(
-                                    documentsDomain = documentsDomain,
-                                    resourceProvider = resourceProvider,
-                                )
-                            )
-                        } else {
+        walletCorePresentationController.events
+            .mapNotNull { response ->
+                when (response) {
+                    is TransferEventPartialState.RequestReceived -> {
+                        if (response.requestData.all { it.requestedItems.isEmpty() }) {
                             PresentationRequestInteractorPartialState.NoData(
                                 verifierName = response.verifierName,
                                 verifierIsTrusted = response.verifierIsTrusted,
                             )
+                        } else {
+                            val documentsDomain =
+                                RequestTransformer
+                                    .transformToDomainItems(
+                                        storageDocuments = walletCoreDocumentsController.getAllIssuedDocuments(),
+                                        requestDocuments = response.requestData,
+                                        resourceProvider = resourceProvider,
+                                        uuidProvider = uuidProvider,
+                                    ).getOrThrow()
+                                    .filterNot {
+                                        walletCoreDocumentsController.isDocumentRevoked(it.docId)
+                                    }
+
+                            if (documentsDomain.isNotEmpty()) {
+                                PresentationRequestInteractorPartialState.Success(
+                                    verifierName = response.verifierName,
+                                    verifierIsTrusted = response.verifierIsTrusted,
+                                    requestDocuments =
+                                        RequestTransformer.transformToUiItems(
+                                            documentsDomain = documentsDomain,
+                                            resourceProvider = resourceProvider,
+                                        ),
+                                )
+                            } else {
+                                PresentationRequestInteractorPartialState.NoData(
+                                    verifierName = response.verifierName,
+                                    verifierIsTrusted = response.verifierIsTrusted,
+                                )
+                            }
                         }
                     }
-                }
 
-                is TransferEventPartialState.Error -> {
-                    PresentationRequestInteractorPartialState.Failure(error = response.error)
-                }
+                    is TransferEventPartialState.Error -> {
+                        PresentationRequestInteractorPartialState.Failure(error = response.error)
+                    }
 
-                is TransferEventPartialState.Disconnected -> {
-                    PresentationRequestInteractorPartialState.Disconnect
-                }
+                    is TransferEventPartialState.Disconnected -> {
+                        PresentationRequestInteractorPartialState.Disconnect
+                    }
 
-                else -> null
+                    else -> {
+                        null
+                    }
+                }
+            }.safeAsync {
+                PresentationRequestInteractorPartialState.Failure(
+                    error = it.localizedMessage ?: genericErrorMsg,
+                )
             }
-        }.safeAsync {
-            PresentationRequestInteractorPartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMsg
-            )
-        }
 
     override fun stopPresentation() {
         walletCorePresentationController.stopPresentation()

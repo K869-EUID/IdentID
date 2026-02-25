@@ -55,13 +55,14 @@ enum class AppLanguage(
          * or [SYSTEM] if none matches.
          */
         fun fromCurrentLocale(context: Context): AppLanguage {
-            val tag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                val localeManager = context.getSystemService(LocaleManager::class.java)
-                val locales = localeManager.applicationLocales
-                if (locales.isEmpty) "" else locales.get(0)?.toLanguageTag().orEmpty()
-            } else {
-                getStoredTag(context)
-            }
+            val tag =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    val localeManager = context.getSystemService(LocaleManager::class.java)
+                    val locales = localeManager.applicationLocales
+                    if (locales.isEmpty) "" else locales.get(0)?.toLanguageTag().orEmpty()
+                } else {
+                    getStoredTag(context)
+                }
             if (tag.isEmpty()) return SYSTEM
             return entries.firstOrNull { it.tag.isNotEmpty() && tag.startsWith(it.tag) }
                 ?: SYSTEM
@@ -72,7 +73,10 @@ enum class AppLanguage(
          * so that all singletons, ViewModels, and cached resource strings are recreated
          * with the new locale.
          */
-        fun applyAndRestart(context: Context, language: AppLanguage) {
+        fun applyAndRestart(
+            context: Context,
+            language: AppLanguage,
+        ) {
             // Persist the locale.
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 val localeManager = context.getSystemService(LocaleManager::class.java)
@@ -108,14 +112,15 @@ enum class AppLanguage(
             return base.createConfigurationContext(config)
         }
 
-        private fun getStoredTag(context: Context): String =
-            prefs(context).getString(KEY_LANGUAGE_TAG, "").orEmpty()
+        private fun getStoredTag(context: Context): String = prefs(context).getString(KEY_LANGUAGE_TAG, "").orEmpty()
 
-        private fun storeTag(context: Context, tag: String) {
+        private fun storeTag(
+            context: Context,
+            tag: String,
+        ) {
             prefs(context).edit().putString(KEY_LANGUAGE_TAG, tag).apply()
         }
 
-        private fun prefs(context: Context): SharedPreferences =
-            context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        private fun prefs(context: Context): SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 }

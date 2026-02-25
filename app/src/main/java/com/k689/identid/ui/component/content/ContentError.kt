@@ -40,29 +40,32 @@ internal fun ContentError(
 ) {
     Column(modifier = modifier) {
         ContentTitle(
-            title = config.errorTitle ?: stringResource(
-                id = R.string.generic_error_message
-            ),
-            subtitle = config.errorSubTitle ?: stringResource(
-                id = R.string.generic_error_retry
-            ),
-            subTitleMaxLines = 10
+            title =
+                config.errorTitle ?: stringResource(
+                    id = R.string.generic_error_message,
+                ),
+            subtitle =
+                config.errorSubTitle ?: stringResource(
+                    id = R.string.generic_error_retry,
+                ),
+            subTitleMaxLines = 10,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         config.onRetry?.let { callback ->
             WrapButton(
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.PRIMARY,
-                    onClick = {
-                        callback()
-                    },
-                ),
-                modifier = Modifier.fillMaxWidth()
+                buttonConfig =
+                    ButtonConfig(
+                        type = ButtonType.PRIMARY,
+                        onClick = {
+                            callback()
+                        },
+                    ),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
-                    text = stringResource(id = R.string.generic_error_button_retry)
+                    text = stringResource(id = R.string.generic_error_button_retry),
                 )
             }
         }
@@ -73,7 +76,7 @@ data class ContentErrorConfig(
     val errorTitle: String? = null,
     val errorSubTitle: String? = null,
     val onCancel: () -> Unit,
-    val onRetry: (() -> Unit)? = null
+    val onRetry: (() -> Unit)? = null,
 )
 
 @ThemeModePreviews
@@ -81,11 +84,12 @@ data class ContentErrorConfig(
 private fun PreviewContentErrorWithRetry() {
     PreviewTheme {
         ContentError(
-            config = ContentErrorConfig(
-                onCancel = {},
-                onRetry = {},
-            ),
-            modifier = Modifier.padding(SIZE_MEDIUM.dp)
+            config =
+                ContentErrorConfig(
+                    onCancel = {},
+                    onRetry = {},
+                ),
+            modifier = Modifier.padding(SIZE_MEDIUM.dp),
         )
     }
 }
@@ -95,11 +99,12 @@ private fun PreviewContentErrorWithRetry() {
 private fun PreviewContentErrorWithoutRetry() {
     PreviewTheme {
         ContentError(
-            config = ContentErrorConfig(
-                onCancel = {},
-                onRetry = null,
-            ),
-            modifier = Modifier.padding(SIZE_MEDIUM.dp)
+            config =
+                ContentErrorConfig(
+                    onCancel = {},
+                    onRetry = null,
+                ),
+            modifier = Modifier.padding(SIZE_MEDIUM.dp),
         )
     }
 }

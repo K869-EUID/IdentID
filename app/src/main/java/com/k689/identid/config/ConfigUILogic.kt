@@ -21,11 +21,11 @@ import com.k689.identid.navigation.Screen
 interface ConfigUILogic {
     /*
        Define the dashboard identifier
-    */
+     */
     val dashboardScreenIdentifier: Screen
 
     /*
    Define the issuance identifier
-   */
+     */
     val issuanceScreenIdentifier: Screen
 }

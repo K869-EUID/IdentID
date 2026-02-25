@@ -41,11 +41,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsCardUi
-import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsDataSharedHolderUi
-import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsDataSignedHolderUi
-import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsUi
 import com.k689.identid.R
+import com.k689.identid.extension.ui.paddingFrom
 import com.k689.identid.theme.values.success
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
@@ -70,7 +67,10 @@ import com.k689.identid.ui.component.wrap.WrapCard
 import com.k689.identid.ui.component.wrap.WrapChip
 import com.k689.identid.ui.component.wrap.WrapExpandableListItem
 import com.k689.identid.ui.component.wrap.WrapIcon
-import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsCardUi
+import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsDataSharedHolderUi
+import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsDataSignedHolderUi
+import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsUi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emptyFlow
@@ -114,27 +114,28 @@ private fun Content(
     paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .paddingFrom(paddingValues, bottom = false)
-            .verticalScroll(rememberScrollState())
-            .navigationBarsPadding()
+        modifier =
+            Modifier
+                .paddingFrom(paddingValues, bottom = false)
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding(),
     ) {
         ContentTitle(title = state.title)
 
         state.transactionDetailsUi?.let { safeTransactionDetailsUi ->
             TransactionDetailsCard(
                 modifier = Modifier.fillMaxWidth(),
-                item = safeTransactionDetailsUi.transactionDetailsCardUi
+                item = safeTransactionDetailsUi.transactionDetailsCardUi,
             )
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = SPACING_MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(vertical = SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp),
         ) {
-
             state.transactionDetailsUi?.transactionDetailsDataShared?.let { safeTransactionDetailsDataShared ->
                 ExpandableDataSection(
                     modifier = Modifier.fillMaxWidth(),
@@ -154,8 +155,8 @@ private fun Content(
             }
 
             state.transactionDetailsUi?.let { safeTransactionDetailsUi ->
-                if (safeTransactionDetailsUi.transactionDetailsDataShared.dataSharedItems.isNotEmpty()
-                    || safeTransactionDetailsUi.transactionDetailsDataSigned?.dataSignedItems?.isNotEmpty() == true
+                if (safeTransactionDetailsUi.transactionDetailsDataShared.dataSharedItems.isNotEmpty() ||
+                    safeTransactionDetailsUi.transactionDetailsDataSigned?.dataSignedItems?.isNotEmpty() == true
                 ) {
                     ButtonsSection(onEventSend = onEventSend)
                 }
@@ -164,12 +165,12 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }
 
@@ -186,10 +187,11 @@ private fun handleNavigationEffect(
             }
         }
 
-        is Effect.Navigation.Pop -> navController.popBackStack()
+        is Effect.Navigation.Pop -> {
+            navController.popBackStack()
+        }
     }
 }
-
 
 @Composable
 private fun TransactionDetailsCard(
@@ -200,10 +202,11 @@ private fun TransactionDetailsCard(
         modifier = modifier,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SPACING_MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
         ) {
             Text(
                 text = item.transactionTypeLabel,
@@ -214,13 +217,14 @@ private fun TransactionDetailsCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Start)
+                horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp, Alignment.Start),
             ) {
                 item.relyingPartyName?.let { safeRelyingPartyName ->
                     Text(
-                        modifier = Modifier
-                            .wrapContentWidth()
-                            .weight(weight = 1f, fill = false),
+                        modifier =
+                            Modifier
+                                .wrapContentWidth()
+                                .weight(weight = 1f, fill = false),
                         text = safeRelyingPartyName,
                         style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -230,7 +234,7 @@ private fun TransactionDetailsCard(
                 if (item.relyingPartyIsVerified == true) {
                     WrapIcon(
                         iconData = AppIcons.Certified,
-                        customTint = MaterialTheme.colorScheme.success
+                        customTint = MaterialTheme.colorScheme.success,
                     )
                 }
             }
@@ -238,7 +242,7 @@ private fun TransactionDetailsCard(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
                     modifier = Modifier.weight(1f),
@@ -247,7 +251,7 @@ private fun TransactionDetailsCard(
                         text = stringResource(R.string.transaction_details_screen_card_date_label),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                     Text(
                         text = item.transactionDate,
@@ -264,13 +268,15 @@ private fun TransactionDetailsCard(
                             style = MaterialTheme.typography.labelLarge,
                         )
                     },
-                    colors = InputChipDefaults.inputChipColors(
-                        containerColor = when (item.transactionIsCompleted) {
-                            true -> MaterialTheme.colorScheme.success
-                            false -> MaterialTheme.colorScheme.error
-                        },
-                        labelColor = MaterialTheme.colorScheme.surfaceContainerLowest
-                    ),
+                    colors =
+                        InputChipDefaults.inputChipColors(
+                            containerColor =
+                                when (item.transactionIsCompleted) {
+                                    true -> MaterialTheme.colorScheme.success
+                                    false -> MaterialTheme.colorScheme.error
+                                },
+                            labelColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                        ),
                     border = null,
                 )
             }
@@ -283,12 +289,12 @@ private fun ExpandableDataSection(
     modifier: Modifier,
     sectionTitle: String,
     dataItems: List<ExpandableListItemUi.NestedListItem>,
-    onEventSend: (Event) -> Unit
+    onEventSend: (Event) -> Unit,
 ) {
     if (dataItems.isNotEmpty()) {
         Column(
             modifier = modifier,
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
         ) {
             SectionTitle(
                 modifier = Modifier.fillMaxWidth(),
@@ -303,7 +309,7 @@ private fun ExpandableDataSection(
                     onItemClick = null,
                     onExpandedChange = {
                         onEventSend(
-                            Event.ExpandOrCollapseGroupItem(itemId = it.itemId)
+                            Event.ExpandOrCollapseGroupItem(itemId = it.itemId),
                         )
                     },
                     isExpanded = sharedDocument.isExpanded,
@@ -319,7 +325,7 @@ private fun ExpandableDataSection(
 private fun ButtonsSection(onEventSend: (Event) -> Unit) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)) {
             Text(
@@ -330,16 +336,17 @@ private fun ButtonsSection(onEventSend: (Event) -> Unit) {
             )
             WrapButton(
                 modifier = Modifier.fillMaxWidth(),
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.SECONDARY,
-                    enabled = false,
-                    onClick = { onEventSend(Event.RequestDataDeletionPressed) },
-                    isWarning = true,
-                )
+                buttonConfig =
+                    ButtonConfig(
+                        type = ButtonType.SECONDARY,
+                        enabled = false,
+                        onClick = { onEventSend(Event.RequestDataDeletionPressed) },
+                        isWarning = true,
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.transaction_details_request_deletion_button),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }
@@ -353,16 +360,17 @@ private fun ButtonsSection(onEventSend: (Event) -> Unit) {
             )
             WrapButton(
                 modifier = Modifier.fillMaxWidth(),
-                buttonConfig = ButtonConfig(
-                    type = ButtonType.SECONDARY,
-                    enabled = false,
-                    onClick = { onEventSend(Event.ReportSuspiciousTransactionPressed) },
-                    isWarning = false,
-                )
+                buttonConfig =
+                    ButtonConfig(
+                        type = ButtonType.SECONDARY,
+                        enabled = false,
+                        onClick = { onEventSend(Event.ReportSuspiciousTransactionPressed) },
+                        isWarning = false,
+                    ),
             ) {
                 Text(
                     text = stringResource(R.string.transaction_details_report_transaction_button),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
         }
@@ -372,20 +380,21 @@ private fun ButtonsSection(onEventSend: (Event) -> Unit) {
 @ThemeModePreviews
 @Composable
 private fun PreviewTransactionDetailsCompletedCard(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
-        val transactionDetailsCardUi = TransactionDetailsCardUi(
-            transactionTypeLabel = "Data sharing",
-            relyingPartyName = "RP name $text",
-            transactionDate = "21 January 2025",
-            transactionStatusLabel = "Completed",
-            transactionIsCompleted = true,
-            relyingPartyIsVerified = true,
-        )
+        val transactionDetailsCardUi =
+            TransactionDetailsCardUi(
+                transactionTypeLabel = "Data sharing",
+                relyingPartyName = "RP name $text",
+                transactionDate = "21 January 2025",
+                transactionStatusLabel = "Completed",
+                transactionIsCompleted = true,
+                relyingPartyIsVerified = true,
+            )
 
         TransactionDetailsCard(
-            item = transactionDetailsCardUi
+            item = transactionDetailsCardUi,
         )
     }
 }
@@ -393,20 +402,21 @@ private fun PreviewTransactionDetailsCompletedCard(
 @ThemeModePreviews
 @Composable
 private fun PreviewTransactionDetailsFailedCard(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
-        val transactionDetailsCardUi = TransactionDetailsCardUi(
-            transactionTypeLabel = "Data sharing",
-            relyingPartyName = "RP name $text",
-            transactionDate = "21 January 2025",
-            transactionStatusLabel = "Failed",
-            transactionIsCompleted = false,
-            relyingPartyIsVerified = true,
-        )
+        val transactionDetailsCardUi =
+            TransactionDetailsCardUi(
+                transactionTypeLabel = "Data sharing",
+                relyingPartyName = "RP name $text",
+                transactionDate = "21 January 2025",
+                transactionStatusLabel = "Failed",
+                transactionIsCompleted = false,
+                relyingPartyIsVerified = true,
+            )
 
         TransactionDetailsCard(
-            item = transactionDetailsCardUi
+            item = transactionDetailsCardUi,
         )
     }
 }
@@ -414,54 +424,61 @@ private fun PreviewTransactionDetailsFailedCard(
 @ThemeModePreviews
 @Composable
 private fun ContentPreview() {
-    val items = listOf(
-        ExpandableListItemUi.NestedListItem(
-            header = ListItemDataUi(
-                itemId = "0",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Digital ID"),
-                supportingText = "View Details",
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.KeyboardArrowDown
-                ),
-            ),
-            nestedItems = listOf(
-                ExpandableListItemUi.SingleListItem(
+    val items =
+        listOf(
+            ExpandableListItemUi.NestedListItem(
+                header =
                     ListItemDataUi(
-                        itemId = "1",
-                        overlineText = "Family name",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
-                    )
-                ),
-                ExpandableListItemUi.SingleListItem(
-                    ListItemDataUi(
-                        itemId = "2",
-                        overlineText = "Given name",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "John"),
-                    )
-                )
+                        itemId = "0",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Digital ID"),
+                        supportingText = "View Details",
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowDown,
+                            ),
+                    ),
+                nestedItems =
+                    listOf(
+                        ExpandableListItemUi.SingleListItem(
+                            ListItemDataUi(
+                                itemId = "1",
+                                overlineText = "Family name",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
+                            ),
+                        ),
+                        ExpandableListItemUi.SingleListItem(
+                            ListItemDataUi(
+                                itemId = "2",
+                                overlineText = "Given name",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "John"),
+                            ),
+                        ),
+                    ),
+                isExpanded = true,
             ),
-            isExpanded = true
         )
-    )
     val mockedDataSharedList = TransactionDetailsDataSharedHolderUi(dataSharedItems = items)
     val mockedDataSignedList = TransactionDetailsDataSignedHolderUi(dataSignedItems = items)
 
-    val state = State(
-        title = stringResource(R.string.transaction_details_screen_title),
-        transactionDetailsUi = TransactionDetailsUi(
-            transactionId = "id",
-            transactionDetailsCardUi = TransactionDetailsCardUi(
-                transactionTypeLabel = "Presentation",
-                transactionDate = "21 January 2025",
-                relyingPartyName = "Verisign",
-                transactionStatusLabel = "Completed",
-                transactionIsCompleted = true,
-                relyingPartyIsVerified = true,
-            ),
-            transactionDetailsDataShared = mockedDataSharedList,
-            transactionDetailsDataSigned = mockedDataSignedList
+    val state =
+        State(
+            title = stringResource(R.string.transaction_details_screen_title),
+            transactionDetailsUi =
+                TransactionDetailsUi(
+                    transactionId = "id",
+                    transactionDetailsCardUi =
+                        TransactionDetailsCardUi(
+                            transactionTypeLabel = "Presentation",
+                            transactionDate = "21 January 2025",
+                            relyingPartyName = "Verisign",
+                            transactionStatusLabel = "Completed",
+                            transactionIsCompleted = true,
+                            relyingPartyIsVerified = true,
+                        ),
+                    transactionDetailsDataShared = mockedDataSharedList,
+                    transactionDetailsDataSigned = mockedDataSignedList,
+                ),
         )
-    )
 
     PreviewTheme {
         Content(
@@ -469,7 +486,7 @@ private fun ContentPreview() {
             onEventSend = {},
             effectFlow = emptyFlow(),
             onNavigationRequested = {},
-            paddingValues = PaddingValues(SPACING_MEDIUM.dp)
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
         )
     }
 }

@@ -17,31 +17,32 @@
 package com.k689.identid.provider.core
 
 import com.k689.identid.config.WalletCoreConfig
+import com.k689.identid.network.repository.WalletAttestationRepository
 import eu.europa.ec.eudi.openid4vci.Nonce
 import eu.europa.ec.eudi.wallet.provider.WalletAttestationsProvider
-import com.k689.identid.network.repository.WalletAttestationRepository
 import org.multipaz.securearea.KeyInfo
 
 interface WalletCoreAttestationProvider : WalletAttestationsProvider
 
 class WalletCoreAttestationProviderImpl(
     private val walletCoreConfig: WalletCoreConfig,
-    private val walletAttestationRepository: WalletAttestationRepository
+    private val walletAttestationRepository: WalletAttestationRepository,
 ) : WalletCoreAttestationProvider {
-
     override suspend fun getWalletAttestation(
-        keyInfo: KeyInfo
-    ): Result<String> = walletAttestationRepository.getWalletAttestation(
-        baseUrl = walletCoreConfig.walletProviderHost,
-        keyInfo = keyInfo.publicKey.toJwk()
-    )
+        keyInfo: KeyInfo,
+    ): Result<String> =
+        walletAttestationRepository.getWalletAttestation(
+            baseUrl = walletCoreConfig.walletProviderHost,
+            keyInfo = keyInfo.publicKey.toJwk(),
+        )
 
     override suspend fun getKeyAttestation(
         keys: List<KeyInfo>,
-        nonce: Nonce?
-    ): Result<String> = walletAttestationRepository.getKeyAttestation(
-        baseUrl = walletCoreConfig.walletProviderHost,
-        keys = keys.map { it.publicKey.toJwk() },
-        nonce = nonce?.value
-    )
+        nonce: Nonce?,
+    ): Result<String> =
+        walletAttestationRepository.getKeyAttestation(
+            baseUrl = walletCoreConfig.walletProviderHost,
+            keys = keys.map { it.publicKey.toJwk() },
+            nonce = nonce?.value,
+        )
 }

@@ -24,32 +24,41 @@ import com.k689.identid.ui.serializer.UiSerializableParser
 import com.k689.identid.ui.serializer.adapter.SerializableTypeAdapter
 
 sealed interface PresentationMode {
-    data class OpenId4Vp(val uri: String, val initiatorRoute: String) : PresentationMode
-    data class Ble(val initiatorRoute: String) : PresentationMode
+    data class OpenId4Vp(
+        val uri: String,
+        val initiatorRoute: String,
+    ) : PresentationMode
+
+    data class Ble(
+        val initiatorRoute: String,
+    ) : PresentationMode
 }
 
 data class RequestUriConfig(
-    val mode: PresentationMode
+    val mode: PresentationMode,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "requestUriConfig"
 
-        override fun provideParser(): Gson {
-            return GsonBuilder().registerTypeAdapter(
-                PresentationMode::class.java,
-                SerializableTypeAdapter<PresentationMode>()
-            ).create()
-        }
+        override fun provideParser(): Gson =
+            GsonBuilder()
+                .registerTypeAdapter(
+                    PresentationMode::class.java,
+                    SerializableTypeAdapter<PresentationMode>(),
+                ).create()
     }
 }
 
-fun RequestUriConfig.toDomainConfig(): PresentationControllerConfig {
-    return when (mode) {
-        is PresentationMode.Ble -> PresentationControllerConfig.Ble(mode.initiatorRoute)
-        is PresentationMode.OpenId4Vp -> PresentationControllerConfig.OpenId4VP(
-            mode.uri,
-            mode.initiatorRoute
-        )
+fun RequestUriConfig.toDomainConfig(): PresentationControllerConfig =
+    when (mode) {
+        is PresentationMode.Ble -> {
+            PresentationControllerConfig.Ble(mode.initiatorRoute)
+        }
+
+        is PresentationMode.OpenId4Vp -> {
+            PresentationControllerConfig.OpenId4VP(
+                mode.uri,
+                mode.initiatorRoute,
+            )
+        }
     }
-}

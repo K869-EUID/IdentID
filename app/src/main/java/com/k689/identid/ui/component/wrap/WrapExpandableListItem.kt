@@ -69,7 +69,7 @@ fun WrapExpandableListItem(
     expandedClickableAreas: List<ClickableArea>? = null,
     addDivider: Boolean = true,
     shape: Shape? = null,
-    colors: CardColors? = null
+    colors: CardColors? = null,
 ) {
     WrapExpandableCard(
         modifier = modifier,
@@ -89,10 +89,11 @@ fun WrapExpandableListItem(
                 clickableAreas = collapsedClickableAreas,
                 shape = RectangleShape,
                 colors = colors,
-                mainContentTextStyle = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                mainContentTextStyle =
+                    MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    ),
             )
         },
         cardExpandedContent = {
@@ -127,7 +128,7 @@ fun WrapExpandableListItem(
                             expandedMainContentVerticalPadding = expandedMainContentVerticalPadding,
                             expandedClickableAreas = expandedClickableAreas,
                             shape = RectangleShape,
-                            colors = colors
+                            colors = colors,
                         )
                     }
                 }
@@ -136,7 +137,7 @@ fun WrapExpandableListItem(
                     HorizontalDivider(modifier = Modifier.padding(horizontal = SPACING_MEDIUM.dp))
                 }
             }
-        }
+        },
     )
 }
 
@@ -144,33 +145,37 @@ fun WrapExpandableListItem(
 @Composable
 private fun WrapExpandableListItemPreview() {
     PreviewTheme {
-        val data = ExpandableListItemUi.NestedListItem(
-            header = ListItemDataUi(
-                itemId = "0",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Digital ID"),
-                supportingText = stringResource(R.string.request_collapsed_supporting_text),
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.KeyboardArrowDown
-                ),
-            ),
-            isExpanded = true,
-            nestedItems = listOf(
-                ExpandableListItemUi.SingleListItem(
+        val data =
+            ExpandableListItemUi.NestedListItem(
+                header =
                     ListItemDataUi(
-                        itemId = "1",
-                        overlineText = "Family name",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
-                    )
-                ),
-                ExpandableListItemUi.SingleListItem(
-                    ListItemDataUi(
-                        itemId = "1",
-                        overlineText = "Given Name",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
-                    )
-                ),
+                        itemId = "0",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Digital ID"),
+                        supportingText = stringResource(R.string.request_collapsed_supporting_text),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowDown,
+                            ),
+                    ),
+                isExpanded = true,
+                nestedItems =
+                    listOf(
+                        ExpandableListItemUi.SingleListItem(
+                            ListItemDataUi(
+                                itemId = "1",
+                                overlineText = "Family name",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
+                            ),
+                        ),
+                        ExpandableListItemUi.SingleListItem(
+                            ListItemDataUi(
+                                itemId = "1",
+                                overlineText = "Given Name",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Doe"),
+                            ),
+                        ),
+                    ),
             )
-        )
 
         WrapExpandableListItem(
             header = data.header,

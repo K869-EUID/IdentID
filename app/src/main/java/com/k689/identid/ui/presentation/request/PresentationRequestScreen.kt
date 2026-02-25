@@ -23,10 +23,10 @@ import com.k689.identid.ui.common.request.RequestScreen
 @Composable
 fun PresentationRequestScreen(
     navController: NavController,
-    viewModel: PresentationRequestViewModel
+    viewModel: PresentationRequestViewModel,
 ) {
     RequestScreen(
         navController = navController,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }

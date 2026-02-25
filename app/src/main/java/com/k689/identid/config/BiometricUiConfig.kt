@@ -43,29 +43,26 @@ data class BiometricUiConfig(
     val isPreAuthorization: Boolean = false,
     val shouldInitializeBiometricAuthOnCreate: Boolean = true,
     val onSuccessNavigation: ConfigNavigation,
-    val onBackNavigationConfig: OnBackNavigationConfig
+    val onBackNavigationConfig: OnBackNavigationConfig,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "biometricConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
                 .registerTypeAdapter(
                     NavigationType::class.java,
-                    SerializableTypeAdapter<NavigationType>()
-                )
-                .registerTypeAdapter(
+                    SerializableTypeAdapter<NavigationType>(),
+                ).registerTypeAdapter(
                     BiometricMode::class.java,
-                    SerializableTypeAdapter<BiometricMode>()
-                )
-                .create()
-        }
+                    SerializableTypeAdapter<BiometricMode>(),
+                ).create()
     }
 }
 
 data class OnBackNavigationConfig(
     val onBackNavigation: ConfigNavigation?,
-    private val hasToolbarBackIcon: Boolean
+    private val hasToolbarBackIcon: Boolean,
 ) {
     val isBackable: Boolean get() = hasToolbarBackIcon && onBackNavigation != null
 }

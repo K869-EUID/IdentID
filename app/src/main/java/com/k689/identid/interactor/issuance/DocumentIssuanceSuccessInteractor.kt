@@ -16,16 +16,13 @@
 
 package com.k689.identid.interactor.issuance
 
-import com.k689.identid.extension.business.safeAsync
-import com.k689.identid.provider.UuidProvider
-import com.k689.identid.extension.common.toExpandableListItems
-import com.k689.identid.util.common.transformPathsToDomainClaims
+import com.k689.identid.R
 import com.k689.identid.controller.core.WalletCoreDocumentsController
+import com.k689.identid.extension.business.safeAsync
+import com.k689.identid.extension.common.toExpandableListItems
 import com.k689.identid.extension.core.localizedIssuerMetadata
 import com.k689.identid.extension.core.toClaimPaths
-import eu.europa.ec.eudi.wallet.document.DocumentId
-import eu.europa.ec.eudi.wallet.document.IssuedDocument
-import com.k689.identid.R
+import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
@@ -34,6 +31,9 @@ import com.k689.identid.ui.component.ListItemTrailingContentDataUi
 import com.k689.identid.ui.component.RelyingPartyDataUi
 import com.k689.identid.ui.component.content.ContentHeaderConfig
 import com.k689.identid.ui.component.wrap.ExpandableListItemUi
+import com.k689.identid.util.common.transformPathsToDomainClaims
+import eu.europa.ec.eudi.wallet.document.DocumentId
+import eu.europa.ec.eudi.wallet.document.IssuedDocument
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.net.URI
@@ -56,15 +56,13 @@ interface DocumentIssuanceSuccessInteractor {
 class DocumentIssuanceSuccessInteractorImpl(
     private val walletCoreDocumentsController: WalletCoreDocumentsController,
     private val resourceProvider: ResourceProvider,
-    private val uuidProvider: UuidProvider
+    private val uuidProvider: UuidProvider,
 ) : DocumentIssuanceSuccessInteractor {
-
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
-    override fun getUiItems(documentIds: List<DocumentId>): Flow<DocumentIssuanceSuccessInteractorGetUiItemsPartialState> {
-        return flow {
-
+    override fun getUiItems(documentIds: List<DocumentId>): Flow<DocumentIssuanceSuccessInteractorGetUiItemsPartialState> =
+        flow {
             val documentsUi = mutableListOf<ExpandableListItemUi.NestedListItem>()
 
             var issuerName =
@@ -89,63 +87,71 @@ class DocumentIssuanceSuccessInteractorImpl(
                         issuerLogo = safeIssuerLogo
                     }
 
-                    val claimsPaths = document.data.claims.flatMap { claim ->
-                        claim.toClaimPaths()
-                    }
+                    val claimsPaths =
+                        document.data.claims.flatMap { claim ->
+                            claim.toClaimPaths()
+                        }
 
-                    val domainClaims = transformPathsToDomainClaims(
-                        paths = claimsPaths,
-                        claims = document.data.claims,
-                        resourceProvider = resourceProvider,
-                        uuidProvider = uuidProvider
-                    )
+                    val domainClaims =
+                        transformPathsToDomainClaims(
+                            paths = claimsPaths,
+                            claims = document.data.claims,
+                            resourceProvider = resourceProvider,
+                            uuidProvider = uuidProvider,
+                        )
 
-                    val claimsUi = domainClaims.map { selectedDomainClaim ->
-                        selectedDomainClaim.toExpandableListItems(docId = documentId)
-                    }
+                    val claimsUi =
+                        domainClaims.map { selectedDomainClaim ->
+                            selectedDomainClaim.toExpandableListItems(docId = documentId)
+                        }
 
-                    val documentUi = ExpandableListItemUi.NestedListItem(
-                        header = ListItemDataUi(
-                            itemId = documentId,
-                            mainContentData = ListItemMainContentDataUi.Text(text = document.name),
-                            supportingText = resourceProvider.getString(R.string.document_success_collapsed_supporting_text),
-                            trailingContentData = ListItemTrailingContentDataUi.Icon(
-                                iconData = AppIcons.KeyboardArrowDown
-                            )
-                        ),
-                        nestedItems = claimsUi,
-                        isExpanded = false,
-                    )
+                    val documentUi =
+                        ExpandableListItemUi.NestedListItem(
+                            header =
+                                ListItemDataUi(
+                                    itemId = documentId,
+                                    mainContentData = ListItemMainContentDataUi.Text(text = document.name),
+                                    supportingText = resourceProvider.getString(R.string.document_success_collapsed_supporting_text),
+                                    trailingContentData =
+                                        ListItemTrailingContentDataUi.Icon(
+                                            iconData = AppIcons.KeyboardArrowDown,
+                                        ),
+                                ),
+                            nestedItems = claimsUi,
+                            isExpanded = false,
+                        )
 
                     documentsUi.add(documentUi)
                 } catch (_: Exception) {
                 }
             }
 
-            val headerConfigDescription = if (documentsUi.isEmpty()) {
-                resourceProvider.getString(R.string.issuance_success_header_description_when_error)
-            } else {
-                resourceProvider.getString(R.string.issuance_success_header_description)
-            }
-            val headerConfig = ContentHeaderConfig(
-                description = headerConfigDescription,
-                relyingPartyData = RelyingPartyDataUi(
-                    logo = issuerLogo,
-                    name = issuerName,
-                    isVerified = issuerIsTrusted,
+            val headerConfigDescription =
+                if (documentsUi.isEmpty()) {
+                    resourceProvider.getString(R.string.issuance_success_header_description_when_error)
+                } else {
+                    resourceProvider.getString(R.string.issuance_success_header_description)
+                }
+            val headerConfig =
+                ContentHeaderConfig(
+                    description = headerConfigDescription,
+                    relyingPartyData =
+                        RelyingPartyDataUi(
+                            logo = issuerLogo,
+                            name = issuerName,
+                            isVerified = issuerIsTrusted,
+                        ),
                 )
-            )
 
             emit(
                 DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Success(
                     documentsUi = documentsUi,
                     headerConfig = headerConfig,
-                )
+                ),
             )
         }.safeAsync {
             DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Failed(
-                errorMessage = it.localizedMessage ?: genericErrorMsg
+                errorMessage = it.localizedMessage ?: genericErrorMsg,
             )
         }
-    }
 }

@@ -56,76 +56,83 @@ fun WrapActionCard(
     modifier: Modifier = Modifier,
     config: ActionCardConfig,
     onActionClick: () -> Unit = {},
-    onLearnMoreClick: () -> Unit = {}
+    onLearnMoreClick: () -> Unit = {},
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(SPACING_MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = SPACING_MEDIUM.dp),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .padding(end = SPACING_MEDIUM.dp),
                     text = config.title,
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
 
                 WrapImage(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .defaultMinSize(minHeight = DEFAULT_ACTION_CARD_HEIGHT.dp),
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .defaultMinSize(minHeight = DEFAULT_ACTION_CARD_HEIGHT.dp),
                     iconData = config.icon,
-                    contentScale = ContentScale.Fit
+                    contentScale = ContentScale.Fit,
                 )
             }
 
             Column(
-                verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
+                verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
             ) {
                 WrapButton(
                     modifier = Modifier.fillMaxWidth(),
-                    buttonConfig = ButtonConfig(
-                        type = ButtonType.PRIMARY,
-                        onClick = onActionClick
-                    ),
+                    buttonConfig =
+                        ButtonConfig(
+                            type = ButtonType.PRIMARY,
+                            onClick = onActionClick,
+                        ),
                 ) {
                     Text(config.primaryButtonText)
                 }
 
                 WrapButton(
                     modifier = Modifier.fillMaxWidth(),
-                    buttonConfig = ButtonConfig(
-                        type = ButtonType.PRIMARY,
-                        buttonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Color.Transparent),
-                        onClick = onLearnMoreClick
-                    )
+                    buttonConfig =
+                        ButtonConfig(
+                            type = ButtonType.PRIMARY,
+                            buttonColors = ButtonDefaults.filledTonalButtonColors(containerColor = Color.Transparent),
+                            onClick = onLearnMoreClick,
+                        ),
                 ) {
                     WrapIcon(
                         modifier = Modifier.size(SPACING_MEDIUM.dp),
                         iconData = AppIcons.Info,
-                        customTint = MaterialTheme.colorScheme.primary
+                        customTint = MaterialTheme.colorScheme.primary,
                     )
 
                     HSpacer.Small()
 
                     Text(
                         text = config.secondaryButtonText,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -138,12 +145,13 @@ fun WrapActionCard(
 private fun WrapActionCardPreview() {
     PreviewTheme {
         WrapActionCard(
-            config = ActionCardConfig(
-                title = "Authenticate, authorise transactions and share your digital documents in person or online.",
-                icon = AppIcons.WalletActivated,
-                primaryButtonText = "Authenticate",
-                secondaryButtonText = "Learn more",
-            )
+            config =
+                ActionCardConfig(
+                    title = "Authenticate, authorise transactions and share your digital documents in person or online.",
+                    icon = AppIcons.WalletActivated,
+                    primaryButtonText = "Authenticate",
+                    secondaryButtonText = "Learn more",
+                ),
         )
     }
 }

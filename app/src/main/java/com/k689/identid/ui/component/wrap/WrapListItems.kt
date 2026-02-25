@@ -61,8 +61,9 @@ fun WrapListItems(
         colors = colors,
     ) {
         items.forEachIndexed { index, item ->
-            val itemModifier = Modifier
-                .fillMaxWidth()
+            val itemModifier =
+                Modifier
+                    .fillMaxWidth()
 
             when (item) {
                 is ExpandableListItemUi.NestedListItem -> {
@@ -81,9 +82,10 @@ fun WrapListItems(
                 }
 
                 is ExpandableListItemUi.SingleListItem -> {
-                    val defaultOverlineTextStyle = MaterialTheme.typography.labelMedium.copy(
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                    val defaultOverlineTextStyle =
+                        MaterialTheme.typography.labelMedium.copy(
+                            MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
 
                     WrapListItem(
                         modifier = itemModifier,
@@ -93,9 +95,10 @@ fun WrapListItems(
                         hideSensitiveContent = hideSensitiveContent,
                         mainContentVerticalPadding = mainContentVerticalPadding,
                         clickableAreas = clickableAreas,
-                        overlineTextStyle = overlineTextStyle?.invoke(item.header)
-                            ?: defaultOverlineTextStyle,
-                        shape = RectangleShape
+                        overlineTextStyle =
+                            overlineTextStyle?.invoke(item.header)
+                                ?: defaultOverlineTextStyle,
+                        shape = RectangleShape,
                     )
                 }
             }
@@ -110,63 +113,70 @@ fun WrapListItems(
 @ThemeModePreviews
 @Composable
 private fun WrapListItemsPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
-        val items = listOf(
-            ListItemDataUi(
-                itemId = "1",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-            ),
-            ListItemDataUi(
-                itemId = "2",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                overlineText = "",
-                supportingText = "",
-            ),
-            ListItemDataUi(
-                itemId = "3",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                overlineText = "Overline text $text",
-                supportingText = "Supporting text $text",
-                leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.KeyboardArrowRight,
+        val items =
+            listOf(
+                ListItemDataUi(
+                    itemId = "1",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
                 ),
-            ),
-            ListItemDataUi(
-                itemId = "4",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                overlineText = "Overline text $text",
-                supportingText = "Supporting text $text",
-                leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
-                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                    checkboxData = CheckboxDataUi(
-                        isChecked = true,
-                        enabled = true,
-                    ),
+                ListItemDataUi(
+                    itemId = "2",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                    overlineText = "",
+                    supportingText = "",
                 ),
-            ),
-            ListItemDataUi(
-                itemId = "5",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                supportingText = "Supporting text $text",
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.KeyboardArrowRight,
+                ListItemDataUi(
+                    itemId = "3",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                    overlineText = "Overline text $text",
+                    supportingText = "Supporting text $text",
+                    leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
+                    trailingContentData =
+                        ListItemTrailingContentDataUi.Icon(
+                            iconData = AppIcons.KeyboardArrowRight,
+                        ),
                 ),
-            ),
-            ListItemDataUi(
-                itemId = "6",
-                mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                supportingText = "Supporting text $text",
-                trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                    checkboxData = CheckboxDataUi(
-                        isChecked = true,
-                        enabled = true,
-                    ),
+                ListItemDataUi(
+                    itemId = "4",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                    overlineText = "Overline text $text",
+                    supportingText = "Supporting text $text",
+                    leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
+                    trailingContentData =
+                        ListItemTrailingContentDataUi.Checkbox(
+                            checkboxData =
+                                CheckboxDataUi(
+                                    isChecked = true,
+                                    enabled = true,
+                                ),
+                        ),
                 ),
-            ),
-        )
+                ListItemDataUi(
+                    itemId = "5",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                    supportingText = "Supporting text $text",
+                    trailingContentData =
+                        ListItemTrailingContentDataUi.Icon(
+                            iconData = AppIcons.KeyboardArrowRight,
+                        ),
+                ),
+                ListItemDataUi(
+                    itemId = "6",
+                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                    supportingText = "Supporting text $text",
+                    trailingContentData =
+                        ListItemTrailingContentDataUi.Checkbox(
+                            checkboxData =
+                                CheckboxDataUi(
+                                    isChecked = true,
+                                    enabled = true,
+                                ),
+                        ),
+                ),
+            )
 
         WrapListItems(
             items = items.map { ExpandableListItemUi.SingleListItem(it) },

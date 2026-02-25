@@ -38,9 +38,9 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.k689.identid.ui.component.utils.SIZE_LARGE
 import com.k689.identid.extension.ui.clickableNoRipple
 import com.k689.identid.extension.ui.throttledClickable
+import com.k689.identid.ui.component.utils.SIZE_LARGE
 
 @Composable
 fun WrapTextField(
@@ -65,25 +65,24 @@ fun WrapTextField(
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
     textStyle: TextStyle = LocalTextStyle.current,
     shape: Shape = RoundedCornerShape(SIZE_LARGE.dp),
-    colors: TextFieldColors = OutlinedTextFieldDefaults.colors()
+    colors: TextFieldColors = OutlinedTextFieldDefaults.colors(),
 ) {
-
-    val textFieldModifier = modifier
-        .onKeyEvent {
-            onKeyEvent?.invoke(it) ?: false
-        }
-        .then(
-            if (hasNoRipple) {
-                modifier.clickableNoRipple(
-                    enabled = enabled,
-                    onClick = onClick ?: {}
-                )
-            } else {
-                Modifier.throttledClickable(enabled = enabled) {
-                    onClick?.invoke()
-                }
-            }
-        )
+    val textFieldModifier =
+        modifier
+            .onKeyEvent {
+                onKeyEvent?.invoke(it) ?: false
+            }.then(
+                if (hasNoRipple) {
+                    modifier.clickableNoRipple(
+                        enabled = enabled,
+                        onClick = onClick ?: {},
+                    )
+                } else {
+                    Modifier.throttledClickable(enabled = enabled) {
+                        onClick?.invoke()
+                    }
+                },
+            )
 
     Column {
         OutlinedTextField(
@@ -106,20 +105,20 @@ fun WrapTextField(
             keyboardActions = keyboardActions,
             shape = shape,
             textStyle = textStyle,
-            colors = colors
+            colors = colors,
         )
     }
 
     AnimatedVisibility(
         visible = isError && errorMsg.isNotEmpty(),
         enter = fadeIn(),
-        exit = fadeOut()
+        exit = fadeOut(),
     ) {
         Text(
             text = errorMsg,
             modifier = Modifier.padding(start = 14.dp),
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
         )
     }
 }

@@ -52,22 +52,28 @@ class ThemeManager {
     fun Theme(
         darkTheme: Boolean = isSystemInDarkTheme(),
         disableDynamicTheming: Boolean = true,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
     ) {
         val lightColorScheme = set.lightColors
         val darkColorScheme = set.darkColors
 
-        val colorScheme = when {
-            !disableDynamicTheming && dynamicThemeSupported -> {
-                when {
-                    darkTheme -> dynamicDarkColorScheme(LocalContext.current)
-                    else -> dynamicLightColorScheme(LocalContext.current)
+        val colorScheme =
+            when {
+                !disableDynamicTheming && dynamicThemeSupported -> {
+                    when {
+                        darkTheme -> dynamicDarkColorScheme(LocalContext.current)
+                        else -> dynamicLightColorScheme(LocalContext.current)
+                    }
+                }
+
+                darkTheme -> {
+                    darkColorScheme
+                }
+
+                else -> {
+                    lightColorScheme
                 }
             }
-
-            darkTheme -> darkColorScheme
-            else -> lightColorScheme
-        }
 
         set = set.copy(isInDarkMode = darkTheme)
 
@@ -75,7 +81,7 @@ class ThemeManager {
             colorScheme = colorScheme,
             shapes = set.shapes,
             typography = set.typo,
-            content = content
+            content = content,
         )
     }
 
@@ -91,16 +97,17 @@ class ThemeManager {
         val instance: ThemeManager
             get() {
                 if (this::_instance.isInitialized.not()) {
-                    _instance = Builder()
-                        .withLightColors(ThemeColors.lightColors)
-                        .withDarkColors(ThemeColors.darkColors)
-                        .withTypography(ThemeTypography.typo)
-                        .withShapes(ThemeShapes.shapes)
-                        .withDimensions(
-                            ThemeDimensTemplate(
-                                screenPadding = 10.0
-                            )
-                        ).build()
+                    _instance =
+                        Builder()
+                            .withLightColors(ThemeColors.lightColors)
+                            .withDarkColors(ThemeColors.darkColors)
+                            .withTypography(ThemeTypography.typo)
+                            .withShapes(ThemeShapes.shapes)
+                            .withDimensions(
+                                ThemeDimensTemplate(
+                                    screenPadding = 10.0,
+                                ),
+                            ).build()
                 }
 
                 return _instance
@@ -111,19 +118,22 @@ class ThemeManager {
          * static instance of the manager.
          */
         fun ThemeManager.build(builder: Builder): ThemeManager {
-            set = ThemeSet(
-                isInDarkMode = builder.isInDarkMode == true,
-                lightColors = builder.lightColors.toColorScheme(),
-                darkColors = builder.darkColors.toColorScheme(),
-                typo = builder.typography.toTypography(),
-                shapes = builder.shapes.toShapes(),
-                dimens = builder.dimensions
-            )
+            set =
+                ThemeSet(
+                    isInDarkMode = builder.isInDarkMode == true,
+                    lightColors = builder.lightColors.toColorScheme(),
+                    darkColors = builder.darkColors.toColorScheme(),
+                    typo = builder.typography.toTypography(),
+                    shapes = builder.shapes.toShapes(),
+                    dimens = builder.dimensions,
+                )
             return this
         }
     }
 
-    class Builder(val isInDarkMode: Boolean? = null) {
+    class Builder(
+        val isInDarkMode: Boolean? = null,
+    ) {
         lateinit var lightColors: ThemeColorsTemplate
         lateinit var darkColors: ThemeColorsTemplate
         lateinit var typography: ThemeTypographyTemplate
@@ -195,7 +205,7 @@ class ThemeManager {
         }
 
         fun build(
-            buildStatic: Boolean = true
+            buildStatic: Boolean = true,
         ): ThemeManager {
             // Check light colors.
             if (this::lightColors.isInitialized.not()) {

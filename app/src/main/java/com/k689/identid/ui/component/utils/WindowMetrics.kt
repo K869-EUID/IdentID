@@ -30,20 +30,27 @@ import androidx.compose.ui.unit.DpSize
 
 @Composable
 fun screenWidthInDp(): Dp =
-    with(LocalDensity.current) { LocalWindowInfo.current.containerSize.width.toDp() }
+    with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.width
+            .toDp()
+    }
 
 @Composable
 fun screenHeightInDp(): Dp =
-    with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
+    with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.height
+            .toDp()
+    }
 
 @Composable
 fun screenWidthInDp(excludeSafeArea: Boolean): Dp {
     if (!excludeSafeArea) return screenWidthInDp()
     val layoutDir = LocalLayoutDirection.current
     val safe = WindowInsets.safeDrawing.asPaddingValues()
-    return screenWidthInDp() - safe.calculateStartPadding(layoutDir) - safe.calculateEndPadding(
-        layoutDir
-    )
+    return screenWidthInDp() - safe.calculateStartPadding(layoutDir) -
+        safe.calculateEndPadding(
+            layoutDir,
+        )
 }
 
 @Composable
@@ -54,5 +61,4 @@ fun screenHeightInDp(excludeSafeArea: Boolean): Dp {
 }
 
 @Composable
-fun screenSizeInDp(excludeSafeArea: Boolean = false): DpSize =
-    DpSize(screenWidthInDp(excludeSafeArea), screenHeightInDp(excludeSafeArea))
+fun screenSizeInDp(excludeSafeArea: Boolean = false): DpSize = DpSize(screenWidthInDp(excludeSafeArea), screenHeightInDp(excludeSafeArea))

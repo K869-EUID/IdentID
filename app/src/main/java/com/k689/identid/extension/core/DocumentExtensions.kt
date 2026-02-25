@@ -21,11 +21,10 @@ import eu.europa.ec.eudi.wallet.document.Document
 import eu.europa.ec.eudi.wallet.document.metadata.IssuerMetadata
 import java.util.Locale
 
-fun Document.localizedIssuerMetadata(locale: Locale): IssuerMetadata.IssuerDisplay? {
-    return issuerMetadata?.issuerDisplay.getLocalizedValue(
+fun Document.localizedIssuerMetadata(locale: Locale): IssuerMetadata.IssuerDisplay? =
+    issuerMetadata?.issuerDisplay.getLocalizedValue(
         userLocale = locale,
         fallback = null,
         localeExtractor = { it.locale },
-        valueExtractor = { it }
+        valueExtractor = { it },
     )
-}

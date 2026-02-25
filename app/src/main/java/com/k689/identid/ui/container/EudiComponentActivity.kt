@@ -54,7 +54,6 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import kotlin.system.exitProcess
 
 open class EudiComponentActivity : FragmentActivity() {
-
     companion object {
         /**
          * Tracks the locale tag across activity recreations within the same process.

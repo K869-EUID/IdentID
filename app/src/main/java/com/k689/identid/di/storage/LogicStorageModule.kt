@@ -32,19 +32,19 @@ class LogicStorageModule
 
 @Single
 fun provideAppDatabase(context: Context): DatabaseService =
-    Room.databaseBuilder(
-        context,
-        DatabaseService::class.java,
-        "eudi.app.wallet.storage"
-    ).fallbackToDestructiveMigration(true).build()
+    Room
+        .databaseBuilder(
+            context,
+            DatabaseService::class.java,
+            "eudi.app.wallet.storage",
+        ).fallbackToDestructiveMigration(true)
+        .build()
 
 @Single
 fun provideBookmarkDao(service: DatabaseService): BookmarkDao = service.bookmarkDao()
 
 @Single
-fun provideRevokedDocumentDao(service: DatabaseService): RevokedDocumentDao =
-    service.revokedDocumentDao()
+fun provideRevokedDocumentDao(service: DatabaseService): RevokedDocumentDao = service.revokedDocumentDao()
 
 @Single
-fun provideTransactionLogDao(service: DatabaseService): TransactionLogDao =
-    service.transactionLogDao()
+fun provideTransactionLogDao(service: DatabaseService): TransactionLogDao = service.transactionLogDao()

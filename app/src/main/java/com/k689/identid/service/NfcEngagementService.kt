@@ -22,7 +22,6 @@ import org.koin.android.ext.android.inject
 import eu.europa.ec.eudi.iso18013.transfer.engagement.NfcEngagementService as BaseService
 
 class NfcEngagementService : BaseService() {
-
     val wallet: EudiWallet by inject()
 
     override val transferManager: TransferManager

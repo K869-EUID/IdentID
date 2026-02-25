@@ -16,7 +16,10 @@
 
 package com.k689.identid.extension.business
 
-fun <T> MutableList<T>.addOrReplace(value: T, replaceCondition: (T) -> Boolean) {
+fun <T> MutableList<T>.addOrReplace(
+    value: T,
+    replaceCondition: (T) -> Boolean,
+) {
     for (i in indices) {
         if (replaceCondition(this[i])) {
             this[i] = value

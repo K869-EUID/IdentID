@@ -16,17 +16,16 @@
 
 package com.k689.identid.ui.issuance.offer.transformer
 
-import com.k689.identid.ui.issuance.offer.model.DocumentOfferUi
 import com.k689.identid.ui.component.ListItemDataUi
 import com.k689.identid.ui.component.ListItemMainContentDataUi
+import com.k689.identid.ui.issuance.offer.model.DocumentOfferUi
 
 internal object DocumentOfferTransformer {
-    fun List<DocumentOfferUi>.toListItemDataUiList(): List<ListItemDataUi> {
-        return this.mapIndexed { index, item ->
+    fun List<DocumentOfferUi>.toListItemDataUiList(): List<ListItemDataUi> =
+        this.mapIndexed { index, item ->
             ListItemDataUi(
                 itemId = index.toString(),
-                mainContentData = ListItemMainContentDataUi.Text(text = item.title)
+                mainContentData = ListItemMainContentDataUi.Text(text = item.title),
             )
         }
-    }
 }

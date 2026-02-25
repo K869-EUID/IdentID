@@ -28,6 +28,4 @@ import org.koin.core.annotation.Single
 class LogicResourceModule
 
 @Single
-fun provideResourceProvider(context: Context): ResourceProvider {
-    return ResourceProviderImpl(context)
-}
+fun provideResourceProvider(context: Context): ResourceProvider = ResourceProviderImpl(context)

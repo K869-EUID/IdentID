@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.k689.identid.extension.ui.throttledClickable
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.IconDataUi
 import com.k689.identid.ui.component.preview.PreviewTheme
@@ -44,7 +45,6 @@ import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.ALPHA_DISABLED
 import com.k689.identid.ui.component.utils.ALPHA_ENABLED
 import com.k689.identid.ui.component.utils.DEFAULT_ICON_SIZE
-import com.k689.identid.extension.ui.throttledClickable
 
 /**
  * Reusable Wrapper Composable to be used instead of plain Icon.
@@ -61,13 +61,15 @@ fun WrapIcon(
     customTint: Color? = null,
     enabled: Boolean = true,
 ) {
-    val iconTint = (customTint ?: LocalContentColor.current).copy(
-        alpha = if (enabled) {
-            ALPHA_ENABLED
-        } else {
-            ALPHA_DISABLED
-        }
-    )
+    val iconTint =
+        (customTint ?: LocalContentColor.current).copy(
+            alpha =
+                if (enabled) {
+                    ALPHA_ENABLED
+                } else {
+                    ALPHA_DISABLED
+                },
+        )
     val iconContentDescription = stringResource(id = iconData.contentDescriptionId)
 
     iconData.resourceId?.let { resId ->
@@ -75,7 +77,7 @@ fun WrapIcon(
             modifier = modifier,
             painter = painterResource(id = resId),
             tint = iconTint,
-            contentDescription = iconContentDescription
+            contentDescription = iconContentDescription,
         )
     } ?: run {
         iconData.imageVector?.let { imageVector ->
@@ -83,7 +85,7 @@ fun WrapIcon(
                 modifier = modifier,
                 imageVector = imageVector,
                 tint = iconTint,
-                contentDescription = iconContentDescription
+                contentDescription = iconContentDescription,
             )
         }
     }
@@ -119,43 +121,51 @@ fun WrapIconButton(
     throttleClicks: Boolean = true,
     throttleDuration: Long = 1_000L,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    onClick: (() -> Unit)?
+    onClick: (() -> Unit)?,
 ) {
     val role = Role.Button
     val rippleSize = if (size == DEFAULT_ICON_SIZE.dp) 40.dp else size
-    val indication = ripple(
-        bounded = false,
-        radius = rippleSize / 2
-    )
+    val indication =
+        ripple(
+            bounded = false,
+            radius = rippleSize / 2,
+        )
 
     Box(
-        modifier = modifier
-            .minimumInteractiveComponentSize()
-            .size(rippleSize)
-            .clip(CircleShape)
-            .then(
-                if (onClick != null) {
-                    when (throttleClicks) {
-                        true -> Modifier.throttledClickable(
-                            onClick = onClick,
-                            throttleDuration = throttleDuration,
-                            enabled = enabled,
-                            role = role,
-                            interactionSource = interactionSource,
-                            indication = indication
-                        )
+        modifier =
+            modifier
+                .minimumInteractiveComponentSize()
+                .size(rippleSize)
+                .clip(CircleShape)
+                .then(
+                    if (onClick != null) {
+                        when (throttleClicks) {
+                            true -> {
+                                Modifier.throttledClickable(
+                                    onClick = onClick,
+                                    throttleDuration = throttleDuration,
+                                    enabled = enabled,
+                                    role = role,
+                                    interactionSource = interactionSource,
+                                    indication = indication,
+                                )
+                            }
 
-                        false -> Modifier.clickable(
-                            onClick = onClick,
-                            enabled = enabled,
-                            role = role,
-                            interactionSource = interactionSource,
-                            indication = indication
-                        )
-                    }
-                } else Modifier
-            ),
-        contentAlignment = Alignment.Center
+                            false -> {
+                                Modifier.clickable(
+                                    onClick = onClick,
+                                    enabled = enabled,
+                                    role = role,
+                                    interactionSource = interactionSource,
+                                    indication = indication,
+                                )
+                            }
+                        }
+                    } else {
+                        Modifier
+                    },
+                ),
+        contentAlignment = Alignment.Center,
     ) {
         WrapIcon(
             modifier = Modifier.size(size),

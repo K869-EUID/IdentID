@@ -24,17 +24,23 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.k689.identid.config.ConfigUILogic
 import com.k689.identid.extension.business.firstPart
 import com.k689.identid.extension.business.toMapOrEmpty
-import com.k689.identid.config.ConfigUILogic
 
 interface RouterHost {
     fun getNavController(): NavHostController
+
     fun getNavContext(): Context
+
     fun userIsLoggedInWithDocuments(): Boolean
+
     fun userIsLoggedInWithNoDocuments(): Boolean
+
     fun popToDashboardScreen()
+
     fun popToIssuanceOnboardingScreen()
+
     fun isScreenOnBackStackOrForeground(screen: Screen): Boolean
 
     @Composable
@@ -44,11 +50,11 @@ interface RouterHost {
 class RouterHostImpl(
     private val configUILogic: ConfigUILogic,
 ) : RouterHost {
-
     private lateinit var navController: NavHostController
     private lateinit var context: Context
 
     override fun getNavController(): NavHostController = navController
+
     override fun getNavContext(): Context = context
 
     @Composable
@@ -57,17 +63,15 @@ class RouterHostImpl(
         context = LocalContext.current
         NavHost(
             navController = navController,
-            startDestination = ModuleRoute.StartupModule.route
+            startDestination = ModuleRoute.StartupModule.route,
         ) {
             builder(navController)
         }
     }
 
-    override fun userIsLoggedInWithDocuments(): Boolean =
-        isScreenOnBackStackOrForeground(getDashboardScreen())
+    override fun userIsLoggedInWithDocuments(): Boolean = isScreenOnBackStackOrForeground(getDashboardScreen())
 
-    override fun userIsLoggedInWithNoDocuments(): Boolean =
-        isScreenOnBackStackOrForeground(getIssuanceScreen())
+    override fun userIsLoggedInWithNoDocuments(): Boolean = isScreenOnBackStackOrForeground(getIssuanceScreen())
 
     override fun isScreenOnBackStackOrForeground(screen: Screen): Boolean {
         val screenRoute = screen.screenRoute
@@ -85,22 +89,18 @@ class RouterHostImpl(
     override fun popToDashboardScreen() {
         navController.popBackStack(
             route = getDashboardScreen().screenRoute,
-            inclusive = false
+            inclusive = false,
         )
     }
 
     override fun popToIssuanceOnboardingScreen() {
         navController.popBackStack(
             route = getIssuanceScreen().screenRoute,
-            inclusive = false
+            inclusive = false,
         )
     }
 
-    private fun getDashboardScreen(): Screen {
-        return configUILogic.dashboardScreenIdentifier
-    }
+    private fun getDashboardScreen(): Screen = configUILogic.dashboardScreenIdentifier
 
-    private fun getIssuanceScreen(): Screen {
-        return configUILogic.issuanceScreenIdentifier
-    }
+    private fun getIssuanceScreen(): Screen = configUILogic.issuanceScreenIdentifier
 }

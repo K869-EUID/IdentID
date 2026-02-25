@@ -19,7 +19,6 @@ package com.k689.identid.util.business
 import java.util.Locale
 
 object LocaleUtils {
-
     const val PROJECT_DEFAULT_LOCALE = "en-GB"
 
     /**
@@ -27,7 +26,5 @@ object LocaleUtils {
      *  @param selectedLanguage example of selectedLanguage : en-GB
      *  @return [Locale] object
      */
-    fun getLocaleFromSelectedLanguage(selectedLanguage: String): Locale {
-        return Locale.forLanguageTag(selectedLanguage)
-    }
+    fun getLocaleFromSelectedLanguage(selectedLanguage: String): Locale = Locale.forLanguageTag(selectedLanguage)
 }

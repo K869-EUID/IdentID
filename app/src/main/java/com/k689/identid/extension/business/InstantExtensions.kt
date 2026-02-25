@@ -30,10 +30,6 @@ fun Instant.isBeyondNextDays(days: Long): Boolean {
     return this.isAfter(now.plus(days, ChronoUnit.DAYS))
 }
 
-fun Instant.isExpired(): Boolean {
-    return this.isBefore(Instant.now())
-}
+fun Instant.isExpired(): Boolean = this.isBefore(Instant.now())
 
-fun Instant.isValid(): Boolean {
-    return this.isAfter(Instant.now())
-}
+fun Instant.isValid(): Boolean = this.isAfter(Instant.now())

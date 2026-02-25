@@ -25,15 +25,16 @@ data class ThemeShapesTemplate(
     val small: Double,
     val medium: Double,
     val large: Double,
-    val extraLarge: Double
+    val extraLarge: Double,
 ) {
     companion object {
-        fun ThemeShapesTemplate.toShapes(): Shapes = Shapes(
-            extraSmall = RoundedCornerShape(extraSmall.dp),
-            small = RoundedCornerShape(small.dp),
-            medium = RoundedCornerShape(medium.dp),
-            large = RoundedCornerShape(large.dp),
-            extraLarge = RoundedCornerShape(extraLarge.dp),
-        )
+        fun ThemeShapesTemplate.toShapes(): Shapes =
+            Shapes(
+                extraSmall = RoundedCornerShape(extraSmall.dp),
+                small = RoundedCornerShape(small.dp),
+                medium = RoundedCornerShape(medium.dp),
+                large = RoundedCornerShape(large.dp),
+                extraLarge = RoundedCornerShape(extraLarge.dp),
+            )
     }
 }

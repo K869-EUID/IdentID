@@ -18,7 +18,7 @@ package com.k689.identid.ui.proximity.success
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
-import com.k689.identid.ui.common.document_success.DocumentSuccessScreen
+import com.k689.identid.ui.common.document.sucess.DocumentSuccessScreen
 
 @Composable
 fun ProximitySuccessScreen(

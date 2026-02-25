@@ -16,24 +16,29 @@
 
 package com.k689.identid.interactor.common
 
+import com.k689.identid.R
 import com.k689.identid.controller.storage.PinStorageController
 import com.k689.identid.extension.business.safeAsync
-import com.k689.identid.validator.FormValidator
-import com.k689.identid.R
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.validator.FormValidator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 interface QuickPinInteractor : FormValidator {
-    fun setPin(newPin: String, initialPin: String): Flow<QuickPinInteractorSetPinPartialState>
+    fun setPin(
+        newPin: String,
+        initialPin: String,
+    ): Flow<QuickPinInteractorSetPinPartialState>
+
     fun changePin(
-        newPin: String
+        newPin: String,
     ): Flow<QuickPinInteractorSetPinPartialState>
 
     fun isCurrentPinValid(pin: String): Flow<QuickPinInteractorPinValidPartialState>
+
     fun isPinMatched(
         currentPin: String,
-        newPin: String
+        newPin: String,
     ): Flow<QuickPinInteractorPinValidPartialState>
 
     fun hasPin(): Boolean
@@ -43,8 +48,8 @@ class QuickPinInteractorImpl(
     private val formValidator: FormValidator,
     private val pinStorageController: PinStorageController,
     private val resourceProvider: ResourceProvider,
-) : FormValidator by formValidator, QuickPinInteractor {
-
+) : FormValidator by formValidator,
+    QuickPinInteractor {
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
@@ -52,7 +57,7 @@ class QuickPinInteractorImpl(
 
     override fun setPin(
         newPin: String,
-        initialPin: String
+        initialPin: String,
     ): Flow<QuickPinInteractorSetPinPartialState> =
         flow {
             isPinMatched(initialPin, newPin).collect {
@@ -60,8 +65,8 @@ class QuickPinInteractorImpl(
                     is QuickPinInteractorPinValidPartialState.Failed -> {
                         emit(
                             QuickPinInteractorSetPinPartialState.Failed(
-                                resourceProvider.getString(R.string.quick_pin_non_match)
-                            )
+                                resourceProvider.getString(R.string.quick_pin_non_match),
+                            ),
                         )
                     }
 
@@ -73,19 +78,19 @@ class QuickPinInteractorImpl(
             }
         }.safeAsync {
             QuickPinInteractorSetPinPartialState.Failed(
-                it.localizedMessage ?: genericErrorMsg
+                it.localizedMessage ?: genericErrorMsg,
             )
         }
 
     override fun changePin(
-        newPin: String
+        newPin: String,
     ): Flow<QuickPinInteractorSetPinPartialState> =
         flow {
             pinStorageController.setPin(newPin)
             emit(QuickPinInteractorSetPinPartialState.Success)
         }.safeAsync {
             QuickPinInteractorSetPinPartialState.Failed(
-                it.localizedMessage ?: genericErrorMsg
+                it.localizedMessage ?: genericErrorMsg,
             )
         }
 
@@ -97,20 +102,20 @@ class QuickPinInteractorImpl(
                 emit(
                     QuickPinInteractorPinValidPartialState.Failed(
                         resourceProvider.getString(
-                            R.string.quick_pin_invalid_error
-                        )
-                    )
+                            R.string.quick_pin_invalid_error,
+                        ),
+                    ),
                 )
             }
         }.safeAsync {
             QuickPinInteractorPinValidPartialState.Failed(
-                it.localizedMessage ?: genericErrorMsg
+                it.localizedMessage ?: genericErrorMsg,
             )
         }
 
     override fun isPinMatched(
         currentPin: String,
-        newPin: String
+        newPin: String,
     ): Flow<QuickPinInteractorPinValidPartialState> =
         flow {
             if (currentPin == newPin) {
@@ -119,24 +124,30 @@ class QuickPinInteractorImpl(
                 emit(
                     QuickPinInteractorPinValidPartialState.Failed(
                         resourceProvider.getString(
-                            R.string.quick_pin_invalid_error
-                        )
-                    )
+                            R.string.quick_pin_invalid_error,
+                        ),
+                    ),
                 )
             }
         }.safeAsync {
             QuickPinInteractorPinValidPartialState.Failed(
-                it.localizedMessage ?: genericErrorMsg
+                it.localizedMessage ?: genericErrorMsg,
             )
         }
 }
 
 sealed class QuickPinInteractorSetPinPartialState {
     data object Success : QuickPinInteractorSetPinPartialState()
-    data class Failed(val errorMessage: String) : QuickPinInteractorSetPinPartialState()
+
+    data class Failed(
+        val errorMessage: String,
+    ) : QuickPinInteractorSetPinPartialState()
 }
 
 sealed class QuickPinInteractorPinValidPartialState {
     data object Success : QuickPinInteractorPinValidPartialState()
-    data class Failed(val errorMessage: String) : QuickPinInteractorPinValidPartialState()
+
+    data class Failed(
+        val errorMessage: String,
+    ) : QuickPinInteractorPinValidPartialState()
 }

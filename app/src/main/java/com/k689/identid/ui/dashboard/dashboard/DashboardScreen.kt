@@ -41,9 +41,21 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.k689.identid.R
 import com.k689.identid.extension.business.getParcelableArrayListExtra
+import com.k689.identid.extension.ui.finish
+import com.k689.identid.extension.ui.getPendingDeepLink
+import com.k689.identid.extension.ui.openAppSettings
+import com.k689.identid.extension.ui.openBleSettings
+import com.k689.identid.extension.ui.openIntentChooser
+import com.k689.identid.extension.ui.openUrl
 import com.k689.identid.model.core.RevokedDocumentDataDomain
-import com.k689.identid.util.core.CoreActions
+import com.k689.identid.navigation.helper.handleDeepLinkAction
+import com.k689.identid.ui.component.SystemBroadcastReceiver
+import com.k689.identid.ui.component.utils.LifecycleEffect
+import com.k689.identid.ui.component.wrap.BottomSheetTextDataUi
+import com.k689.identid.ui.component.wrap.BottomSheetWithOptionsList
+import com.k689.identid.ui.component.wrap.WrapModalBottomSheet
 import com.k689.identid.ui.dashboard.component.BottomNavigationBar
 import com.k689.identid.ui.dashboard.component.BottomNavigationItem
 import com.k689.identid.ui.dashboard.dashboard.sidemenu.SideMenuScreen
@@ -53,19 +65,7 @@ import com.k689.identid.ui.dashboard.home.HomeScreen
 import com.k689.identid.ui.dashboard.home.HomeViewModel
 import com.k689.identid.ui.dashboard.transactions.list.TransactionsScreen
 import com.k689.identid.ui.dashboard.transactions.list.TransactionsViewModel
-import com.k689.identid.R
-import com.k689.identid.ui.component.SystemBroadcastReceiver
-import com.k689.identid.ui.component.utils.LifecycleEffect
-import com.k689.identid.ui.component.wrap.BottomSheetTextDataUi
-import com.k689.identid.ui.component.wrap.BottomSheetWithOptionsList
-import com.k689.identid.ui.component.wrap.WrapModalBottomSheet
-import com.k689.identid.extension.ui.finish
-import com.k689.identid.extension.ui.getPendingDeepLink
-import com.k689.identid.extension.ui.openAppSettings
-import com.k689.identid.extension.ui.openBleSettings
-import com.k689.identid.extension.ui.openIntentChooser
-import com.k689.identid.extension.ui.openUrl
-import com.k689.identid.navigation.helper.handleDeepLinkAction
+import com.k689.identid.util.core.CoreActions
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -85,19 +85,21 @@ internal fun DashboardScreen(
     val state: State by viewModel.viewState.collectAsStateWithLifecycle()
 
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
 
     Scaffold(
-        bottomBar = { BottomNavigationBar(bottomNavigationController) }
+        bottomBar = { BottomNavigationBar(bottomNavigationController) },
     ) { padding ->
         NavHost(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = padding.calculateBottomPadding()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = padding.calculateBottomPadding()),
             navController = bottomNavigationController,
-            startDestination = BottomNavigationItem.Home.route
+            startDestination = BottomNavigationItem.Home.route,
         ) {
             composable(BottomNavigationItem.Home.route) {
                 HomeScreen(
@@ -105,7 +107,7 @@ internal fun DashboardScreen(
                     homeViewModel,
                     onDashboardEventSent = { event ->
                         viewModel.setEvent(event)
-                    }
+                    },
                 )
             }
             composable(BottomNavigationItem.Documents.route) {
@@ -114,7 +116,7 @@ internal fun DashboardScreen(
                     documentsViewModel,
                     onDashboardEventSent = { event ->
                         viewModel.setEvent(event)
-                    }
+                    },
                 )
             }
             composable(BottomNavigationItem.Transactions.route) {
@@ -123,7 +125,7 @@ internal fun DashboardScreen(
                     transactionsViewModel,
                     onDashboardEventSent = { event ->
                         viewModel.setEvent(event)
-                    }
+                    },
                 )
             }
         }
@@ -133,17 +135,17 @@ internal fun DashboardScreen(
                 onDismissRequest = {
                     viewModel.setEvent(
                         Event.BottomSheet.UpdateBottomSheetState(
-                            isOpen = false
-                        )
+                            isOpen = false,
+                        ),
                     )
                 },
-                sheetState = bottomSheetState
+                sheetState = bottomSheetState,
             ) {
                 DashboardSheetContent(
                     sheetContent = state.sheetContent,
                     onEventSent = {
                         viewModel.setEvent(it)
-                    }
+                    },
                 )
             }
         }
@@ -153,69 +155,76 @@ internal fun DashboardScreen(
         visible = state.isSideMenuVisible,
         modifier = Modifier.fillMaxSize(),
         enter = slideInHorizontally(initialOffsetX = { it }),
-        exit = when (state.sideMenuAnimation) {
-            SideMenuAnimation.SLIDE -> slideOutHorizontally(targetOffsetX = { it })
-            SideMenuAnimation.FADE -> fadeOut(animationSpec = tween(state.menuAnimationDuration))
-        }
+        exit =
+            when (state.sideMenuAnimation) {
+                SideMenuAnimation.SLIDE -> slideOutHorizontally(targetOffsetX = { it })
+                SideMenuAnimation.FADE -> fadeOut(animationSpec = tween(state.menuAnimationDuration))
+            },
     ) {
         SideMenuScreen(
             state = state,
-            onEventSent = { event -> viewModel.setEvent(event) }
+            onEventSent = { event -> viewModel.setEvent(event) },
         )
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         viewModel.setEvent(
             Event.Init(
-                deepLinkUri = context.getPendingDeepLink()
-            )
+                deepLinkUri = context.getPendingDeepLink(),
+            ),
         )
     }
 
     LaunchedEffect(Unit) {
-        viewModel.effect.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> handleNavigationEffect(effect, hostNavController, context)
+        viewModel.effect
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> {
+                        handleNavigationEffect(effect, hostNavController, context)
+                    }
 
-                is Effect.CloseBottomSheet -> {
-                    scope.launch {
-                        bottomSheetState.hide()
-                    }.invokeOnCompletion {
-                        if (!bottomSheetState.isVisible) {
-                            viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
-                        }
+                    is Effect.CloseBottomSheet -> {
+                        scope
+                            .launch {
+                                bottomSheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!bottomSheetState.isVisible) {
+                                    viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                                }
+                            }
+                    }
+
+                    is Effect.ShowBottomSheet -> {
+                        viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                    }
+
+                    is Effect.ShareLogFile -> {
+                        context.openIntentChooser(
+                            effect.intent,
+                            effect.chooserTitle,
+                        )
                     }
                 }
-
-                is Effect.ShowBottomSheet -> {
-                    viewModel.setEvent(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
-                }
-
-                is Effect.ShareLogFile -> {
-                    context.openIntentChooser(
-                        effect.intent,
-                        effect.chooserTitle
-                    )
-                }
-            }
-        }.collect()
+            }.collect()
     }
 
     SystemBroadcastReceiver(
-        intentFilters = listOf(
-            CoreActions.REVOCATION_WORK_MESSAGE_ACTION
-        )
+        intentFilters =
+            listOf(
+                CoreActions.REVOCATION_WORK_MESSAGE_ACTION,
+            ),
     ) { intent ->
-        intent.getParcelableArrayListExtra<RevokedDocumentDataDomain>(
-            action = CoreActions.REVOCATION_IDS_EXTRA
-        )?.let {
-            viewModel.setEvent(
-                Event.DocumentRevocationNotificationReceived(it)
-            )
-        }
+        intent
+            .getParcelableArrayListExtra<RevokedDocumentDataDomain>(
+                action = CoreActions.REVOCATION_IDS_EXTRA,
+            )?.let {
+                viewModel.setEvent(
+                    Event.DocumentRevocationNotificationReceived(it),
+                )
+            }
     }
 }
 
@@ -225,7 +234,10 @@ private fun handleNavigationEffect(
     context: Context,
 ) {
     when (navigationEffect) {
-        is Effect.Navigation.Pop -> context.finish()
+        is Effect.Navigation.Pop -> {
+            context.finish()
+        }
+
         is Effect.Navigation.SwitchScreen -> {
             navController.navigate(navigationEffect.screenRoute) {
                 popUpTo(navigationEffect.popUpToScreenRoute) {
@@ -238,13 +250,21 @@ private fun handleNavigationEffect(
             handleDeepLinkAction(
                 navController,
                 navigationEffect.deepLinkUri,
-                navigationEffect.arguments
+                navigationEffect.arguments,
             )
         }
 
-        is Effect.Navigation.OnAppSettings -> context.openAppSettings()
-        is Effect.Navigation.OnSystemSettings -> context.openBleSettings()
-        is Effect.Navigation.OpenUrlExternally -> context.openUrl(uri = navigationEffect.url)
+        is Effect.Navigation.OnAppSettings -> {
+            context.openAppSettings()
+        }
+
+        is Effect.Navigation.OnSystemSettings -> {
+            context.openBleSettings()
+        }
+
+        is Effect.Navigation.OpenUrlExternally -> {
+            context.openUrl(uri = navigationEffect.url)
+        }
     }
 }
 
@@ -256,14 +276,17 @@ private fun DashboardSheetContent(
     when (sheetContent) {
         is DashboardBottomSheetContent.DocumentRevocation -> {
             BottomSheetWithOptionsList(
-                textData = BottomSheetTextDataUi(
-                    title = stringResource(
-                        id = R.string.dashboard_bottom_sheet_revoked_document_dialog_title
+                textData =
+                    BottomSheetTextDataUi(
+                        title =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_revoked_document_dialog_title,
+                            ),
+                        message =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_revoked_document_dialog_subtitle,
+                            ),
                     ),
-                    message = stringResource(
-                        id = R.string.dashboard_bottom_sheet_revoked_document_dialog_subtitle
-                    ),
-                ),
                 options = sheetContent.options,
                 onEventSent = onEventSent,
             )

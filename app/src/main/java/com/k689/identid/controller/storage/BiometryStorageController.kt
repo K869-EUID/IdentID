@@ -21,15 +21,18 @@ import com.k689.identid.model.authentication.BiometricAuthentication
 
 interface BiometryStorageController {
     fun getBiometricAuthentication(): BiometricAuthentication?
+
     fun setBiometricAuthentication(value: BiometricAuthentication?)
+
     fun setUseBiometricsAuth(value: Boolean)
+
     fun getUseBiometricsAuth(): Boolean
 }
 
-class BiometryStorageControllerImpl(private val storageConfig: StorageConfig) :
-    BiometryStorageController {
-    override fun getBiometricAuthentication(): BiometricAuthentication? =
-        storageConfig.biometryStorageProvider.getBiometricAuthentication()
+class BiometryStorageControllerImpl(
+    private val storageConfig: StorageConfig,
+) : BiometryStorageController {
+    override fun getBiometricAuthentication(): BiometricAuthentication? = storageConfig.biometryStorageProvider.getBiometricAuthentication()
 
     override fun setBiometricAuthentication(value: BiometricAuthentication?) {
         storageConfig.biometryStorageProvider.setBiometricAuthentication(value)
@@ -39,6 +42,5 @@ class BiometryStorageControllerImpl(private val storageConfig: StorageConfig) :
         storageConfig.biometryStorageProvider.setUseBiometricsAuth(value)
     }
 
-    override fun getUseBiometricsAuth(): Boolean =
-        storageConfig.biometryStorageProvider.getUseBiometricsAuth()
+    override fun getUseBiometricsAuth(): Boolean = storageConfig.biometryStorageProvider.getUseBiometricsAuth()
 }

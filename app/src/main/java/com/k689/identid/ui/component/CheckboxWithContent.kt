@@ -38,16 +38,16 @@ fun CheckboxWithContent(
     checkboxData: CheckboxDataUi,
     modifier: Modifier = Modifier,
     checkboxModifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit
+    content: @Composable RowScope.() -> Unit,
 ) {
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         WrapCheckbox(
             checkboxData = checkboxData,
-            modifier = checkboxModifier
+            modifier = checkboxModifier,
         )
 
         HSpacer.Medium()
@@ -62,20 +62,21 @@ private fun CheckboxWithContentPreview() {
     var isChecked by remember {
         mutableStateOf(true)
     }
-    val checkBoxData = CheckboxDataUi(
-        isChecked = isChecked,
-        onCheckedChange = {
-            isChecked = it
-        },
-        enabled = true
-    )
+    val checkBoxData =
+        CheckboxDataUi(
+            isChecked = isChecked,
+            onCheckedChange = {
+                isChecked = it
+            },
+            enabled = true,
+        )
 
     PreviewTheme {
         CheckboxWithContent(
             checkboxData = checkBoxData,
             content = {
                 Text(text = "Name")
-            }
+            },
         )
     }
 }

@@ -16,16 +16,16 @@
 
 package com.k689.identid.ui.common.request
 
-import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
+import com.k689.identid.config.NavigationType
 import com.k689.identid.di.core.getOrCreatePresentationScope
+import com.k689.identid.extension.ui.toggleCheckboxState
+import com.k689.identid.extension.ui.toggleExpansionState
+import com.k689.identid.ui.common.request.model.RequestDocumentItemUi
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemTrailingContentDataUi
 import com.k689.identid.ui.component.content.ContentErrorConfig
 import com.k689.identid.ui.component.content.ContentHeaderConfig
 import com.k689.identid.ui.component.wrap.ExpandableListItemUi
-import com.k689.identid.config.NavigationType
-import com.k689.identid.extension.ui.toggleCheckboxState
-import com.k689.identid.extension.ui.toggleExpansionState
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
@@ -40,23 +40,32 @@ data class State(
     val isBottomSheetOpen: Boolean = false,
     val sheetContent: RequestBottomSheetContent = RequestBottomSheetContent.WARNING,
     val hasWarnedUser: Boolean = false,
-
     val items: List<RequestDocumentItemUi> = emptyList(),
     val noItems: Boolean = false,
-    val allowShare: Boolean = false
+    val allowShare: Boolean = false,
 ) : ViewState
 
 sealed class Event : ViewEvent {
     data object DoWork : Event()
+
     data object DismissError : Event()
+
     data object Pop : Event()
+
     data object StickyButtonPressed : Event()
 
-    data class UserIdentificationClicked(val itemId: String) : Event()
-    data class ExpandOrCollapseRequestDocumentItem(val itemId: String) : Event()
+    data class UserIdentificationClicked(
+        val itemId: String,
+    ) : Event()
+
+    data class ExpandOrCollapseRequestDocumentItem(
+        val itemId: String,
+    ) : Event()
 
     sealed class BottomSheet : Event() {
-        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+        data class UpdateBottomSheetState(
+            val isOpen: Boolean,
+        ) : BottomSheet()
     }
 }
 
@@ -67,12 +76,14 @@ sealed class Effect : ViewSideEffect {
         ) : Navigation()
 
         data object Pop : Navigation()
+
         data class PopTo(
             val screenRoute: String,
         ) : Navigation()
     }
 
     data object ShowBottomSheet : Effect()
+
     data object CloseBottomSheet : Effect()
 }
 
@@ -84,7 +95,9 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
     protected var viewModelJob: Job? = null
 
     abstract fun getHeaderConfig(): ContentHeaderConfig
+
     abstract fun getNextScreen(): String
+
     abstract fun doWork()
 
     /**
@@ -101,28 +114,30 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
         updatedItems: List<RequestDocumentItemUi>,
         allowShare: Boolean? = null,
     ) {
-        val hasAtLeastOneFieldSelected = hasAtLeastOneFieldSelected(
-            requestDocuments = updatedItems
-        )
+        val hasAtLeastOneFieldSelected =
+            hasAtLeastOneFieldSelected(
+                requestDocuments = updatedItems,
+            )
 
         setState {
             copy(
                 items = updatedItems,
-                allowShare = allowShare ?: hasAtLeastOneFieldSelected
+                allowShare = allowShare ?: hasAtLeastOneFieldSelected,
             )
         }
     }
 
-    override fun setInitialState(): State {
-        return State(
+    override fun setInitialState(): State =
+        State(
             headerConfig = getHeaderConfig(),
             error = null,
         )
-    }
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.DoWork -> doWork()
+            is Event.DoWork -> {
+                doWork()
+            }
 
             is Event.DismissError -> {
                 setState {
@@ -191,33 +206,39 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
     private fun expandOrCollapseRequestDocumentItem(id: String) {
         val currentItems = viewState.value.items
 
-        val updatedItems = currentItems.map { requestDocument ->
-            val newHeader = if (requestDocument.headerUi.header.itemId == id) {
-                val newIsExpanded = !requestDocument.headerUi.isExpanded
-                val newCollapsed = requestDocument.headerUi.header.copy(
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = if (newIsExpanded) {
-                            AppIcons.KeyboardArrowUp
-                        } else {
-                            AppIcons.KeyboardArrowDown
-                        }
-                    )
-                )
+        val updatedItems =
+            currentItems.map { requestDocument ->
+                val newHeader =
+                    if (requestDocument.headerUi.header.itemId == id) {
+                        val newIsExpanded = !requestDocument.headerUi.isExpanded
+                        val newCollapsed =
+                            requestDocument.headerUi.header.copy(
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(
+                                        iconData =
+                                            if (newIsExpanded) {
+                                                AppIcons.KeyboardArrowUp
+                                            } else {
+                                                AppIcons.KeyboardArrowDown
+                                            },
+                                    ),
+                            )
 
-                requestDocument.headerUi.copy(
-                    header = newCollapsed,
-                    isExpanded = newIsExpanded
+                        requestDocument.headerUi.copy(
+                            header = newCollapsed,
+                            isExpanded = newIsExpanded,
+                        )
+                    } else {
+                        requestDocument.headerUi
+                    }
+
+                requestDocument.copy(
+                    headerUi =
+                        newHeader.copy(
+                            nestedItems = newHeader.nestedItems.toggleExpansionState(id),
+                        ),
                 )
-            } else {
-                requestDocument.headerUi
             }
-
-            requestDocument.copy(
-                headerUi = newHeader.copy(
-                    nestedItems = newHeader.nestedItems.toggleExpansionState(id),
-                )
-            )
-        }
 
         updateData(updatedItems, viewState.value.allowShare)
     }
@@ -225,23 +246,27 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
     private fun updateUserIdentificationItem(id: String) {
         val currentItems = viewState.value.items
 
-        val updatedItems: List<RequestDocumentItemUi> = currentItems.map { requestDocument ->
-            requestDocument.copy(
-                headerUi = requestDocument.headerUi.copy(
-                    nestedItems = requestDocument.headerUi.nestedItems.map {
-                        it.toggleCheckboxState(id)
-                    }
+        val updatedItems: List<RequestDocumentItemUi> =
+            currentItems.map { requestDocument ->
+                requestDocument.copy(
+                    headerUi =
+                        requestDocument.headerUi.copy(
+                            nestedItems =
+                                requestDocument.headerUi.nestedItems.map {
+                                    it.toggleCheckboxState(id)
+                                },
+                        ),
                 )
-            )
-        }
+            }
 
-        val hasAtLeastOneFieldSelected = hasAtLeastOneFieldSelected(
-            requestDocuments = updatedItems
-        )
+        val hasAtLeastOneFieldSelected =
+            hasAtLeastOneFieldSelected(
+                requestDocuments = updatedItems,
+            )
 
         updateData(
             updatedItems = updatedItems,
-            allowShare = hasAtLeastOneFieldSelected
+            allowShare = hasAtLeastOneFieldSelected,
         )
     }
 
@@ -267,14 +292,15 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
     private fun hasAtLeastOneFieldSelected(
         requestDocuments: List<RequestDocumentItemUi>,
     ): Boolean {
-        val hasAtLeastOneFieldSelected: Boolean = requestDocuments.any { requestDocument ->
-            requestDocument.headerUi.nestedItems.hasAnySingleSelected()
-        }
+        val hasAtLeastOneFieldSelected: Boolean =
+            requestDocuments.any { requestDocument ->
+                requestDocument.headerUi.nestedItems.hasAnySingleSelected()
+            }
         return hasAtLeastOneFieldSelected
     }
 
-    private fun List<ExpandableListItemUi>.hasAnySingleSelected(): Boolean {
-        return this.any { expandableItem ->
+    private fun List<ExpandableListItemUi>.hasAnySingleSelected(): Boolean =
+        this.any { expandableItem ->
             when (expandableItem) {
                 is ExpandableListItemUi.NestedListItem -> {
                     expandableItem.nestedItems.hasAnySingleSelected()
@@ -286,7 +312,6 @@ abstract class RequestViewModel : MviViewModel<Event, State, Effect>() {
                 }
             }
         }
-    }
 
     override fun onCleared() {
         super.onCleared()

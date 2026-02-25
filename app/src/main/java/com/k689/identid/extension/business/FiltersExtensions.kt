@@ -21,9 +21,8 @@ import com.k689.identid.model.validator.SortOrder
 internal fun <T, R : Comparable<R>> List<T>.sortByOrder(
     sortOrder: SortOrder,
     selector: (T) -> R?,
-): List<T> {
-    return when (sortOrder) {
+): List<T> =
+    when (sortOrder) {
         is SortOrder.Ascending -> sortedBy(selector)
         is SortOrder.Descending -> sortedByDescending(selector)
     }
-}

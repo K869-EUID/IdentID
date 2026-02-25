@@ -33,13 +33,14 @@ import com.k689.identid.ui.component.wrap.ExpandableListItemUi
  * @param id The ID of the item whose checkbox's `isChecked` state should be toggled.
  * @return A new [ExpandableListItemUi] with the specified item's checkbox state toggled, or the original item if the [id] is not found or if the element is not a checkbox.
  */
-fun ExpandableListItemUi.toggleCheckboxState(id: String): ExpandableListItemUi {
-    return when (this) {
+fun ExpandableListItemUi.toggleCheckboxState(id: String): ExpandableListItemUi =
+    when (this) {
         is ExpandableListItemUi.NestedListItem -> {
             this.copy(
-                nestedItems = nestedItems.map {
-                    it.toggleCheckboxState(id)
-                }
+                nestedItems =
+                    nestedItems.map {
+                        it.toggleCheckboxState(id)
+                    },
             )
         }
 
@@ -49,20 +50,22 @@ fun ExpandableListItemUi.toggleCheckboxState(id: String): ExpandableListItemUi {
                     this.header.trailingContentData
 
                 this.copy(
-                    header = this.header.copy(
-                        trailingContentData = currentItem.copy(
-                            checkboxData = currentItem.checkboxData.copy(
-                                isChecked = !currentItem.checkboxData.isChecked
-                            )
-                        )
-                    )
+                    header =
+                        this.header.copy(
+                            trailingContentData =
+                                currentItem.copy(
+                                    checkboxData =
+                                        currentItem.checkboxData.copy(
+                                            isChecked = !currentItem.checkboxData.isChecked,
+                                        ),
+                                ),
+                        ),
                 )
             } else {
                 this
             }
         }
     }
-}
 
 /**
  * Recursively traverses a list of [ExpandableListItemUi] and toggles the expanded state of the item with the given [id].
@@ -77,8 +80,8 @@ fun ExpandableListItemUi.toggleCheckboxState(id: String): ExpandableListItemUi {
  * @return A new list of [ExpandableListItemUi] with the specified item's expanded state toggled, and the arrow updated.
  *  Returns a new list, where the elements where not modified remain untouched.
  */
-fun List<ExpandableListItemUi>.toggleExpansionState(id: String): List<ExpandableListItemUi> {
-    return this.map { nestedItem ->
+fun List<ExpandableListItemUi>.toggleExpansionState(id: String): List<ExpandableListItemUi> =
+    this.map { nestedItem ->
         when (nestedItem) {
             is ExpandableListItemUi.NestedListItem -> {
                 if (nestedItem.header.itemId == id && nestedItem.header.trailingContentData is ListItemTrailingContentDataUi.Icon) {
@@ -86,23 +89,26 @@ fun List<ExpandableListItemUi>.toggleExpansionState(id: String): List<Expandable
                         nestedItem.header.trailingContentData
 
                     val newIsExpanded = !nestedItem.isExpanded
-                    val newCollapsed = nestedItem.header.copy(
-                        trailingContentData = currentTrailingContent.copy(
-                            iconData = if (newIsExpanded) {
-                                AppIcons.KeyboardArrowUp
-                            } else {
-                                AppIcons.KeyboardArrowDown
-                            }
+                    val newCollapsed =
+                        nestedItem.header.copy(
+                            trailingContentData =
+                                currentTrailingContent.copy(
+                                    iconData =
+                                        if (newIsExpanded) {
+                                            AppIcons.KeyboardArrowUp
+                                        } else {
+                                            AppIcons.KeyboardArrowDown
+                                        },
+                                ),
                         )
-                    )
 
                     nestedItem.copy(
                         header = newCollapsed,
-                        isExpanded = newIsExpanded
+                        isExpanded = newIsExpanded,
                     )
                 } else {
                     nestedItem.copy(
-                        nestedItems = nestedItem.nestedItems.toggleExpansionState(id)
+                        nestedItems = nestedItem.nestedItems.toggleExpansionState(id),
                     )
                 }
             }
@@ -112,4 +118,3 @@ fun List<ExpandableListItemUi>.toggleExpansionState(id: String): List<Expandable
             }
         }
     }
-}

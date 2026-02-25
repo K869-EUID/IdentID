@@ -29,10 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import com.k689.identid.extension.ui.throttledClickable
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.SIZE_SMALL
-import com.k689.identid.extension.ui.throttledClickable
 
 @Composable
 fun WrapCard(
@@ -42,34 +42,42 @@ fun WrapCard(
     throttleClicks: Boolean = true,
     shape: Shape? = null,
     colors: CardColors? = null,
-    content: @Composable ColumnScope.() -> Unit
+    content: @Composable ColumnScope.() -> Unit,
 ) {
     val cardShape = shape ?: RoundedCornerShape(SIZE_SMALL.dp)
-    val cardColors = colors ?: CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    )
-    val cardModifier = Modifier
-        .clip(cardShape)
-        .then(modifier)
-        .then(
-            if (enabled && onClick != null) {
-                when (throttleClicks) {
-                    true -> Modifier.throttledClickable {
-                        onClick()
-                    }
-
-                    false -> Modifier.clickable {
-                        onClick()
-                    }
-                }
-            } else Modifier.clickable(enabled = false, onClick = {})
+    val cardColors =
+        colors ?: CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
         )
+    val cardModifier =
+        Modifier
+            .clip(cardShape)
+            .then(modifier)
+            .then(
+                if (enabled && onClick != null) {
+                    when (throttleClicks) {
+                        true -> {
+                            Modifier.throttledClickable {
+                                onClick()
+                            }
+                        }
+
+                        false -> {
+                            Modifier.clickable {
+                                onClick()
+                            }
+                        }
+                    }
+                } else {
+                    Modifier.clickable(enabled = false, onClick = {})
+                },
+            )
 
     Card(
         modifier = cardModifier,
         shape = cardShape,
-        colors = cardColors
+        colors = cardColors,
     ) {
         content()
     }

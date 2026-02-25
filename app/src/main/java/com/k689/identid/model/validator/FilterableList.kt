@@ -16,9 +16,14 @@
 
 package com.k689.identid.model.validator
 
-data class FilterableList(val items: List<FilterableItem>)
+data class FilterableList(
+    val items: List<FilterableItem>,
+)
 
-data class FilterableItem(val payload: FilterableItemPayload, val attributes: FilterableAttributes)
+data class FilterableItem(
+    val payload: FilterableItemPayload,
+    val attributes: FilterableAttributes,
+)
 
 interface FilterableItemPayload
 

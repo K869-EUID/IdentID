@@ -16,41 +16,40 @@
 
 package com.k689.identid.ui.dashboard.transactions.model
 
-import com.k689.identid.model.core.TransactionLogDataDomain
-import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLog
 import com.k689.identid.R
+import com.k689.identid.model.core.TransactionLogDataDomain
 import com.k689.identid.provider.resources.ResourceProvider
+import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLog
 
 enum class TransactionStatusUi {
-    Completed, Failed;
+    Completed,
+    Failed,
+    ;
 
     companion object {
-        fun TransactionStatusUi.toUiText(resourceProvider: ResourceProvider): String {
-            return when (this) {
+        fun TransactionStatusUi.toUiText(resourceProvider: ResourceProvider): String =
+            when (this) {
                 Completed -> resourceProvider.getString(R.string.transactions_filter_item_status_completed)
                 Failed -> resourceProvider.getString(R.string.transactions_filter_item_status_failed)
             }
-        }
     }
 }
 
 enum class TransactionTypeUi {
     PRESENTATION,
     ISSUANCE,
-    SIGNING;
+    SIGNING,
 }
 
-fun TransactionLog.Status.toTransactionStatusUi(): TransactionStatusUi {
-    return when (this) {
+fun TransactionLog.Status.toTransactionStatusUi(): TransactionStatusUi =
+    when (this) {
         TransactionLog.Status.Incomplete, TransactionLog.Status.Error -> TransactionStatusUi.Failed
         TransactionLog.Status.Completed -> TransactionStatusUi.Completed
     }
-}
 
-fun TransactionLogDataDomain.toTransactionTypeUi(): TransactionTypeUi {
-    return when (this) {
+fun TransactionLogDataDomain.toTransactionTypeUi(): TransactionTypeUi =
+    when (this) {
         is TransactionLogDataDomain.IssuanceLog -> TransactionTypeUi.ISSUANCE
         is TransactionLogDataDomain.PresentationLog -> TransactionTypeUi.PRESENTATION
         is TransactionLogDataDomain.SigningLog -> TransactionTypeUi.SIGNING
     }
-}

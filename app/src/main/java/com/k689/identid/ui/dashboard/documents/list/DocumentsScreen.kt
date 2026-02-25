@@ -57,15 +57,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.k689.identid.R
+import com.k689.identid.extension.ui.finish
+import com.k689.identid.extension.ui.paddingFrom
 import com.k689.identid.model.core.DocumentCategory
 import com.k689.identid.model.core.DocumentIdentifier
-import com.k689.identid.util.core.CoreActions
 import com.k689.identid.model.dashboard.SearchItemUi
-import com.k689.identid.ui.dashboard.component.BottomNavigationItem
-import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
-import com.k689.identid.ui.dashboard.documents.list.model.DocumentUi
-import com.k689.identid.util.dashboard.TestTag
-import com.k689.identid.R
 import com.k689.identid.theme.values.warning
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.DualSelectorButton
@@ -102,8 +99,11 @@ import com.k689.identid.ui.component.wrap.WrapExpandableListItem
 import com.k689.identid.ui.component.wrap.WrapIconButton
 import com.k689.identid.ui.component.wrap.WrapListItem
 import com.k689.identid.ui.component.wrap.WrapModalBottomSheet
-import com.k689.identid.extension.ui.finish
-import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.ui.dashboard.component.BottomNavigationItem
+import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
+import com.k689.identid.ui.dashboard.documents.list.model.DocumentUi
+import com.k689.identid.util.core.CoreActions
+import com.k689.identid.util.dashboard.TestTag
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -127,9 +127,10 @@ fun DocumentsScreen(
 
     val isBottomSheetOpen = state.isBottomSheetOpen
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
 
     ContentScreen(
         isLoading = state.isLoading,
@@ -139,17 +140,19 @@ fun DocumentsScreen(
         topBar = {
             TopBar(
                 onEventSend = { viewModel.setEvent(it) },
-                onDashboardEventSent = onDashboardEventSent
+                onDashboardEventSent = onDashboardEventSent,
             )
         },
-        broadcastAction = BroadcastAction(
-            intentFilters = listOf(
-                CoreActions.REVOCATION_WORK_REFRESH_ACTION
+        broadcastAction =
+            BroadcastAction(
+                intentFilters =
+                    listOf(
+                        CoreActions.REVOCATION_WORK_REFRESH_ACTION,
+                    ),
+                callback = {
+                    viewModel.setEvent(Event.GetDocuments)
+                },
             ),
-            callback = {
-                viewModel.setEvent(Event.GetDocuments)
-            }
-        )
     ) { paddingValues ->
         Content(
             state = state,
@@ -160,7 +163,7 @@ fun DocumentsScreen(
             },
             paddingValues = paddingValues,
             coroutineScope = scope,
-            modalBottomSheetState = bottomSheetState
+            modalBottomSheetState = bottomSheetState,
         )
 
         if (isBottomSheetOpen) {
@@ -168,18 +171,18 @@ fun DocumentsScreen(
                 onDismissRequest = {
                     viewModel.setEvent(
                         Event.BottomSheet.UpdateBottomSheetState(
-                            isOpen = false
-                        )
+                            isOpen = false,
+                        ),
                     )
                 },
-                sheetState = bottomSheetState
+                sheetState = bottomSheetState,
             ) {
                 DocumentsSheetContent(
                     sheetContent = state.sheetContent,
                     state = state,
                     onEventSent = {
                         viewModel.setEvent(it)
-                    }
+                    },
                 )
             }
         }
@@ -192,7 +195,10 @@ private fun handleNavigationEffect(
     context: Context,
 ) {
     when (navigationEffect) {
-        is Effect.Navigation.Pop -> context.finish()
+        is Effect.Navigation.Pop -> {
+            context.finish()
+        }
+
         is Effect.Navigation.SwitchScreen -> {
             navController.navigate(navigationEffect.screenRoute) {
                 popUpTo(navigationEffect.popUpToScreenRoute) {
@@ -209,11 +215,12 @@ private fun TopBar(
     onDashboardEventSent: (DashboardEvent) -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                all = SPACING_SMALL.dp
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    all = SPACING_SMALL.dp,
+                ),
     ) {
         WrapIconButton(
             modifier = Modifier.align(Alignment.CenterStart),
@@ -228,13 +235,14 @@ private fun TopBar(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineMedium,
-            text = stringResource(R.string.documents_screen_title)
+            text = stringResource(R.string.documents_screen_title),
         )
 
         WrapIconButton(
-            modifier = Modifier
-                .testTag(TestTag.DocumentsScreen.PLUS_BUTTON)
-                .align(Alignment.CenterEnd),
+            modifier =
+                Modifier
+                    .testTag(TestTag.DocumentsScreen.PLUS_BUTTON)
+                    .align(Alignment.CenterEnd),
             iconData = AppIcons.Add,
             customTint = MaterialTheme.colorScheme.onSurfaceVariant,
         ) {
@@ -255,9 +263,10 @@ private fun Content(
     modalBottomSheetState: SheetState,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .paddingFrom(paddingValues, bottom = false)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .paddingFrom(paddingValues, bottom = false),
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -272,7 +281,7 @@ private fun Content(
                     onFilterClick = { onEventSend(Event.FiltersPressed) },
                     onClearClick = { onEventSend(Event.OnSearchQueryChanged("")) },
                     isFilteringActive = state.isFilteringActive,
-                    text = state.searchText
+                    text = state.searchText,
                 )
                 VSpacer.Large()
             }
@@ -287,7 +296,7 @@ private fun Content(
                         modifier = Modifier.fillMaxWidth(),
                         category = documentCategory,
                         documents = documents,
-                        onEventSend = onEventSend
+                        onEventSend = onEventSend,
                     )
 
                     if (index != state.documentsUi.lastIndex) {
@@ -300,23 +309,24 @@ private fun Content(
         if (state.error != null) {
             InlineSnackbar(
                 error = state.error,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = SPACING_EXTRA_SMALL.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = SPACING_EXTRA_SMALL.dp),
             )
         }
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         onEventSend(Event.GetDocuments)
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_PAUSE
+        lifecycleEvent = Lifecycle.Event.ON_PAUSE,
     ) {
         onEventSend(Event.OnPause)
     }
@@ -326,33 +336,37 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> {
+                        onNavigationRequested(effect)
+                    }
 
-                is Effect.CloseBottomSheet -> {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                    }.invokeOnCompletion {
-                        if (!modalBottomSheetState.isVisible) {
-                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
-                        }
+                    is Effect.CloseBottomSheet -> {
+                        coroutineScope
+                            .launch {
+                                modalBottomSheetState.hide()
+                            }.invokeOnCompletion {
+                                if (!modalBottomSheetState.isVisible) {
+                                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                                }
+                            }
+                    }
+
+                    is Effect.ShowBottomSheet -> {
+                        onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                    }
+
+                    is Effect.DocumentsFetched -> {
+                        onEventSend(Event.TryIssuingDeferredDocuments(effect.deferredDocs))
+                    }
+
+                    is Effect.ResumeOnApplyFilter -> {
+                        onEventSend(Event.GetDocuments)
                     }
                 }
-
-                is Effect.ShowBottomSheet -> {
-                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
-                }
-
-                is Effect.DocumentsFetched -> {
-                    onEventSend(Event.TryIssuingDeferredDocuments(effect.deferredDocs))
-                }
-
-                is Effect.ResumeOnApplyFilter -> {
-                    onEventSend(Event.GetDocuments)
-                }
-            }
-        }.collect()
+            }.collect()
     }
 }
 
@@ -365,11 +379,11 @@ private fun DocumentCategory(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     ) {
         SectionTitle(
             modifier = Modifier.fillMaxWidth(),
-            text = stringResource(category.stringResId)
+            text = stringResource(category.stringResId),
         )
 
         documents.forEach { documentItem: DocumentUi ->
@@ -377,25 +391,27 @@ private fun DocumentCategory(
                 modifier = Modifier.fillMaxWidth(),
                 item = documentItem.uiData,
                 onItemClick = {
-                    val onItemClickEvent = if (
-                        documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending
-                        || documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
-                    ) {
-                        Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
-                            documentId = documentItem.uiData.itemId
-                        )
-                    } else {
-                        Event.GoToDocumentDetails(documentItem.uiData.itemId)
-                    }
+                    val onItemClickEvent =
+                        if (
+                            documentItem.documentIssuanceState == DocumentIssuanceStateUi.Pending ||
+                            documentItem.documentIssuanceState == DocumentIssuanceStateUi.Failed
+                        ) {
+                            Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected(
+                                documentId = documentItem.uiData.itemId,
+                            )
+                        } else {
+                            Event.GoToDocumentDetails(documentItem.uiData.itemId)
+                        }
                     onEventSend(onItemClickEvent)
                 },
-                supportingTextColor = when (documentItem.documentIssuanceState) {
-                    DocumentIssuanceStateUi.Issued -> null
-                    DocumentIssuanceStateUi.Pending -> MaterialTheme.colorScheme.warning
-                    DocumentIssuanceStateUi.Failed -> MaterialTheme.colorScheme.error
-                    DocumentIssuanceStateUi.Expired -> MaterialTheme.colorScheme.error
-                    DocumentIssuanceStateUi.Revoked -> MaterialTheme.colorScheme.error
-                }
+                supportingTextColor =
+                    when (documentItem.documentIssuanceState) {
+                        DocumentIssuanceStateUi.Issued -> null
+                        DocumentIssuanceStateUi.Pending -> MaterialTheme.colorScheme.warning
+                        DocumentIssuanceStateUi.Failed -> MaterialTheme.colorScheme.error
+                        DocumentIssuanceStateUi.Expired -> MaterialTheme.colorScheme.error
+                        DocumentIssuanceStateUi.Revoked -> MaterialTheme.colorScheme.error
+                    },
             )
         }
     }
@@ -407,10 +423,11 @@ private fun NoResults(
 ) {
     Column(modifier = modifier) {
         WrapListItem(
-            item = ListItemDataUi(
-                itemId = stringResource(R.string.documents_screen_search_no_results_id),
-                mainContentData = ListItemMainContentDataUi.Text(text = stringResource(R.string.documents_screen_search_no_results)),
-            ),
+            item =
+                ListItemDataUi(
+                    itemId = stringResource(R.string.documents_screen_search_no_results_id),
+                    mainContentData = ListItemMainContentDataUi.Text(text = stringResource(R.string.documents_screen_search_no_results)),
+                ),
             onItemClick = null,
             modifier = Modifier.fillMaxWidth(),
             mainContentVerticalPadding = SPACING_MEDIUM.dp,
@@ -430,7 +447,7 @@ private fun DocumentsSheetContent(
                 titleContent = {
                     Text(
                         text = stringResource(R.string.documents_screen_filters_title),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
                     )
                 },
                 bodyContent = {
@@ -442,11 +459,12 @@ private fun DocumentsSheetContent(
 
                     Box {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                                .padding(bottom = with(LocalDensity.current) { buttonsRowHeight.toDp() }),
-                            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(bottom = with(LocalDensity.current) { buttonsRowHeight.toDp() }),
+                            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp),
                         ) {
                             DualSelectorButtons(state.sortOrder) {
                                 onEventSent(Event.OnSortingOrderChanged(it))
@@ -473,63 +491,67 @@ private fun DocumentsSheetContent(
                             }
                         }
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                                .onGloballyPositioned { coordinates ->
-                                    buttonsRowHeight = coordinates.size.height
-                                }
-                                .padding(top = SPACING_LARGE.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                                    .onGloballyPositioned { coordinates ->
+                                        buttonsRowHeight = coordinates.size.height
+                                    }.padding(top = SPACING_LARGE.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
                             WrapButton(
                                 modifier = Modifier.weight(1f),
-                                buttonConfig = ButtonConfig(
-                                    type = ButtonType.SECONDARY,
-                                    onClick = {
-                                        onEventSent(Event.OnFiltersReset)
-                                    }
-                                )
+                                buttonConfig =
+                                    ButtonConfig(
+                                        type = ButtonType.SECONDARY,
+                                        onClick = {
+                                            onEventSent(Event.OnFiltersReset)
+                                        },
+                                    ),
                             ) {
                                 Text(text = stringResource(R.string.documents_screen_filters_reset))
                             }
                             HSpacer.Small()
                             WrapButton(
                                 modifier = Modifier.weight(1f),
-                                buttonConfig = ButtonConfig(
-                                    type = ButtonType.PRIMARY,
-                                    onClick = {
-                                        onEventSent(Event.OnFiltersApply)
-                                    }
-                                )
+                                buttonConfig =
+                                    ButtonConfig(
+                                        type = ButtonType.PRIMARY,
+                                        onClick = {
+                                            onEventSent(Event.OnFiltersApply)
+                                        },
+                                    ),
                             ) {
                                 Text(text = stringResource(R.string.documents_screen_filters_apply))
                             }
                         }
                     }
-                }
+                },
             )
         }
 
         is DocumentsBottomSheetContent.AddDocument -> {
             BottomSheetWithTwoBigIcons(
-                textData = BottomSheetTextDataUi(
-                    title = stringResource(R.string.documents_screen_add_document_title),
-                    message = stringResource(R.string.documents_screen_add_document_description)
-                ),
-                options = listOf(
-                    ModalOptionUi(
-                        title = stringResource(R.string.documents_screen_add_document_option_list),
-                        leadingIcon = AppIcons.AddDocumentFromList,
-                        event = Event.BottomSheet.AddDocument.FromList,
+                textData =
+                    BottomSheetTextDataUi(
+                        title = stringResource(R.string.documents_screen_add_document_title),
+                        message = stringResource(R.string.documents_screen_add_document_description),
                     ),
-                    ModalOptionUi(
-                        title = stringResource(R.string.documents_screen_add_document_option_qr),
-                        leadingIcon = AppIcons.AddDocumentFromQr,
-                        event = Event.BottomSheet.AddDocument.ScanQr,
-                    )
-                ),
+                options =
+                    listOf(
+                        ModalOptionUi(
+                            title = stringResource(R.string.documents_screen_add_document_option_list),
+                            leadingIcon = AppIcons.AddDocumentFromList,
+                            event = Event.BottomSheet.AddDocument.FromList,
+                        ),
+                        ModalOptionUi(
+                            title = stringResource(R.string.documents_screen_add_document_option_qr),
+                            leadingIcon = AppIcons.AddDocumentFromQr,
+                            event = Event.BottomSheet.AddDocument.ScanQr,
+                        ),
+                    ),
                 onEventSent = onEventSent,
                 hostTab = BottomNavigationItem.Documents.route.lowercase(),
             )
@@ -537,43 +559,49 @@ private fun DocumentsSheetContent(
 
         is DocumentsBottomSheetContent.DeferredDocumentPressed -> {
             DialogBottomSheet(
-                textData = BottomSheetTextDataUi(
-                    title = stringResource(
-                        id = R.string.dashboard_bottom_sheet_deferred_document_pressed_title
+                textData =
+                    BottomSheetTextDataUi(
+                        title =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_deferred_document_pressed_title,
+                            ),
+                        message =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_deferred_document_pressed_subtitle,
+                            ),
+                        positiveButtonText = stringResource(id = R.string.dashboard_bottom_sheet_deferred_document_pressed_primary_button_text),
+                        negativeButtonText = stringResource(id = R.string.dashboard_bottom_sheet_deferred_document_pressed_secondary_button_text),
                     ),
-                    message = stringResource(
-                        id = R.string.dashboard_bottom_sheet_deferred_document_pressed_subtitle
-                    ),
-                    positiveButtonText = stringResource(id = R.string.dashboard_bottom_sheet_deferred_document_pressed_primary_button_text),
-                    negativeButtonText = stringResource(id = R.string.dashboard_bottom_sheet_deferred_document_pressed_secondary_button_text),
-                ),
                 onPositiveClick = {
                     onEventSent(
                         Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.PrimaryButtonPressed(
-                            documentId = sheetContent.documentId
-                        )
+                            documentId = sheetContent.documentId,
+                        ),
                     )
                 },
                 onNegativeClick = {
                     onEventSent(
                         Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.SecondaryButtonPressed(
-                            documentId = sheetContent.documentId
-                        )
+                            documentId = sheetContent.documentId,
+                        ),
                     )
-                }
+                },
             )
         }
 
         is DocumentsBottomSheetContent.DeferredDocumentsReady -> {
             BottomSheetWithOptionsList(
-                textData = BottomSheetTextDataUi(
-                    title = stringResource(
-                        id = R.string.dashboard_bottom_sheet_deferred_documents_ready_title
+                textData =
+                    BottomSheetTextDataUi(
+                        title =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_deferred_documents_ready_title,
+                            ),
+                        message =
+                            stringResource(
+                                id = R.string.dashboard_bottom_sheet_deferred_documents_ready_subtitle,
+                            ),
                     ),
-                    message = stringResource(
-                        id = R.string.dashboard_bottom_sheet_deferred_documents_ready_subtitle
-                    ),
-                ),
                 options = sheetContent.options,
                 onEventSent = onEventSent,
             )
@@ -587,9 +615,10 @@ private fun DocumentsSheetContent(
 private fun DocumentsScreenPreview() {
     PreviewTheme {
         val scope = rememberCoroutineScope()
-        val bottomSheetState = rememberModalBottomSheetState(
-            skipPartiallyExpanded = true
-        )
+        val bottomSheetState =
+            rememberModalBottomSheetState(
+                skipPartiallyExpanded = true,
+            )
         ContentScreen(
             isLoading = false,
             navigatableAction = ScreenNavigateAction.NONE,
@@ -597,77 +626,84 @@ private fun DocumentsScreenPreview() {
             topBar = {
                 TopBar(
                     onEventSend = { },
-                    onDashboardEventSent = {}
+                    onDashboardEventSent = {},
                 )
             },
         ) { paddingValues ->
             val issuerName = "Issuer name"
             val validUntil = "Valid Until"
-            val documentsList = listOf(
-                DocumentUi(
-                    documentIssuanceState = DocumentIssuanceStateUi.Issued,
-                    uiData = ListItemDataUi(
-                        itemId = "id1",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Document 1"),
-                        overlineText = issuerName,
-                        supportingText = validUntil,
-                        leadingContentData = null,
-                        trailingContentData = null
+            val documentsList =
+                listOf(
+                    DocumentUi(
+                        documentIssuanceState = DocumentIssuanceStateUi.Issued,
+                        uiData =
+                            ListItemDataUi(
+                                itemId = "id1",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Document 1"),
+                                overlineText = issuerName,
+                                supportingText = validUntil,
+                                leadingContentData = null,
+                                trailingContentData = null,
+                            ),
+                        documentIdentifier = DocumentIdentifier.MdocPid,
+                        documentCategory = DocumentCategory.Government,
                     ),
-                    documentIdentifier = DocumentIdentifier.MdocPid,
-                    documentCategory = DocumentCategory.Government
-                ),
-                DocumentUi(
-                    documentIssuanceState = DocumentIssuanceStateUi.Issued,
-                    uiData = ListItemDataUi(
-                        itemId = "id2",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Document 2"),
-                        overlineText = issuerName,
-                        supportingText = validUntil,
-                        leadingContentData = null,
-                        trailingContentData = null
+                    DocumentUi(
+                        documentIssuanceState = DocumentIssuanceStateUi.Issued,
+                        uiData =
+                            ListItemDataUi(
+                                itemId = "id2",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Document 2"),
+                                overlineText = issuerName,
+                                supportingText = validUntil,
+                                leadingContentData = null,
+                                trailingContentData = null,
+                            ),
+                        documentIdentifier = DocumentIdentifier.MdocPid,
+                        documentCategory = DocumentCategory.Government,
                     ),
-                    documentIdentifier = DocumentIdentifier.MdocPid,
-                    documentCategory = DocumentCategory.Government
-                ),
-                DocumentUi(
-                    documentIssuanceState = DocumentIssuanceStateUi.Issued,
-                    uiData = ListItemDataUi(
-                        itemId = "id3",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Document 3"),
-                        overlineText = issuerName,
-                        supportingText = validUntil,
-                        leadingContentData = null,
-                        trailingContentData = null
+                    DocumentUi(
+                        documentIssuanceState = DocumentIssuanceStateUi.Issued,
+                        uiData =
+                            ListItemDataUi(
+                                itemId = "id3",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Document 3"),
+                                overlineText = issuerName,
+                                supportingText = validUntil,
+                                leadingContentData = null,
+                                trailingContentData = null,
+                            ),
+                        documentIdentifier = DocumentIdentifier.OTHER(formatType = ""),
+                        documentCategory = DocumentCategory.Finance,
                     ),
-                    documentIdentifier = DocumentIdentifier.OTHER(formatType = ""),
-                    documentCategory = DocumentCategory.Finance
-                ),
-                DocumentUi(
-                    documentIssuanceState = DocumentIssuanceStateUi.Issued,
-                    uiData = ListItemDataUi(
-                        itemId = "id4",
-                        mainContentData = ListItemMainContentDataUi.Text(text = "Document 4"),
-                        overlineText = issuerName,
-                        supportingText = validUntil,
-                        leadingContentData = null,
-                        trailingContentData = null
+                    DocumentUi(
+                        documentIssuanceState = DocumentIssuanceStateUi.Issued,
+                        uiData =
+                            ListItemDataUi(
+                                itemId = "id4",
+                                mainContentData = ListItemMainContentDataUi.Text(text = "Document 4"),
+                                overlineText = issuerName,
+                                supportingText = validUntil,
+                                leadingContentData = null,
+                                trailingContentData = null,
+                            ),
+                        documentIdentifier = DocumentIdentifier.OTHER(formatType = ""),
+                        documentCategory = DocumentCategory.Other,
                     ),
-                    documentIdentifier = DocumentIdentifier.OTHER(formatType = ""),
-                    documentCategory = DocumentCategory.Other
-                ),
-            )
+                )
             Content(
-                state = State(
-                    isLoading = false,
-                    isFilteringActive = false,
-                    sortOrder = DualSelectorButtonDataUi(
-                        first = "first",
-                        second = "second",
-                        selectedButton = DualSelectorButton.FIRST,
+                state =
+                    State(
+                        isLoading = false,
+                        isFilteringActive = false,
+                        sortOrder =
+                            DualSelectorButtonDataUi(
+                                first = "first",
+                                second = "second",
+                                selectedButton = DualSelectorButton.FIRST,
+                            ),
+                        documentsUi = documentsList.groupBy { it.documentCategory }.toList(),
                     ),
-                    documentsUi = documentsList.groupBy { it.documentCategory }.toList(),
-                ),
                 effectFlow = Channel<Effect>().receiveAsFlow(),
                 onEventSend = {},
                 onNavigationRequested = {},

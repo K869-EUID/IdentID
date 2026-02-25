@@ -70,14 +70,14 @@ fun RelyingParty(
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         with(relyingPartyData) {
             logo?.let { safeLogo ->
                 WrapAsyncImage(
                     modifier = Modifier.fillMaxWidth(0.5f),
                     source = safeLogo.toString(),
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
                 )
                 VSpacer.Small()
             }
@@ -85,7 +85,7 @@ fun RelyingParty(
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isVerified) {
                     WrapIcon(
@@ -97,10 +97,11 @@ fun RelyingParty(
                 WrapText(
                     modifier = Modifier.wrapContentWidth(),
                     text = name,
-                    textConfig = nameTextConfig ?: TextConfig(
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = commonTextAlign,
-                    )
+                    textConfig =
+                        nameTextConfig ?: TextConfig(
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = commonTextAlign,
+                        ),
                 )
             }
 
@@ -108,10 +109,11 @@ fun RelyingParty(
                 WrapText(
                     modifier = Modifier.fillMaxWidth(),
                     text = safeDescription,
-                    textConfig = descriptionTextConfig ?: TextConfig(
-                        style = MaterialTheme.typography.bodySmall,
-                        textAlign = commonTextAlign,
-                    )
+                    textConfig =
+                        descriptionTextConfig ?: TextConfig(
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = commonTextAlign,
+                        ),
                 )
             }
         }
@@ -121,15 +123,16 @@ fun RelyingParty(
 @ThemeModePreviews
 @Composable
 private fun RelyingPartyPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
         RelyingParty(
-            relyingPartyData = RelyingPartyDataUi(
-                isVerified = true,
-                name = "Relying Party Name: $text",
-                description = "Relying Party Description: $text",
-            )
+            relyingPartyData =
+                RelyingPartyDataUi(
+                    isVerified = true,
+                    name = "Relying Party Name: $text",
+                    description = "Relying Party Description: $text",
+                ),
         )
     }
 }

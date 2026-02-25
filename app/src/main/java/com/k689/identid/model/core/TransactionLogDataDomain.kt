@@ -17,15 +17,14 @@
 package com.k689.identid.model.core
 
 import com.k689.identid.extension.core.getLocalizedDocumentName
+import com.k689.identid.provider.resources.ResourceProvider
 import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLog
 import eu.europa.ec.eudi.wallet.transactionLogging.presentation.PresentedDocument
-import com.k689.identid.provider.resources.ResourceProvider
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale
 
 sealed interface TransactionLogDataDomain {
-
     val id: String
     val name: String
     val status: TransactionLog.Status
@@ -59,40 +58,40 @@ sealed interface TransactionLogDataDomain {
     ) : TransactionLogDataDomain
 
     companion object {
-        fun TransactionLogDataDomain.getTransactionTypeLabel(resourceProvider: ResourceProvider): String {
-            return when (this) {
+        fun TransactionLogDataDomain.getTransactionTypeLabel(resourceProvider: ResourceProvider): String =
+            when (this) {
                 is PresentationLog -> resourceProvider.getString(com.k689.identid.R.string.transactions_screen_filters_filter_by_transaction_type_presentation)
                 is IssuanceLog -> resourceProvider.getString(com.k689.identid.R.string.transactions_screen_filters_filter_by_transaction_type_issuance)
                 is SigningLog -> resourceProvider.getString(com.k689.identid.R.string.transactions_screen_filters_filter_by_transaction_type_signing)
             }
-        }
 
-        fun TransactionLogDataDomain.getTransactionDocumentNames(userLocale: Locale): List<String> {
-            return when (this) {
+        fun TransactionLogDataDomain.getTransactionDocumentNames(userLocale: Locale): List<String> =
+            when (this) {
                 is IssuanceLog -> {
-                    //TODO change this once Core supports more transaction types
+                    // TODO change this once Core supports more transaction types
                     emptyList()
                 }
 
                 is PresentationLog -> {
-                    this.documents.mapNotNull { document ->
-                        document.metadata.getLocalizedDocumentName(
-                            userLocale = userLocale,
-                            fallback = ""
-                        ).takeIf { it.isNotBlank() }
-                    }.flatMap { documentName ->
-                        listOf(
-                            documentName,
-                            documentName.replace(regex = "\\s".toRegex(), replacement = "")
-                        )
-                    }
+                    this.documents
+                        .mapNotNull { document ->
+                            document.metadata
+                                .getLocalizedDocumentName(
+                                    userLocale = userLocale,
+                                    fallback = "",
+                                ).takeIf { it.isNotBlank() }
+                        }.flatMap { documentName ->
+                            listOf(
+                                documentName,
+                                documentName.replace(regex = "\\s".toRegex(), replacement = ""),
+                            )
+                        }
                 }
 
                 is SigningLog -> {
-                    //TODO change this once Core supports more transaction types
+                    // TODO change this once Core supports more transaction types
                     emptyList()
                 }
             }
-        }
     }
 }

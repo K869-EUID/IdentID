@@ -64,14 +64,10 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.model.dashboard.SearchItemUi
-import com.k689.identid.ui.dashboard.transactions.list.model.FilterDateRangeSelectionUi
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionCategoryUi
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionFilterIds
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionUi
-import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
-import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import com.k689.identid.R
+import com.k689.identid.extension.ui.finish
+import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.model.dashboard.SearchItemUi
 import com.k689.identid.theme.values.success
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.DatePickerDialogType
@@ -106,8 +102,12 @@ import com.k689.identid.ui.component.wrap.WrapIconButton
 import com.k689.identid.ui.component.wrap.WrapListItem
 import com.k689.identid.ui.component.wrap.WrapListItems
 import com.k689.identid.ui.component.wrap.WrapModalBottomSheet
-import com.k689.identid.extension.ui.finish
-import com.k689.identid.extension.ui.paddingFrom
+import com.k689.identid.ui.dashboard.transactions.list.model.FilterDateRangeSelectionUi
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionCategoryUi
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionFilterIds
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionUi
+import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
+import eu.europa.ec.eudi.rqesui.domain.util.safeLet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -130,9 +130,10 @@ fun TransactionsScreen(
     val datePickerDialogConfig = state.datePickerDialogConfig
 
     val scope = rememberCoroutineScope()
-    val bottomSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true
-    )
+    val bottomSheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+        )
 
     ContentScreen(
         isLoading = state.isLoading,
@@ -141,9 +142,9 @@ fun TransactionsScreen(
         onBack = { context.finish() },
         topBar = {
             TopBar(
-                onDashboardEventSent = onDashboardEventSent
+                onDashboardEventSent = onDashboardEventSent,
             )
-        }
+        },
     ) { paddingValues ->
         Content(
             state = state,
@@ -162,11 +163,11 @@ fun TransactionsScreen(
                 onDismissRequest = {
                     viewModel.setEvent(
                         Event.BottomSheet.UpdateBottomSheetState(
-                            isOpen = false
-                        )
+                            isOpen = false,
+                        ),
                     )
                 },
-                sheetState = bottomSheetState
+                sheetState = bottomSheetState,
             ) {
                 TransactionsSheetContent(
                     sheetContent = state.sheetContent,
@@ -175,7 +176,7 @@ fun TransactionsScreen(
                     sortOrder = state.sortOrder,
                     onEventSent = {
                         viewModel.setEvent(it)
-                    }
+                    },
                 )
             }
         }
@@ -191,16 +192,16 @@ fun TransactionsScreen(
                             DatePickerDialogType.SelectStartDate -> {
                                 viewModel.setEvent(
                                     Event.OnStartDateSelected(
-                                        selectedDateUtcMillis = safeMillis
-                                    )
+                                        selectedDateUtcMillis = safeMillis,
+                                    ),
                                 )
                             }
 
                             DatePickerDialogType.SelectEndDate -> {
                                 viewModel.setEvent(
                                     Event.OnEndDateSelected(
-                                        selectedDateUtcMillis = safeMillis
-                                    )
+                                        selectedDateUtcMillis = safeMillis,
+                                    ),
                                 )
                             }
                         }
@@ -208,10 +209,10 @@ fun TransactionsScreen(
                 },
                 onDismiss = {
                     viewModel.setEvent(
-                        Event.DatePickerDialog.UpdateDialogState(isVisible = false)
+                        Event.DatePickerDialog.UpdateDialogState(isVisible = false),
                     )
                 },
-                datePickerDialogConfig = datePickerDialogConfig
+                datePickerDialogConfig = datePickerDialogConfig,
             )
         }
     }
@@ -229,9 +230,10 @@ private fun Content(
     modalBottomSheetState: SheetState,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .paddingFrom(paddingValues, bottom = false)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .paddingFrom(paddingValues, bottom = false),
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -246,7 +248,7 @@ private fun Content(
                     onFilterClick = { onEventSend(Event.FiltersPressed) },
                     onClearClick = { onEventSend(Event.OnSearchQueryChanged("")) },
                     isFilteringActive = state.isFilteringActive,
-                    text = state.searchText
+                    text = state.searchText,
                 )
                 VSpacer.Large()
             }
@@ -261,7 +263,7 @@ private fun Content(
                         modifier = Modifier.fillMaxWidth(),
                         category = documentCategory,
                         transactions = documents,
-                        onEventSend = onEventSend
+                        onEventSend = onEventSend,
                     )
 
                     if (index != state.transactionsUi.lastIndex) {
@@ -274,22 +276,23 @@ private fun Content(
         if (state.error != null) {
             InlineSnackbar(
                 error = state.error,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = SPACING_EXTRA_SMALL.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = SPACING_EXTRA_SMALL.dp),
             )
         }
     }
 
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_RESUME
+        lifecycleEvent = Lifecycle.Event.ON_RESUME,
     ) {
         onEventSend(Event.OnResume)
     }
     LifecycleEffect(
         lifecycleOwner = LocalLifecycleOwner.current,
-        lifecycleEvent = Lifecycle.Event.ON_PAUSE
+        lifecycleEvent = Lifecycle.Event.ON_PAUSE,
     ) {
         onEventSend(Event.OnPause)
     }
@@ -299,28 +302,31 @@ private fun Content(
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> {
+                        onNavigationRequested(effect)
+                    }
 
-                is Effect.CloseBottomSheet -> {
-                    coroutineScope.launch {
-                        modalBottomSheetState.hide()
-                        if (!modalBottomSheetState.isVisible) {
-                            onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                    is Effect.CloseBottomSheet -> {
+                        coroutineScope.launch {
+                            modalBottomSheetState.hide()
+                            if (!modalBottomSheetState.isVisible) {
+                                onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = false))
+                            }
                         }
                     }
-                }
 
-                is Effect.ShowBottomSheet -> {
-                    onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
-                }
+                    is Effect.ShowBottomSheet -> {
+                        onEventSend(Event.BottomSheet.UpdateBottomSheetState(isOpen = true))
+                    }
 
-                is Effect.ShowDatePickerDialog -> {
-                    onEventSend(Event.DatePickerDialog.UpdateDialogState(isVisible = true))
+                    is Effect.ShowDatePickerDialog -> {
+                        onEventSend(Event.DatePickerDialog.UpdateDialogState(isVisible = true))
+                    }
                 }
-            }
-        }.collect()
+            }.collect()
     }
 }
 
@@ -330,7 +336,10 @@ private fun handleNavigationEffect(
     context: Context,
 ) {
     when (navigationEffect) {
-        is Effect.Navigation.Pop -> context.finish()
+        is Effect.Navigation.Pop -> {
+            context.finish()
+        }
+
         is Effect.Navigation.SwitchScreen -> {
             navController.navigate(navigationEffect.screenRoute) {
                 popUpTo(navigationEffect.popUpToScreenRoute) {
@@ -350,42 +359,45 @@ private fun TransactionCategory(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+        verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
     ) {
         SectionTitle(
             modifier = Modifier.fillMaxWidth(),
-            text = category.displayName ?: stringResource(category.stringResId)
+            text = category.displayName ?: stringResource(category.stringResId),
         )
 
-        val transactionItems = remember(key1 = transactions) {
-            transactions.map { it.uiData }
-        }
-        val transactionMap = remember(key1 = transactions) {
-            transactions.associateBy { it.uiData.header.itemId }
-        }
+        val transactionItems =
+            remember(key1 = transactions) {
+                transactions.map { it.uiData }
+            }
+        val transactionMap =
+            remember(key1 = transactions) {
+                transactions.associateBy { it.uiData.header.itemId }
+            }
 
         WrapListItems(
             modifier = Modifier.fillMaxWidth(),
             items = transactionItems,
             onItemClick = { item ->
                 onEventSend(
-                    Event.TransactionItemPressed(itemId = item.itemId)
+                    Event.TransactionItemPressed(itemId = item.itemId),
                 )
             },
             onExpandedChange = null,
             overlineTextStyle = { item ->
                 val transactionUi = transactionMap[item.itemId]
 
-                val overlineTextColor = when (transactionUi?.uiStatus) {
-                    TransactionStatusUi.Completed -> MaterialTheme.colorScheme.success
-                    TransactionStatusUi.Failed -> MaterialTheme.colorScheme.error
-                    null -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                val overlineTextColor =
+                    when (transactionUi?.uiStatus) {
+                        TransactionStatusUi.Completed -> MaterialTheme.colorScheme.success
+                        TransactionStatusUi.Failed -> MaterialTheme.colorScheme.error
+                        null -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
 
                 MaterialTheme.typography.labelMedium.copy(
-                    color = overlineTextColor
+                    color = overlineTextColor,
                 )
-            }
+            },
         )
     }
 }
@@ -396,12 +408,14 @@ private fun NoResults(
 ) {
     Column(modifier = modifier) {
         WrapListItem(
-            item = ListItemDataUi(
-                itemId = stringResource(R.string.transactions_screen_search_no_results_id),
-                mainContentData = ListItemMainContentDataUi.Text(
-                    text = stringResource(R.string.transactions_screen_search_no_results)
+            item =
+                ListItemDataUi(
+                    itemId = stringResource(R.string.transactions_screen_search_no_results_id),
+                    mainContentData =
+                        ListItemMainContentDataUi.Text(
+                            text = stringResource(R.string.transactions_screen_search_no_results),
+                        ),
                 ),
-            ),
             onItemClick = null,
             modifier = Modifier.fillMaxWidth(),
             mainContentVerticalPadding = SPACING_MEDIUM.dp,
@@ -414,11 +428,12 @@ private fun TopBar(
     onDashboardEventSent: (DashboardEvent) -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                all = SPACING_SMALL.dp
-            )
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    all = SPACING_SMALL.dp,
+                ),
     ) {
         WrapIconButton(
             modifier = Modifier.align(Alignment.CenterStart),
@@ -433,7 +448,7 @@ private fun TopBar(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.headlineMedium,
-            text = stringResource(R.string.transactions_screen_title)
+            text = stringResource(R.string.transactions_screen_title),
         )
     }
 }
@@ -452,7 +467,7 @@ private fun TransactionsSheetContent(
                 titleContent = {
                     Text(
                         text = stringResource(R.string.transactions_screen_filters_title),
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
                     )
                 },
                 bodyContent = {
@@ -464,15 +479,16 @@ private fun TransactionsSheetContent(
 
                     Box {
                         Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .verticalScroll(rememberScrollState())
-                                .padding(bottom = with(LocalDensity.current) { buttonsRowHeight.toDp() }),
-                            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(bottom = with(LocalDensity.current) { buttonsRowHeight.toDp() }),
+                            verticalArrangement = Arrangement.spacedBy(SPACING_LARGE.dp),
                         ) {
                             DualSelectorButtons(sortOrder) {
                                 onEventSent(
-                                    Event.OnSortingOrderChanged(it)
+                                    Event.OnSortingOrderChanged(it),
                                 )
                             }
 
@@ -488,32 +504,34 @@ private fun TransactionsSheetContent(
                                                         expandStateList[index] =
                                                             !expandStateList[index]
                                                     },
-                                                    mainContentTextStyle = MaterialTheme.typography.bodyLarge.copy(
-                                                        fontWeight = FontWeight.Bold,
-                                                        color = MaterialTheme.colorScheme.onSurface
-                                                    )
+                                                    mainContentTextStyle =
+                                                        MaterialTheme.typography.bodyLarge.copy(
+                                                            fontWeight = FontWeight.Bold,
+                                                            color = MaterialTheme.colorScheme.onSurface,
+                                                        ),
                                                 )
                                             },
                                             cardExpandedContent = {
                                                 Column(
-                                                    modifier = Modifier.padding(
-                                                        start = SPACING_MEDIUM.dp,
-                                                        end = SPACING_MEDIUM.dp,
-                                                        bottom = SPACING_MEDIUM.dp
-                                                    )
+                                                    modifier =
+                                                        Modifier.padding(
+                                                            start = SPACING_MEDIUM.dp,
+                                                            end = SPACING_MEDIUM.dp,
+                                                            bottom = SPACING_MEDIUM.dp,
+                                                        ),
                                                 ) {
                                                     FiltersDatePickerField(
                                                         dialogType = DatePickerDialogType.SelectStartDate,
                                                         selectDateLabel = stringResource(R.string.transactions_screen_filters_date_from),
                                                         displayedSelectedDate = snapshotFilterDateRangeData.displayedStartDate,
-                                                        onEventSent = onEventSent
+                                                        onEventSent = onEventSent,
                                                     )
 
                                                     FiltersDatePickerField(
                                                         dialogType = DatePickerDialogType.SelectEndDate,
                                                         selectDateLabel = stringResource(R.string.transactions_screen_filters_date_to),
                                                         displayedSelectedDate = snapshotFilterDateRangeData.displayedEndDate,
-                                                        onEventSent = onEventSent
+                                                        onEventSent = onEventSent,
                                                     )
                                                 }
                                             },
@@ -535,8 +553,8 @@ private fun TransactionsSheetContent(
                                                 onEventSent(
                                                     Event.OnFilterSelectionChanged(
                                                         filterId = id,
-                                                        groupId
-                                                    )
+                                                        groupId,
+                                                    ),
                                                 )
                                             },
                                             addDivider = false,
@@ -548,42 +566,44 @@ private fun TransactionsSheetContent(
                             }
                         }
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomCenter)
-                                .background(MaterialTheme.colorScheme.surfaceContainerLowest)
-                                .onGloballyPositioned { coordinates ->
-                                    buttonsRowHeight = coordinates.size.height
-                                }
-                                .padding(top = SPACING_LARGE.dp),
-                            horizontalArrangement = Arrangement.SpaceEvenly
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .align(Alignment.BottomCenter)
+                                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                                    .onGloballyPositioned { coordinates ->
+                                        buttonsRowHeight = coordinates.size.height
+                                    }.padding(top = SPACING_LARGE.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
                         ) {
                             WrapButton(
                                 modifier = Modifier.weight(1f),
-                                buttonConfig = ButtonConfig(
-                                    type = ButtonType.SECONDARY,
-                                    onClick = {
-                                        onEventSent(Event.OnFiltersReset)
-                                    }
-                                )
+                                buttonConfig =
+                                    ButtonConfig(
+                                        type = ButtonType.SECONDARY,
+                                        onClick = {
+                                            onEventSent(Event.OnFiltersReset)
+                                        },
+                                    ),
                             ) {
                                 Text(text = stringResource(R.string.transactions_screen_filters_reset))
                             }
                             HSpacer.Small()
                             WrapButton(
                                 modifier = Modifier.weight(1f),
-                                buttonConfig = ButtonConfig(
-                                    type = ButtonType.PRIMARY,
-                                    onClick = {
-                                        onEventSent(Event.OnFiltersApply)
-                                    }
-                                )
+                                buttonConfig =
+                                    ButtonConfig(
+                                        type = ButtonType.PRIMARY,
+                                        onClick = {
+                                            onEventSent(Event.OnFiltersApply)
+                                        },
+                                    ),
                             ) {
                                 Text(text = stringResource(R.string.transactions_screen_filters_apply))
                             }
                         }
                     }
-                }
+                },
             )
         }
     }
@@ -595,7 +615,7 @@ fun FiltersDatePickerField(
     dialogType: DatePickerDialogType,
     selectDateLabel: String,
     displayedSelectedDate: String,
-    onEventSent: (event: Event) -> Unit
+    onEventSent: (event: Event) -> Unit,
 ) {
     OutlinedTextField(
         readOnly = true,
@@ -604,23 +624,25 @@ fun FiltersDatePickerField(
         label = { Text(selectDateLabel) },
         placeholder = { Text(stringResource(R.string.transactions_screen_text_field_date_pattern)) },
         trailingIcon = { WrapIcon(AppIcons.DateRange) },
-        colors = OutlinedTextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .pointerInput(displayedSelectedDate) {
-                awaitEachGesture {
-                    awaitFirstDown(pass = PointerEventPass.Initial)
-                    val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
-                    if (upEvent != null) {
-                        onEventSent(
-                            Event.ShowDatePicker(datePickerType = dialogType)
-                        )
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+            ),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .pointerInput(displayedSelectedDate) {
+                    awaitEachGesture {
+                        awaitFirstDown(pass = PointerEventPass.Initial)
+                        val upEvent = waitForUpOrCancellation(pass = PointerEventPass.Initial)
+                        if (upEvent != null) {
+                            onEventSent(
+                                Event.ShowDatePicker(datePickerType = dialogType),
+                            )
+                        }
                     }
-                }
-            }
+                },
     )
 }
 
@@ -633,7 +655,7 @@ private fun TransactionsScreenPreview() {
         onBack = { },
         topBar = {
             TopBar(
-                onDashboardEventSent = {}
+                onDashboardEventSent = {},
             )
         },
     ) {}

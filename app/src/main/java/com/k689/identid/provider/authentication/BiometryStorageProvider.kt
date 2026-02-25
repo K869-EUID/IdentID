@@ -20,7 +20,10 @@ import com.k689.identid.model.authentication.BiometricAuthentication
 
 interface BiometryStorageProvider {
     fun getBiometricAuthentication(): BiometricAuthentication?
+
     fun setBiometricAuthentication(value: BiometricAuthentication?)
+
     fun setUseBiometricsAuth(value: Boolean)
+
     fun getUseBiometricsAuth(): Boolean
 }

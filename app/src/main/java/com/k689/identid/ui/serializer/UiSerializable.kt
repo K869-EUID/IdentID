@@ -22,7 +22,6 @@ interface UiSerializable
 
 interface UiSerializableParser {
     val serializedKeyName: String
-    fun provideParser(): Gson {
-        return Gson()
-    }
+
+    fun provideParser(): Gson = Gson()
 }

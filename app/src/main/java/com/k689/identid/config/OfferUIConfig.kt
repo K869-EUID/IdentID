@@ -29,16 +29,14 @@ data class OfferUiConfig(
     val onSuccessNavigation: ConfigNavigation,
     val onCancelNavigation: ConfigNavigation,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "offerConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
                 .registerTypeAdapter(
                     NavigationType::class.java,
-                    SerializableTypeAdapter<NavigationType>()
-                )
-                .create()
-        }
+                    SerializableTypeAdapter<NavigationType>(),
+                ).create()
     }
 }

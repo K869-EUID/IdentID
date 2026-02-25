@@ -24,29 +24,30 @@ import com.k689.identid.ui.serializer.adapter.SerializableTypeAdapter
 
 sealed interface QrScanFlow {
     data object Presentation : QrScanFlow
-    data class Issuance(val issuanceFlowType: IssuanceFlowType) : QrScanFlow
+
+    data class Issuance(
+        val issuanceFlowType: IssuanceFlowType,
+    ) : QrScanFlow
+
     data object Signature : QrScanFlow
 }
 
 data class QrScanUiConfig(
     val title: String,
     val subTitle: String,
-    val qrScanFlow: QrScanFlow
+    val qrScanFlow: QrScanFlow,
 ) : UiSerializable {
-
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "qrScanConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
                 .registerTypeAdapter(
                     QrScanFlow::class.java,
-                    SerializableTypeAdapter<QrScanFlow>()
-                )
-                .registerTypeAdapter(
+                    SerializableTypeAdapter<QrScanFlow>(),
+                ).registerTypeAdapter(
                     IssuanceFlowType::class.java,
-                    SerializableTypeAdapter<IssuanceFlowType>()
-                )
-                .create()
-        }
+                    SerializableTypeAdapter<IssuanceFlowType>(),
+                ).create()
     }
 }

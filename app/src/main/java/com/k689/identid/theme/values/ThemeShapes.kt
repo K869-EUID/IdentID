@@ -33,13 +33,14 @@ class ThemeShapes {
         const val LARGE = 32.0
         const val EXTRA_LARGE = 32.0
 
-        val shapes = ThemeShapesTemplate(
-            extraSmall = EXTRA_SMALL,
-            small = SMALL,
-            medium = MEDIUM,
-            large = LARGE,
-            extraLarge = EXTRA_LARGE
-        )
+        val shapes =
+            ThemeShapesTemplate(
+                extraSmall = EXTRA_SMALL,
+                small = SMALL,
+                medium = MEDIUM,
+                large = LARGE,
+                extraLarge = EXTRA_LARGE,
+            )
     }
 }
 

@@ -70,15 +70,16 @@ fun WrapText(
 @ThemeModePreviews
 @Composable
 private fun WrapTextConfigPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
         WrapText(
             text = text,
-            textConfig = TextConfig(
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-            )
+            textConfig =
+                TextConfig(
+                    style = MaterialTheme.typography.bodyLarge,
+                    maxLines = 1,
+                ),
         )
     }
 }

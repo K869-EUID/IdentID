@@ -22,41 +22,38 @@ import com.k689.identid.extension.business.encodeToBase64
 interface UiSerializer {
     fun <M : UiSerializable> toBase64(
         model: M,
-        parser: UiSerializableParser
+        parser: UiSerializableParser,
     ): String?
 
     fun <M : UiSerializable> fromBase64(
         payload: String?,
         model: Class<M>,
-        parser: UiSerializableParser
+        parser: UiSerializableParser,
     ): M?
 }
 
 class UiSerializerImpl : UiSerializer {
-
     override fun <M : UiSerializable> toBase64(
         model: M,
-        parser: UiSerializableParser
-    ): String? {
-        return try {
+        parser: UiSerializableParser,
+    ): String? =
+        try {
             parser.provideParser().toJson(model).encodeToBase64()
         } catch (_: Exception) {
             null
         }
-    }
 
     override fun <M : UiSerializable> fromBase64(
         payload: String?,
         model: Class<M>,
-        parser: UiSerializableParser
-    ): M? {
-        return try {
+        parser: UiSerializableParser,
+    ): M? =
+        try {
             parser.provideParser().fromJson(
                 payload?.decodeFromBase64(),
-                model
+                model,
             )
         } catch (_: Exception) {
             null
         }
-    }
 }

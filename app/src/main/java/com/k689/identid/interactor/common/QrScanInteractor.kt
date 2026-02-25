@@ -23,17 +23,23 @@ import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import eu.europa.ec.eudi.rqesui.infrastructure.RemoteUri
 
 interface QrScanInteractor : FormValidator {
-    fun launchRqesSdk(context: Context, uri: Uri)
+    fun launchRqesSdk(
+        context: Context,
+        uri: Uri,
+    )
 }
 
 class QrScanInteractorImpl(
-    private val formValidator: FormValidator
-) : FormValidator by formValidator, QrScanInteractor {
-
-    override fun launchRqesSdk(context: Context, uri: Uri) {
+    private val formValidator: FormValidator,
+) : FormValidator by formValidator,
+    QrScanInteractor {
+    override fun launchRqesSdk(
+        context: Context,
+        uri: Uri,
+    ) {
         EudiRQESUi.initiate(
             context = context,
-            remoteUri = RemoteUri(uri)
+            remoteUri = RemoteUri(uri),
         )
     }
 }

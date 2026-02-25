@@ -30,10 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.k689.identid.ui.dashboard.dashboard.Event
-import com.k689.identid.ui.dashboard.dashboard.State
-import com.k689.identid.ui.dashboard.dashboard.model.SideMenuItemUi
-import com.k689.identid.ui.dashboard.dashboard.model.SideMenuTypeUi
 import com.k689.identid.R
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
@@ -48,6 +44,10 @@ import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.WrapListItem
+import com.k689.identid.ui.dashboard.dashboard.Event
+import com.k689.identid.ui.dashboard.dashboard.State
+import com.k689.identid.ui.dashboard.dashboard.model.SideMenuItemUi
+import com.k689.identid.ui.dashboard.dashboard.model.SideMenuTypeUi
 
 @Composable
 internal fun SideMenuScreen(
@@ -59,14 +59,14 @@ internal fun SideMenuScreen(
         isLoading = false,
         onBack = {
             onEventSent(
-                Event.SideMenu.Close
+                Event.SideMenu.Close,
             )
-        }
+        },
     ) { paddingValues ->
         Content(
             state = state,
             paddingValues = paddingValues,
-            onEventSent = onEventSent
+            onEventSent = onEventSent,
         )
     }
 }
@@ -75,12 +75,13 @@ internal fun SideMenuScreen(
 private fun Content(
     state: State,
     onEventSent: (Event) -> Unit,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             ContentTitle(
@@ -102,7 +103,7 @@ private fun SideMenuOptions(
     onEventSent: (Event) -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         itemsIndexed(sideMenuOptions) { index, menuOption ->
             WrapListItem(
@@ -112,16 +113,17 @@ private fun SideMenuOptions(
                 colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                 onItemClick = {
                     onEventSent(
-                        Event.SideMenu.ItemClicked(itemType = menuOption.type)
+                        Event.SideMenu.ItemClicked(itemType = menuOption.type),
                     )
-                }
+                },
             )
 
             if (index != sideMenuOptions.lastIndex) {
                 HorizontalDivider(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SPACING_SMALL.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SPACING_SMALL.dp),
                 )
             }
         }
@@ -133,44 +135,54 @@ private fun SideMenuOptions(
 private fun SideMenuContentPreview() {
     PreviewTheme {
         Content(
-            state = State(
-                isSideMenuVisible = true,
-                sideMenuTitle = stringResource(R.string.dashboard_side_menu_title),
-                sideMenuOptions = listOf(
-                    SideMenuItemUi(
-                        type = SideMenuTypeUi.CHANGE_PIN,
-                        data = ListItemDataUi(
-                            itemId = stringResource(R.string.dashboard_side_menu_option_change_pin_id),
-                            mainContentData = ListItemMainContentDataUi.Text(
-                                text = stringResource(R.string.dashboard_side_menu_option_change_pin)
+            state =
+                State(
+                    isSideMenuVisible = true,
+                    sideMenuTitle = stringResource(R.string.dashboard_side_menu_title),
+                    sideMenuOptions =
+                        listOf(
+                            SideMenuItemUi(
+                                type = SideMenuTypeUi.CHANGE_PIN,
+                                data =
+                                    ListItemDataUi(
+                                        itemId = stringResource(R.string.dashboard_side_menu_option_change_pin_id),
+                                        mainContentData =
+                                            ListItemMainContentDataUi.Text(
+                                                text = stringResource(R.string.dashboard_side_menu_option_change_pin),
+                                            ),
+                                        leadingContentData =
+                                            ListItemLeadingContentDataUi.Icon(
+                                                iconData = AppIcons.ChangePin,
+                                            ),
+                                        trailingContentData =
+                                            ListItemTrailingContentDataUi.Icon(
+                                                iconData = AppIcons.KeyboardArrowRight,
+                                            ),
+                                    ),
                             ),
-                            leadingContentData = ListItemLeadingContentDataUi.Icon(
-                                iconData = AppIcons.ChangePin
+                            SideMenuItemUi(
+                                type = SideMenuTypeUi.SETTINGS,
+                                data =
+                                    ListItemDataUi(
+                                        itemId = stringResource(R.string.dashboard_side_menu_option_settings_id),
+                                        mainContentData =
+                                            ListItemMainContentDataUi.Text(
+                                                text = stringResource(R.string.dashboard_side_menu_option_settings),
+                                            ),
+                                        leadingContentData =
+                                            ListItemLeadingContentDataUi.Icon(
+                                                iconData = AppIcons.Settings,
+                                            ),
+                                        trailingContentData =
+                                            ListItemTrailingContentDataUi.Icon(
+                                                iconData = AppIcons.KeyboardArrowRight,
+                                            ),
+                                    ),
                             ),
-                            trailingContentData = ListItemTrailingContentDataUi.Icon(
-                                iconData = AppIcons.KeyboardArrowRight
-                            )
-                        )
-                    ),
-                    SideMenuItemUi(
-                        type = SideMenuTypeUi.SETTINGS,
-                        data = ListItemDataUi(
-                            itemId = stringResource(R.string.dashboard_side_menu_option_settings_id),
-                            mainContentData = ListItemMainContentDataUi.Text(
-                                text = stringResource(R.string.dashboard_side_menu_option_settings)
-                            ),
-                            leadingContentData = ListItemLeadingContentDataUi.Icon(
-                                iconData = AppIcons.Settings
-                            ),
-                            trailingContentData = ListItemTrailingContentDataUi.Icon(
-                                iconData = AppIcons.KeyboardArrowRight
-                            )
-                        )
-                    ),
+                        ),
                 ),
-            ),
             onEventSent = {},
-            paddingValues = PaddingValues(SPACING_MEDIUM.dp)
+            paddingValues = PaddingValues(SPACING_MEDIUM.dp),
         )
     }
 }

@@ -23,9 +23,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
  * */
 class TextLengthPreviewProvider : PreviewParameterProvider<String> {
     override val values: Sequence<String>
-        get() = sequenceOf(
-            "Short Text",
-            "A bit longer text.",
-            "This one is really, really long. Like, really really really really really really really really really long!"
-        )
+        get() =
+            sequenceOf(
+                "Short Text",
+                "A bit longer text.",
+                "This one is really, really long. Like, really really really really really really really really really long!",
+            )
 }

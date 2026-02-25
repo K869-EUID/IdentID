@@ -21,18 +21,19 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.R
+import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.provider.resources.ResourceProvider
 import kotlinx.coroutines.launch
 
 interface DeviceAuthenticationController {
     fun deviceSupportsBiometrics(listener: (BiometricsAvailability) -> Unit)
+
     fun authenticate(
         context: Context,
         biometryCrypto: BiometricCrypto,
         notifyOnAuthenticationFailure: Boolean,
-        result: DeviceAuthenticationResult
+        result: DeviceAuthenticationResult,
     )
 
     fun launchBiometricSystemScreen()
@@ -40,9 +41,8 @@ interface DeviceAuthenticationController {
 
 class DeviceAuthenticationControllerImpl(
     private val resourceProvider: ResourceProvider,
-    private val biometricAuthenticationController: BiometricAuthenticationController
+    private val biometricAuthenticationController: BiometricAuthenticationController,
 ) : DeviceAuthenticationController {
-
     override fun deviceSupportsBiometrics(listener: (BiometricsAvailability) -> Unit) {
         biometricAuthenticationController.deviceSupportsBiometrics(listener)
     }
@@ -51,22 +51,24 @@ class DeviceAuthenticationControllerImpl(
         context: Context,
         biometryCrypto: BiometricCrypto,
         notifyOnAuthenticationFailure: Boolean,
-        result: DeviceAuthenticationResult
+        result: DeviceAuthenticationResult,
     ) {
         (context as? FragmentActivity)?.let { activity ->
 
             activity.lifecycleScope.launch {
-
-                val data = biometricAuthenticationController.authenticate(
-                    activity = activity,
-                    biometryCrypto = biometryCrypto,
-                    promptInfo = BiometricPrompt.PromptInfo.Builder()
-                        .setTitle(resourceProvider.getString(R.string.biometric_prompt_title))
-                        .setSubtitle(resourceProvider.getString(R.string.biometric_prompt_subtitle))
-                        .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
-                        .build(),
-                    notifyOnAuthenticationFailure = notifyOnAuthenticationFailure
-                )
+                val data =
+                    biometricAuthenticationController.authenticate(
+                        activity = activity,
+                        biometryCrypto = biometryCrypto,
+                        promptInfo =
+                            BiometricPrompt.PromptInfo
+                                .Builder()
+                                .setTitle(resourceProvider.getString(R.string.biometric_prompt_title))
+                                .setSubtitle(resourceProvider.getString(R.string.biometric_prompt_subtitle))
+                                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_WEAK or BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                                .build(),
+                        notifyOnAuthenticationFailure = notifyOnAuthenticationFailure,
+                    )
 
                 if (data.authenticationResult != null) {
                     result.onAuthenticationSuccess()

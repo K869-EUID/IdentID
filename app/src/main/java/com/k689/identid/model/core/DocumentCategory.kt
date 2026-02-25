@@ -8,9 +8,9 @@
  * You may obtain a copy of the Licence at:
  * https://joinup.ec.europa.eu/software/page/eupl
  *
- * Unless required by applicable law or agreed to in writing, software distributed under 
- * the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF 
- * ANY KIND, either express or implied. See the Licence for the specific language 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the Licence is distributed on an "AS IS" basis, WITHOUT WARRANTIES OR CONDITIONS OF
+ * ANY KIND, either express or implied. See the Licence for the specific language
  * governing permissions and limitations under the Licence.
  */
 
@@ -58,34 +58,50 @@ sealed class DocumentCategory(
     val order: Int,
 ) {
     data object Government : DocumentCategory(
-        stringResId = R.string.document_category_government, id = 1, order = 1
+        stringResId = R.string.document_category_government,
+        id = 1,
+        order = 1,
     )
 
     data object Travel : DocumentCategory(
-        stringResId = R.string.document_category_travel, id = 2, order = 2
+        stringResId = R.string.document_category_travel,
+        id = 2,
+        order = 2,
     )
 
     data object Finance : DocumentCategory(
-        stringResId = R.string.document_category_finance, id = 3, order = 3
+        stringResId = R.string.document_category_finance,
+        id = 3,
+        order = 3,
     )
 
     data object Education : DocumentCategory(
-        stringResId = R.string.document_category_education, id = 4, order = 4
+        stringResId = R.string.document_category_education,
+        id = 4,
+        order = 4,
     )
 
     data object Health : DocumentCategory(
-        stringResId = R.string.document_category_health, id = 5, order = 5
+        stringResId = R.string.document_category_health,
+        id = 5,
+        order = 5,
     )
 
     data object SocialSecurity : DocumentCategory(
-        stringResId = R.string.document_category_social_security, id = 6, order = 6
+        stringResId = R.string.document_category_social_security,
+        id = 6,
+        order = 6,
     )
 
     data object Retail : DocumentCategory(
-        stringResId = R.string.document_category_retail, id = 7, order = 7
+        stringResId = R.string.document_category_retail,
+        id = 7,
+        order = 7,
     )
 
     data object Other : DocumentCategory(
-        stringResId = R.string.document_category_other, id = 8, order = 8
+        stringResId = R.string.document_category_other,
+        id = 8,
+        order = 8,
     )
 }

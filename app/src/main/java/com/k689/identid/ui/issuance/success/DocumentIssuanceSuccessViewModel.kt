@@ -17,11 +17,11 @@
 package com.k689.identid.ui.issuance.success
 
 import androidx.lifecycle.viewModelScope
+import com.k689.identid.config.ConfigNavigation
 import com.k689.identid.config.IssuanceSuccessUiConfig
-import com.k689.identid.ui.common.document_success.DocumentSuccessViewModel
 import com.k689.identid.interactor.issuance.DocumentIssuanceSuccessInteractor
 import com.k689.identid.interactor.issuance.DocumentIssuanceSuccessInteractorGetUiItemsPartialState
-import com.k689.identid.config.ConfigNavigation
+import com.k689.identid.ui.common.document.sucess.DocumentSuccessViewModel
 import com.k689.identid.ui.serializer.UiSerializer
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -33,7 +33,6 @@ class DocumentIssuanceSuccessViewModel(
     private val uiSerializer: UiSerializer,
     @InjectedParam private val issuanceSuccessSerializedConfig: String,
 ) : DocumentSuccessViewModel() {
-
     override fun getNextScreenConfigNavigation(): ConfigNavigation {
         val deserializedIssuanceSuccessUiConfig = getDeserializedIssuanceSuccessUiConfig()
 
@@ -48,38 +47,40 @@ class DocumentIssuanceSuccessViewModel(
         }
 
         viewModelScope.launch {
-            interactor.getUiItems(
-                documentIds = deserializedIssuanceSuccessUiConfig.documentIds
-            ).collect { response ->
-                when (response) {
-                    is DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Failed -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                            )
+            interactor
+                .getUiItems(
+                    documentIds = deserializedIssuanceSuccessUiConfig.documentIds,
+                ).collect { response ->
+                    when (response) {
+                        is DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Failed -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                )
+                            }
                         }
-                    }
 
-                    is DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Success -> {
-                        setState {
-                            copy(
-                                headerConfig = response.headerConfig,
-                                items = response.documentsUi,
-                                isLoading = false,
-                            )
+                        is DocumentIssuanceSuccessInteractorGetUiItemsPartialState.Success -> {
+                            setState {
+                                copy(
+                                    headerConfig = response.headerConfig,
+                                    items = response.documentsUi,
+                                    isLoading = false,
+                                )
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
     private fun getDeserializedIssuanceSuccessUiConfig(): IssuanceSuccessUiConfig {
-        val deserializedIssuanceSuccessUiConfig = uiSerializer.fromBase64(
-            payload = issuanceSuccessSerializedConfig,
-            model = IssuanceSuccessUiConfig::class.java,
-            parser = IssuanceSuccessUiConfig.Parser
-        ) ?: throw RuntimeException("IssuanceSuccessUiConfig:: is Missing or invalid")
+        val deserializedIssuanceSuccessUiConfig =
+            uiSerializer.fromBase64(
+                payload = issuanceSuccessSerializedConfig,
+                model = IssuanceSuccessUiConfig::class.java,
+                parser = IssuanceSuccessUiConfig.Parser,
+            ) ?: throw RuntimeException("IssuanceSuccessUiConfig:: is Missing or invalid")
         return deserializedIssuanceSuccessUiConfig
     }
 }

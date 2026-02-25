@@ -44,20 +44,19 @@ fun ByteArray.encodeToPemBase64String(): String? {
  * @return The Base64 encoded string representation of the byte array.
  * @see Base64.encodeToString
  */
-fun ByteArray.encodeToBase64String(flag: Int = Base64.DEFAULT): String {
-    return Base64.encodeToString(this, flag)
-}
+fun ByteArray.encodeToBase64String(flag: Int = Base64.DEFAULT): String = Base64.encodeToString(this, flag)
 
 /**
  * Attempts to decode a [Base64] encoded String.
  * @return A [ByteArray] with the encoded bytes if it succeeds,
  * empty if it fails.
  */
-fun decodeFromBase64(base64EncodedString: String, flag: Int = Base64.DEFAULT): ByteArray {
-    return try {
+fun decodeFromBase64(
+    base64EncodedString: String,
+    flag: Int = Base64.DEFAULT,
+): ByteArray =
+    try {
         Base64.decode(base64EncodedString, flag)
     } catch (e: Exception) {
         ByteArray(size = 0)
     }
-}
-

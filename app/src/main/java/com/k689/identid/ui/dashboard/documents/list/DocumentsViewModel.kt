@@ -17,26 +17,27 @@
 package com.k689.identid.ui.dashboard.documents.list
 
 import androidx.lifecycle.viewModelScope
-import com.k689.identid.model.validator.FilterableList
-import com.k689.identid.model.validator.SortOrder
+import com.k689.identid.R
 import com.k689.identid.config.IssuanceFlowType
 import com.k689.identid.config.IssuanceUiConfig
 import com.k689.identid.config.QrScanFlow
 import com.k689.identid.config.QrScanUiConfig
-import com.k689.identid.model.core.DeferredDocumentDataDomain
-import com.k689.identid.model.core.DocumentCategory
-import com.k689.identid.model.core.FormatType
 import com.k689.identid.interactor.dashboard.DocumentInteractorDeleteDocumentPartialState
 import com.k689.identid.interactor.dashboard.DocumentInteractorFilterPartialState
 import com.k689.identid.interactor.dashboard.DocumentInteractorGetDocumentsPartialState
 import com.k689.identid.interactor.dashboard.DocumentInteractorRetryIssuingDeferredDocumentsPartialState
 import com.k689.identid.interactor.dashboard.DocumentsInteractor
-import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
-import com.k689.identid.ui.dashboard.documents.list.DocumentsBottomSheetContent.DeferredDocumentPressed
-import com.k689.identid.ui.dashboard.documents.list.DocumentsBottomSheetContent.Filters
-import com.k689.identid.ui.dashboard.documents.list.model.DocumentUi
-import eu.europa.ec.eudi.wallet.document.DocumentId
-import com.k689.identid.R
+import com.k689.identid.model.core.DeferredDocumentDataDomain
+import com.k689.identid.model.core.DocumentCategory
+import com.k689.identid.model.core.FormatType
+import com.k689.identid.model.validator.FilterableList
+import com.k689.identid.model.validator.SortOrder
+import com.k689.identid.navigation.CommonScreens
+import com.k689.identid.navigation.DashboardScreens
+import com.k689.identid.navigation.IssuanceScreens
+import com.k689.identid.navigation.StartupScreens
+import com.k689.identid.navigation.helper.generateComposableArguments
+import com.k689.identid.navigation.helper.generateComposableNavigationLink
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.theme.values.ThemeColors
 import com.k689.identid.ui.component.AppIcons
@@ -46,17 +47,16 @@ import com.k689.identid.ui.component.ListItemTrailingContentDataUi
 import com.k689.identid.ui.component.ModalOptionUi
 import com.k689.identid.ui.component.content.ContentErrorConfig
 import com.k689.identid.ui.component.wrap.ExpandableListItemUi
+import com.k689.identid.ui.dashboard.documents.detail.model.DocumentIssuanceStateUi
+import com.k689.identid.ui.dashboard.documents.list.DocumentsBottomSheetContent.DeferredDocumentPressed
+import com.k689.identid.ui.dashboard.documents.list.DocumentsBottomSheetContent.Filters
+import com.k689.identid.ui.dashboard.documents.list.model.DocumentUi
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
 import com.k689.identid.ui.mvi.ViewState
-import com.k689.identid.navigation.CommonScreens
-import com.k689.identid.navigation.DashboardScreens
-import com.k689.identid.navigation.IssuanceScreens
-import com.k689.identid.navigation.StartupScreens
-import com.k689.identid.navigation.helper.generateComposableArguments
-import com.k689.identid.navigation.helper.generateComposableNavigationLink
 import com.k689.identid.ui.serializer.UiSerializer
+import eu.europa.ec.eudi.wallet.document.DocumentId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -67,7 +67,6 @@ data class State(
     val error: ContentErrorConfig? = null,
     val isBottomSheetOpen: Boolean = false,
     val sheetContent: DocumentsBottomSheetContent = Filters(filters = emptyList()),
-
     val documentsUi: List<Pair<DocumentCategory, List<DocumentUi>>> = emptyList(),
     val showNoResultsFound: Boolean = false,
     val deferredFailedDocIds: List<DocumentId> = emptyList(),
@@ -75,7 +74,6 @@ data class State(
     val allowUserInteraction: Boolean = true,
     val isFromOnPause: Boolean = true,
     val shouldRevertFilterChanges: Boolean = true,
-
     val filtersUi: List<ExpandableListItemUi.NestedListItem> = emptyList(),
     val sortOrder: DualSelectorButtonDataUi,
     val isFilteringActive: Boolean,
@@ -83,25 +81,50 @@ data class State(
 
 sealed class Event : ViewEvent {
     data object Init : Event()
+
     data object GetDocuments : Event()
+
     data object OnPause : Event()
-    data class TryIssuingDeferredDocuments(val deferredDocs: Map<DocumentId, FormatType>) : Event()
+
+    data class TryIssuingDeferredDocuments(
+        val deferredDocs: Map<DocumentId, FormatType>,
+    ) : Event()
+
     data object Pop : Event()
-    data class GoToDocumentDetails(val docId: DocumentId) : Event()
-    data class OnSearchQueryChanged(val query: String) : Event()
-    data class OnFilterSelectionChanged(val filterId: String, val groupId: String) : Event()
+
+    data class GoToDocumentDetails(
+        val docId: DocumentId,
+    ) : Event()
+
+    data class OnSearchQueryChanged(
+        val query: String,
+    ) : Event()
+
+    data class OnFilterSelectionChanged(
+        val filterId: String,
+        val groupId: String,
+    ) : Event()
+
     data object OnFiltersReset : Event()
+
     data object OnFiltersApply : Event()
-    data class OnSortingOrderChanged(val sortingOrder: DualSelectorButton) : Event()
+
+    data class OnSortingOrderChanged(
+        val sortingOrder: DualSelectorButton,
+    ) : Event()
 
     data object AddDocumentPressed : Event()
+
     data object FiltersPressed : Event()
 
     sealed class BottomSheet : Event() {
-        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+        data class UpdateBottomSheetState(
+            val isOpen: Boolean,
+        ) : BottomSheet()
 
         sealed class AddDocument : BottomSheet() {
             data object FromList : AddDocument()
+
             data object ScanQr : AddDocument()
         }
 
@@ -132,6 +155,7 @@ sealed class Event : ViewEvent {
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Pop : Navigation()
+
         data class SwitchScreen(
             val screenRoute: String,
             val popUpToScreenRoute: String = DashboardScreens.Dashboard.screenRoute,
@@ -139,20 +163,28 @@ sealed class Effect : ViewSideEffect {
         ) : Navigation()
     }
 
-    data class DocumentsFetched(val deferredDocs: Map<DocumentId, FormatType>) : Effect()
+    data class DocumentsFetched(
+        val deferredDocs: Map<DocumentId, FormatType>,
+    ) : Effect()
 
     data object ShowBottomSheet : Effect()
+
     data object CloseBottomSheet : Effect()
 
     data object ResumeOnApplyFilter : Effect()
 }
 
 sealed class DocumentsBottomSheetContent {
-    data class Filters(val filters: List<ExpandableListItemUi.SingleListItem>) :
-        DocumentsBottomSheetContent()
+    data class Filters(
+        val filters: List<ExpandableListItemUi.SingleListItem>,
+    ) : DocumentsBottomSheetContent()
 
     data object AddDocument : DocumentsBottomSheetContent()
-    data class DeferredDocumentPressed(val documentId: DocumentId) : DocumentsBottomSheetContent()
+
+    data class DeferredDocumentPressed(
+        val documentId: DocumentId,
+    ) : DocumentsBottomSheetContent()
+
     data class DeferredDocumentsReady(
         val successfullyIssuedDeferredDocuments: List<DeferredDocumentDataDomain>,
         val options: List<ModalOptionUi<Event>>,
@@ -165,21 +197,20 @@ class DocumentsViewModel(
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
 ) : MviViewModel<Event, State, Effect>() {
-
     private var retryDeferredDocsJob: Job? = null
     private var fetchDocumentsJob: Job? = null
 
-    override fun setInitialState(): State {
-        return State(
+    override fun setInitialState(): State =
+        State(
             isLoading = true,
-            sortOrder = DualSelectorButtonDataUi(
-                first = resourceProvider.getString(R.string.documents_screen_filters_ascending),
-                second = resourceProvider.getString(R.string.documents_screen_filters_descending),
-                selectedButton = DualSelectorButton.FIRST,
-            ),
-            isFilteringActive = false
+            sortOrder =
+                DualSelectorButtonDataUi(
+                    first = resourceProvider.getString(R.string.documents_screen_filters_ascending),
+                    second = resourceProvider.getString(R.string.documents_screen_filters_descending),
+                    selectedButton = DualSelectorButton.FIRST,
+                ),
+            isFilteringActive = false,
         )
-    }
 
     override fun handleEvents(event: Event) {
         when (event) {
@@ -204,7 +235,9 @@ class DocumentsViewModel(
                 tryIssuingDeferredDocuments(event, event.deferredDocs)
             }
 
-            is Event.Pop -> setEffect { Effect.Navigation.Pop }
+            is Event.Pop -> {
+                setEffect { Effect.Navigation.Pop }
+            }
 
             is Event.GoToDocumentDetails -> {
                 goToDocumentDetails(event.docId)
@@ -240,8 +273,8 @@ class DocumentsViewModel(
             }
 
             is Event.BottomSheet.UpdateBottomSheetState -> {
-                if (viewState.value.sheetContent is Filters
-                    && !event.isOpen
+                if (viewState.value.sheetContent is Filters &&
+                    !event.isOpen
                 ) {
                     setEffect { Effect.ResumeOnApplyFilter }
                 }
@@ -260,9 +293,10 @@ class DocumentsViewModel(
 
             is Event.BottomSheet.DeferredDocument.DeferredNotReadyYet.DocumentSelected -> {
                 showBottomSheet(
-                    sheetContent = DeferredDocumentPressed(
-                        documentId = event.documentId
-                    )
+                    sheetContent =
+                        DeferredDocumentPressed(
+                            documentId = event.documentId,
+                        ),
                 )
             }
 
@@ -293,7 +327,7 @@ class DocumentsViewModel(
                                 documentsUi = result.documents,
                                 showNoResultsFound = result.documents.isEmpty(),
                                 filtersUi = result.filters,
-                                sortOrder = sortOrder.copy(selectedButton = result.sortOrder)
+                                sortOrder = sortOrder.copy(selectedButton = result.sortOrder),
                             )
                         }
                     }
@@ -302,7 +336,7 @@ class DocumentsViewModel(
                         setState {
                             copy(
                                 filtersUi = result.filters,
-                                sortOrder = sortOrder.copy(selectedButton = result.sortOrder)
+                                sortOrder = sortOrder.copy(selectedButton = result.sortOrder),
                             )
                         }
                     }
@@ -318,94 +352,103 @@ class DocumentsViewModel(
         setState {
             copy(
                 isLoading = documentsUi.isEmpty(),
-                error = null
+                error = null,
             )
         }
-        fetchDocumentsJob = viewModelScope.launch {
-            interactor.getDocuments()
-                .collect { response ->
-                    when (response) {
-                        is DocumentInteractorGetDocumentsPartialState.Failure -> {
-                            setState {
-                                copy(
-                                    isLoading = false,
-                                    error = ContentErrorConfig(
-                                        onRetry = { setEvent(event) },
-                                        errorSubTitle = response.error,
-                                        onCancel = {
-                                            setState { copy(error = null) }
-                                            setEvent(Event.Pop)
-                                        }
+        fetchDocumentsJob =
+            viewModelScope.launch {
+                interactor
+                    .getDocuments()
+                    .collect { response ->
+                        when (response) {
+                            is DocumentInteractorGetDocumentsPartialState.Failure -> {
+                                setState {
+                                    copy(
+                                        isLoading = false,
+                                        error =
+                                            ContentErrorConfig(
+                                                onRetry = { setEvent(event) },
+                                                errorSubTitle = response.error,
+                                                onCancel = {
+                                                    setState { copy(error = null) }
+                                                    setEvent(Event.Pop)
+                                                },
+                                            ),
                                     )
-                                )
-                            }
-                        }
-
-                        is DocumentInteractorGetDocumentsPartialState.Success -> {
-                            val deferredDocs: MutableMap<DocumentId, FormatType> = mutableMapOf()
-                            response.allDocuments.items.filter { document ->
-                                with(document.payload as DocumentUi) {
-                                    documentIssuanceState == DocumentIssuanceStateUi.Pending
-                                }
-                            }.forEach { documentItem ->
-                                with(documentItem.payload as DocumentUi) {
-                                    deferredDocs[uiData.itemId] =
-                                        documentIdentifier.formatType
                                 }
                             }
-                            val documentsWithFailed =
-                                response.allDocuments
-                                    .generateFailedDeferredDocs(deferredFailedDocIds)
 
-                            if (viewState.value.isFromOnPause) {
-                                interactor.initializeFilters(
-                                    filterableList = documentsWithFailed
-                                )
-                            } else {
-                                interactor.updateLists(
-                                    filterableList = documentsWithFailed
-                                )
+                            is DocumentInteractorGetDocumentsPartialState.Success -> {
+                                val deferredDocs: MutableMap<DocumentId, FormatType> = mutableMapOf()
+                                response.allDocuments.items
+                                    .filter { document ->
+                                        with(document.payload as DocumentUi) {
+                                            documentIssuanceState == DocumentIssuanceStateUi.Pending
+                                        }
+                                    }.forEach { documentItem ->
+                                        with(documentItem.payload as DocumentUi) {
+                                            deferredDocs[uiData.itemId] =
+                                                documentIdentifier.formatType
+                                        }
+                                    }
+                                val documentsWithFailed =
+                                    response.allDocuments
+                                        .generateFailedDeferredDocs(deferredFailedDocIds)
+
+                                if (viewState.value.isFromOnPause) {
+                                    interactor.initializeFilters(
+                                        filterableList = documentsWithFailed,
+                                    )
+                                } else {
+                                    interactor.updateLists(
+                                        filterableList = documentsWithFailed,
+                                    )
+                                }
+
+                                interactor.applyFilters()
+
+                                setState {
+                                    copy(
+                                        isLoading = false,
+                                        error = null,
+                                        deferredFailedDocIds = deferredFailedDocIds,
+                                        allowUserInteraction = response.shouldAllowUserInteraction,
+                                        isFromOnPause = false,
+                                    )
+                                }
+                                setEffect { Effect.DocumentsFetched(deferredDocs) }
                             }
-
-                            interactor.applyFilters()
-
-                            setState {
-                                copy(
-                                    isLoading = false,
-                                    error = null,
-                                    deferredFailedDocIds = deferredFailedDocIds,
-                                    allowUserInteraction = response.shouldAllowUserInteraction,
-                                    isFromOnPause = false
-                                )
-                            }
-                            setEffect { Effect.DocumentsFetched(deferredDocs) }
                         }
                     }
-                }
-        }
-    }
-
-    private fun FilterableList.generateFailedDeferredDocs(deferredFailedDocIds: List<DocumentId>): FilterableList {
-        return copy(items = items.map { filterableItem ->
-            val data = filterableItem.payload as DocumentUi
-            val failedUiItem = if (data.uiData.itemId in deferredFailedDocIds) {
-                data.copy(
-                    documentIssuanceState = DocumentIssuanceStateUi.Failed,
-                    uiData = data.uiData.copy(
-                        supportingText = resourceProvider.getString(R.string.dashboard_document_deferred_failed),
-                        trailingContentData = ListItemTrailingContentDataUi.Icon(
-                            iconData = AppIcons.ErrorFilled,
-                            tint = ThemeColors.error
-                        )
-                    )
-                )
-            } else {
-                data
             }
-
-            filterableItem.copy(payload = failedUiItem)
-        })
     }
+
+    private fun FilterableList.generateFailedDeferredDocs(deferredFailedDocIds: List<DocumentId>): FilterableList =
+        copy(
+            items =
+                items.map { filterableItem ->
+                    val data = filterableItem.payload as DocumentUi
+                    val failedUiItem =
+                        if (data.uiData.itemId in deferredFailedDocIds) {
+                            data.copy(
+                                documentIssuanceState = DocumentIssuanceStateUi.Failed,
+                                uiData =
+                                    data.uiData.copy(
+                                        supportingText = resourceProvider.getString(R.string.dashboard_document_deferred_failed),
+                                        trailingContentData =
+                                            ListItemTrailingContentDataUi.Icon(
+                                                iconData = AppIcons.ErrorFilled,
+                                                tint = ThemeColors.error,
+                                            ),
+                                    ),
+                            )
+                        } else {
+                            data
+                        }
+
+                    filterableItem.copy(payload = failedUiItem)
+                },
+        )
 
     private fun tryIssuingDeferredDocuments(
         event: Event,
@@ -414,167 +457,186 @@ class DocumentsViewModel(
         setState {
             copy(
                 isLoading = false,
-                error = null
+                error = null,
             )
         }
 
         stopDeferredIssuing()
-        retryDeferredDocsJob = viewModelScope.launch {
-            if (deferredDocs.isEmpty()) {
-                return@launch
-            }
+        retryDeferredDocsJob =
+            viewModelScope.launch {
+                if (deferredDocs.isEmpty()) {
+                    return@launch
+                }
 
-            delay(5000L)
+                delay(5000L)
 
-            interactor.tryIssuingDeferredDocumentsFlow(deferredDocs).collect { response ->
-                when (response) {
-                    is DocumentInteractorRetryIssuingDeferredDocumentsPartialState.Failure -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(event) },
-                                    errorSubTitle = response.errorMessage,
-                                    onCancel = {
-                                        setState { copy(error = null) }
-                                    }
+                interactor.tryIssuingDeferredDocumentsFlow(deferredDocs).collect { response ->
+                    when (response) {
+                        is DocumentInteractorRetryIssuingDeferredDocumentsPartialState.Failure -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error =
+                                        ContentErrorConfig(
+                                            onRetry = { setEvent(event) },
+                                            errorSubTitle = response.errorMessage,
+                                            onCancel = {
+                                                setState { copy(error = null) }
+                                            },
+                                        ),
                                 )
-                            )
-                        }
-                    }
-
-                    is DocumentInteractorRetryIssuingDeferredDocumentsPartialState.Result -> {
-                        val successDocs = response.successfullyIssuedDeferredDocuments
-                        if (successDocs.isNotEmpty()
-                            && (!viewState.value.isBottomSheetOpen
-                                    || (viewState.value.isBottomSheetOpen
-                                    && viewState.value.sheetContent !is DocumentsBottomSheetContent.DeferredDocumentsReady)
-                                    )
-                        ) {
-                            showBottomSheet(
-                                sheetContent = DocumentsBottomSheetContent.DeferredDocumentsReady(
-                                    successfullyIssuedDeferredDocuments = successDocs,
-                                    options = getBottomSheetOptions(
-                                        deferredDocumentsData = successDocs
-                                    )
-                                )
-                            )
+                            }
                         }
 
-                        getDocuments(
-                            event = event,
-                            deferredFailedDocIds = response.failedIssuedDeferredDocuments,
-                        )
+                        is DocumentInteractorRetryIssuingDeferredDocumentsPartialState.Result -> {
+                            val successDocs = response.successfullyIssuedDeferredDocuments
+                            if (successDocs.isNotEmpty() &&
+                                (
+                                    !viewState.value.isBottomSheetOpen ||
+                                        (
+                                            viewState.value.isBottomSheetOpen &&
+                                                viewState.value.sheetContent !is DocumentsBottomSheetContent.DeferredDocumentsReady
+                                        )
+                                )
+                            ) {
+                                showBottomSheet(
+                                    sheetContent =
+                                        DocumentsBottomSheetContent.DeferredDocumentsReady(
+                                            successfullyIssuedDeferredDocuments = successDocs,
+                                            options =
+                                                getBottomSheetOptions(
+                                                    deferredDocumentsData = successDocs,
+                                                ),
+                                        ),
+                                )
+                            }
+
+                            getDocuments(
+                                event = event,
+                                deferredFailedDocIds = response.failedIssuedDeferredDocuments,
+                            )
+                        }
                     }
                 }
             }
-        }
     }
 
-    private fun getBottomSheetOptions(deferredDocumentsData: List<DeferredDocumentDataDomain>): List<ModalOptionUi<Event>> {
-        return deferredDocumentsData.map {
+    private fun getBottomSheetOptions(deferredDocumentsData: List<DeferredDocumentDataDomain>): List<ModalOptionUi<Event>> =
+        deferredDocumentsData.map {
             ModalOptionUi(
                 title = it.docName,
                 trailingIcon = AppIcons.KeyboardArrowRight,
-                event = Event.BottomSheet.DeferredDocument.OptionListItemForSuccessfullyIssuingDeferredDocumentSelected(
-                    documentId = it.documentId
-                )
+                event =
+                    Event.BottomSheet.DeferredDocument.OptionListItemForSuccessfullyIssuingDeferredDocumentSelected(
+                        documentId = it.documentId,
+                    ),
             )
         }
-    }
 
-    private fun deleteDocument(event: Event, documentId: DocumentId) {
+    private fun deleteDocument(
+        event: Event,
+        documentId: DocumentId,
+    ) {
         setState {
             copy(
                 isLoading = true,
-                error = null
+                error = null,
             )
         }
 
         viewModelScope.launch {
-            interactor.deleteDocument(
-                documentId = documentId
-            ).collect { response ->
-                when (response) {
-                    is DocumentInteractorDeleteDocumentPartialState.AllDocumentsDeleted -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null
-                            )
-                        }
-
-                        setEffect {
-                            Effect.Navigation.SwitchScreen(
-                                screenRoute = StartupScreens.Splash.screenRoute,
-                                popUpToScreenRoute = DashboardScreens.Dashboard.screenRoute,
-                                inclusive = true
-                            )
-                        }
-                    }
-
-                    is DocumentInteractorDeleteDocumentPartialState.SingleDocumentDeleted -> {
-                        getDocuments(
-                            event = event,
-                            deferredFailedDocIds = viewState.value.deferredFailedDocIds,
-                        )
-                    }
-
-                    is DocumentInteractorDeleteDocumentPartialState.Failure -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(event) },
-                                    errorSubTitle = response.errorMessage,
-                                    onCancel = {
-                                        setState {
-                                            copy(error = null)
-                                        }
-                                    }
+            interactor
+                .deleteDocument(
+                    documentId = documentId,
+                ).collect { response ->
+                    when (response) {
+                        is DocumentInteractorDeleteDocumentPartialState.AllDocumentsDeleted -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = null,
                                 )
+                            }
+
+                            setEffect {
+                                Effect.Navigation.SwitchScreen(
+                                    screenRoute = StartupScreens.Splash.screenRoute,
+                                    popUpToScreenRoute = DashboardScreens.Dashboard.screenRoute,
+                                    inclusive = true,
+                                )
+                            }
+                        }
+
+                        is DocumentInteractorDeleteDocumentPartialState.SingleDocumentDeleted -> {
+                            getDocuments(
+                                event = event,
+                                deferredFailedDocIds = viewState.value.deferredFailedDocIds,
                             )
+                        }
+
+                        is DocumentInteractorDeleteDocumentPartialState.Failure -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error =
+                                        ContentErrorConfig(
+                                            onRetry = { setEvent(event) },
+                                            errorSubTitle = response.errorMessage,
+                                            onCancel = {
+                                                setState {
+                                                    copy(error = null)
+                                                }
+                                            },
+                                        ),
+                                )
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
     private fun goToDocumentDetails(docId: DocumentId) {
         setEffect {
             Effect.Navigation.SwitchScreen(
-                screenRoute = generateComposableNavigationLink(
-                    screen = DashboardScreens.DocumentDetails,
-                    arguments = generateComposableArguments(
-                        mapOf(
-                            "documentId" to docId
-                        )
-                    )
-                )
+                screenRoute =
+                    generateComposableNavigationLink(
+                        screen = DashboardScreens.DocumentDetails,
+                        arguments =
+                            generateComposableArguments(
+                                mapOf(
+                                    "documentId" to docId,
+                                ),
+                            ),
+                    ),
             )
         }
     }
 
     private fun goToAddDocument() {
-        val addDocumentScreenRoute = generateComposableNavigationLink(
-            screen = IssuanceScreens.AddDocument,
-            arguments = generateComposableArguments(
-                mapOf(
-                    IssuanceUiConfig.serializedKeyName to uiSerializer.toBase64(
-                        model = IssuanceUiConfig(
-                            flowType = IssuanceFlowType.ExtraDocument(
-                                formatType = null
-                            )
+        val addDocumentScreenRoute =
+            generateComposableNavigationLink(
+                screen = IssuanceScreens.AddDocument,
+                arguments =
+                    generateComposableArguments(
+                        mapOf(
+                            IssuanceUiConfig.serializedKeyName to
+                                uiSerializer.toBase64(
+                                    model =
+                                        IssuanceUiConfig(
+                                            flowType =
+                                                IssuanceFlowType.ExtraDocument(
+                                                    formatType = null,
+                                                ),
+                                        ),
+                                    parser = IssuanceUiConfig.Parser,
+                                ),
                         ),
-                        parser = IssuanceUiConfig.Parser
-                    )
-                )
+                    ),
             )
-        )
         setEffect {
             Effect.Navigation.SwitchScreen(
-                screenRoute = addDocumentScreenRoute
+                screenRoute = addDocumentScreenRoute,
             )
         }
     }
@@ -582,26 +644,31 @@ class DocumentsViewModel(
     private fun goToQrScan() {
         setEffect {
             Effect.Navigation.SwitchScreen(
-                screenRoute = generateComposableNavigationLink(
-                    screen = CommonScreens.QrScan,
-                    arguments = generateComposableArguments(
-                        mapOf(
-                            QrScanUiConfig.serializedKeyName to uiSerializer.toBase64(
-                                QrScanUiConfig(
-                                    title = resourceProvider.getString(R.string.issuance_qr_scan_title),
-                                    subTitle = resourceProvider.getString(R.string.issuance_qr_scan_subtitle),
-                                    qrScanFlow = QrScanFlow.Issuance(
-                                        issuanceFlowType = IssuanceFlowType.ExtraDocument(
-                                            formatType = null
-                                        )
-                                    )
+                screenRoute =
+                    generateComposableNavigationLink(
+                        screen = CommonScreens.QrScan,
+                        arguments =
+                            generateComposableArguments(
+                                mapOf(
+                                    QrScanUiConfig.serializedKeyName to
+                                        uiSerializer.toBase64(
+                                            QrScanUiConfig(
+                                                title = resourceProvider.getString(R.string.issuance_qr_scan_title),
+                                                subTitle = resourceProvider.getString(R.string.issuance_qr_scan_subtitle),
+                                                qrScanFlow =
+                                                    QrScanFlow.Issuance(
+                                                        issuanceFlowType =
+                                                            IssuanceFlowType.ExtraDocument(
+                                                                formatType = null,
+                                                            ),
+                                                    ),
+                                            ),
+                                            QrScanUiConfig.Parser,
+                                        ),
                                 ),
-                                QrScanUiConfig.Parser
-                            )
-                        )
-                    )
-                ),
-                inclusive = false
+                            ),
+                    ),
+                inclusive = false,
             )
         }
     }
@@ -628,7 +695,10 @@ class DocumentsViewModel(
         }
     }
 
-    private fun updateFilter(filterId: String, groupId: String) {
+    private fun updateFilter(
+        filterId: String,
+        groupId: String,
+    ) {
         setState { copy(shouldRevertFilterChanges = true) }
         interactor.updateFilter(filterGroupId = groupId, filterId = filterId)
     }
@@ -637,7 +707,7 @@ class DocumentsViewModel(
         interactor.applyFilters()
         setState {
             copy(
-                shouldRevertFilterChanges = false
+                shouldRevertFilterChanges = false,
             )
         }
         hideBottomSheet()
@@ -649,9 +719,9 @@ class DocumentsViewModel(
     }
 
     private fun revertFilters(isOpening: Boolean) {
-        if (viewState.value.sheetContent is Filters
-            && !isOpening
-            && viewState.value.shouldRevertFilterChanges
+        if (viewState.value.sheetContent is Filters &&
+            !isOpening &&
+            viewState.value.shouldRevertFilterChanges
         ) {
             interactor.revertFilters()
             setState { copy(shouldRevertFilterChanges = true) }
@@ -663,10 +733,11 @@ class DocumentsViewModel(
     }
 
     private fun sortOrderChanged(orderButton: DualSelectorButton) {
-        val sortOrder = when (orderButton) {
-            DualSelectorButton.FIRST -> SortOrder.Ascending(isDefault = true)
-            DualSelectorButton.SECOND -> SortOrder.Descending()
-        }
+        val sortOrder =
+            when (orderButton) {
+                DualSelectorButton.FIRST -> SortOrder.Ascending(isDefault = true)
+                DualSelectorButton.SECOND -> SortOrder.Descending()
+            }
         setState { copy(shouldRevertFilterChanges = true) }
         interactor.updateSortOrder(sortOrder)
     }

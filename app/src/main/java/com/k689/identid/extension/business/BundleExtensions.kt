@@ -18,8 +18,8 @@ package com.k689.identid.extension.business
 
 import android.os.Bundle
 
-fun Bundle?.toMapOrEmpty(): Map<String, String> {
-    return this?.let { bundle ->
+fun Bundle?.toMapOrEmpty(): Map<String, String> =
+    this?.let { bundle ->
         mutableMapOf<String, String>().apply {
             bundle.keySet().forEach {
                 bundle.getString(it)?.let { value ->
@@ -28,4 +28,3 @@ fun Bundle?.toMapOrEmpty(): Map<String, String> {
             }
         }
     } ?: emptyMap()
-}

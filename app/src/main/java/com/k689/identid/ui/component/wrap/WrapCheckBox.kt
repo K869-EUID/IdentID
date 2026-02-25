@@ -44,16 +44,17 @@ fun WrapCheckbox(
 ) {
     // This is needed, otherwise M3 adds unwanted space around CheckBoxes.
     CompositionLocalProvider(
-        LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
     ) {
         Checkbox(
             checked = checkboxData.isChecked,
             onCheckedChange = checkboxData.onCheckedChange,
             modifier = modifier,
             enabled = checkboxData.enabled,
-            colors = CheckboxDefaults.colors(
-                uncheckedColor = MaterialTheme.colorScheme.primary
-            )
+            colors =
+                CheckboxDefaults.colors(
+                    uncheckedColor = MaterialTheme.colorScheme.primary,
+                ),
         )
     }
 }
@@ -65,13 +66,14 @@ private fun WrapCheckBoxPreview() {
         mutableStateOf(true)
     }
 
-    val checkBoxData = CheckboxDataUi(
-        isChecked = isChecked,
-        enabled = true,
-        onCheckedChange = {
-            isChecked = it
-        }
-    )
+    val checkBoxData =
+        CheckboxDataUi(
+            isChecked = isChecked,
+            enabled = true,
+            onCheckedChange = {
+                isChecked = it
+            },
+        )
 
     PreviewTheme {
         WrapCheckbox(checkboxData = checkBoxData)

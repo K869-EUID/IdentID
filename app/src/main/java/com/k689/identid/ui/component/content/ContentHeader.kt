@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import com.k689.identid.extension.ui.optionalTestTag
 import com.k689.identid.ui.component.AppIconAndText
 import com.k689.identid.ui.component.AppIconAndTextDataUi
 import com.k689.identid.ui.component.AppIcons
@@ -40,7 +41,6 @@ import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.TextConfig
 import com.k689.identid.ui.component.wrap.WrapText
-import com.k689.identid.extension.ui.optionalTestTag
 
 /**
  * Data class representing the configuration for a content header.
@@ -82,55 +82,62 @@ fun ContentHeader(
 
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         with(config) {
             // App icon and text section.
             AppIconAndText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = SPACING_LARGE.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = SPACING_LARGE.dp),
                 appIconAndTextData = appIconAndTextData,
             )
 
             // Description section.
             description?.let { safeDescription ->
                 WrapText(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .optionalTestTag(descriptionTestTag)
-                        .padding(vertical = SPACING_SMALL.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .optionalTestTag(descriptionTestTag)
+                            .padding(vertical = SPACING_SMALL.dp),
                     text = safeDescription,
-                    textConfig = descriptionTextConfig ?: TextConfig(
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = commonTextAlign,
-                        maxLines = 3,
-                    )
+                    textConfig =
+                        descriptionTextConfig ?: TextConfig(
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = commonTextAlign,
+                            maxLines = 3,
+                        ),
                 )
             }
 
             // Main text section.
             mainText?.let { safeMainText ->
                 WrapText(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SPACING_MEDIUM.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SPACING_MEDIUM.dp),
                     text = safeMainText,
-                    textConfig = mainTextConfig ?: TextConfig(
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.W600
+                    textConfig =
+                        mainTextConfig ?: TextConfig(
+                            style =
+                                MaterialTheme.typography.bodyLarge.copy(
+                                    fontWeight = FontWeight.W600,
+                                ),
+                            textAlign = commonTextAlign,
                         ),
-                        textAlign = commonTextAlign,
-                    )
                 )
             }
 
             // Relying party section.
             relyingPartyData?.let { safeRelyingPartyData ->
                 RelyingParty(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = SPACING_SMALL.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SPACING_SMALL.dp),
                     relyingPartyData = safeRelyingPartyData,
                 )
             }
@@ -141,23 +148,26 @@ fun ContentHeader(
 @ThemeModePreviews
 @Composable
 private fun ContentHeaderPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
         ContentHeader(
-            config = ContentHeaderConfig(
-                appIconAndTextData = AppIconAndTextDataUi(
-                    appIcon = AppIcons.LogoPlain,
-                    appText = AppIcons.LogoText,
+            config =
+                ContentHeaderConfig(
+                    appIconAndTextData =
+                        AppIconAndTextDataUi(
+                            appIcon = AppIcons.LogoPlain,
+                            appText = AppIcons.LogoText,
+                        ),
+                    description = "Description: $text",
+                    mainText = "Title: $text",
+                    relyingPartyData =
+                        RelyingPartyDataUi(
+                            isVerified = true,
+                            name = "Relying Party Name: $text",
+                            description = "Relying Party Description: $text",
+                        ),
                 ),
-                description = "Description: $text",
-                mainText = "Title: $text",
-                relyingPartyData = RelyingPartyDataUi(
-                    isVerified = true,
-                    name = "Relying Party Name: $text",
-                    description = "Relying Party Description: $text",
-                )
-            )
         )
     }
 }

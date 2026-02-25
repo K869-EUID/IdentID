@@ -23,10 +23,10 @@ import com.k689.identid.ui.common.loading.LoadingScreen
 @Composable
 fun PresentationLoadingScreen(
     navController: NavController,
-    viewModel: PresentationLoadingViewModel
+    viewModel: PresentationLoadingViewModel,
 ) {
     LoadingScreen(
         navController = navController,
-        viewModel = viewModel
+        viewModel = viewModel,
     )
 }

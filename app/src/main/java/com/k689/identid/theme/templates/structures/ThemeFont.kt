@@ -24,13 +24,14 @@ import com.k689.identid.theme.templates.structures.ThemeFontWeight.Companion.toF
 data class ThemeFont(
     @param:FontRes val res: Int,
     val weight: ThemeFontWeight,
-    val style: ThemeFontStyle
+    val style: ThemeFontStyle,
 ) {
     companion object {
-        fun ThemeFont.toFont(): Font = Font(
-            resId = res,
-            weight = weight.toFontWeight(),
-            style = style.toFontStyle()
-        )
+        fun ThemeFont.toFont(): Font =
+            Font(
+                resId = res,
+                weight = weight.toFontWeight(),
+                style = style.toFontStyle(),
+            )
     }
 }

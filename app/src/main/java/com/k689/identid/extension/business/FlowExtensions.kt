@@ -24,7 +24,5 @@ import kotlinx.coroutines.flow.flowOn
 
 fun <T> Flow<T>.safeAsync(
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    with: (Throwable) -> (T)
-): Flow<T> {
-    return this.flowOn(dispatcher).catch { emit(with(it)) }
-}
+    with: (Throwable) -> (T),
+): Flow<T> = this.flowOn(dispatcher).catch { emit(with(it)) }

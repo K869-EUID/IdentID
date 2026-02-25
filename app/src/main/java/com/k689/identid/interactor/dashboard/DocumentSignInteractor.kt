@@ -18,43 +18,51 @@ package com.k689.identid.interactor.dashboard
 
 import android.content.Context
 import android.net.Uri
-import com.k689.identid.ui.dashboard.document_sign.model.DocumentSignButtonUi
-import eu.europa.ec.eudi.rqesui.infrastructure.DocumentUri
-import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 import com.k689.identid.R
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemDataUi
 import com.k689.identid.ui.component.ListItemMainContentDataUi
 import com.k689.identid.ui.component.ListItemTrailingContentDataUi
+import com.k689.identid.ui.dashboard.sign.model.DocumentSignButtonUi
+import eu.europa.ec.eudi.rqesui.infrastructure.DocumentUri
+import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
 
 interface DocumentSignInteractor {
-    fun launchRqesSdk(context: Context, uri: Uri)
+    fun launchRqesSdk(
+        context: Context,
+        uri: Uri,
+    )
+
     fun getItemUi(): DocumentSignButtonUi
 }
 
 class DocumentSignInteractorImpl(
     private val resourceProvider: ResourceProvider,
 ) : DocumentSignInteractor {
-
-    override fun launchRqesSdk(context: Context, uri: Uri) {
+    override fun launchRqesSdk(
+        context: Context,
+        uri: Uri,
+    ) {
         EudiRQESUi.initiate(
             context = context,
-            documentUri = DocumentUri(uri)
+            documentUri = DocumentUri(uri),
         )
     }
 
-    override fun getItemUi(): DocumentSignButtonUi {
-        return DocumentSignButtonUi(
-            data = ListItemDataUi(
-                itemId = resourceProvider.getString(R.string.document_sign_select_document_button_id),
-                mainContentData = ListItemMainContentDataUi.Text(
-                    text = resourceProvider.getString(R.string.document_sign_select_document)
+    override fun getItemUi(): DocumentSignButtonUi =
+        DocumentSignButtonUi(
+            data =
+                ListItemDataUi(
+                    itemId = resourceProvider.getString(R.string.document_sign_select_document_button_id),
+                    mainContentData =
+                        ListItemMainContentDataUi.Text(
+                            text = resourceProvider.getString(R.string.document_sign_select_document),
+                        ),
+                    trailingContentData =
+                        ListItemTrailingContentDataUi.Icon(
+                            iconData = AppIcons.Add,
+                        ),
                 ),
-                trailingContentData = ListItemTrailingContentDataUi.Icon(
-                    iconData = AppIcons.Add
-                ),
-            )
         )
-    }
 }

@@ -60,16 +60,17 @@ fun WrapRadioButton(
 ) {
     // This is needed, otherwise M3 adds unwanted space around CheckBoxes.
     CompositionLocalProvider(
-        LocalMinimumInteractiveComponentSize provides Dp.Unspecified
+        LocalMinimumInteractiveComponentSize provides Dp.Unspecified,
     ) {
         RadioButton(
             modifier = modifier,
             selected = radioButtonData.isSelected,
             onClick = radioButtonData.onCheckedChange,
             enabled = radioButtonData.enabled,
-            colors = RadioButtonDefaults.colors(
-                unselectedColor = MaterialTheme.colorScheme.primary
-            )
+            colors =
+                RadioButtonDefaults.colors(
+                    unselectedColor = MaterialTheme.colorScheme.primary,
+                ),
         )
     }
 }
@@ -81,13 +82,14 @@ private fun WrapRadioButtonPreview() {
         mutableStateOf(true)
     }
 
-    val radioButtonData = RadioButtonDataUi(
-        isSelected = isChecked,
-        enabled = true,
-        onCheckedChange = {
-            isChecked = !isChecked
-        }
-    )
+    val radioButtonData =
+        RadioButtonDataUi(
+            isSelected = isChecked,
+            enabled = true,
+            onCheckedChange = {
+                isChecked = !isChecked
+            },
+        )
 
     PreviewTheme {
         WrapRadioButton(radioButtonData = radioButtonData)

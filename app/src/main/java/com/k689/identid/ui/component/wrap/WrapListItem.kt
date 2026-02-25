@@ -69,9 +69,10 @@ fun WrapListItem(
             hideSensitiveContent = hideSensitiveContent,
             mainContentVerticalPadding = mainContentVerticalPadding,
             mainContentTextStyle = mainContentTextStyle,
-            overlineTextStyle = overlineTextStyle ?: MaterialTheme.typography.labelMedium.copy(
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            ),
+            overlineTextStyle =
+                overlineTextStyle ?: MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ),
             supportingTextColor = supportingTextColor,
             clickableAreas = clickableAreas ?: listOf(ClickableArea.ENTIRE_ROW),
         )
@@ -81,54 +82,60 @@ fun WrapListItem(
 @ThemeModePreviews
 @Composable
 private fun WrapListItemPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
         Column(
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
         ) {
             WrapListItem(
                 modifier = Modifier.fillMaxWidth(),
-                item = ListItemDataUi(
-                    itemId = "1",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                ),
-                onItemClick = {},
-            )
-            WrapListItem(
-                modifier = Modifier.fillMaxWidth(),
-                item = ListItemDataUi(
-                    itemId = "2",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                    overlineText = "",
-                    supportingText = "",
-                ),
-                onItemClick = {},
-            )
-            WrapListItem(
-                modifier = Modifier.fillMaxWidth(),
-                item = ListItemDataUi(
-                    itemId = "3",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                    overlineText = "Overline text $text",
-                    supportingText = "Supporting text $text",
-                    leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = AppIcons.KeyboardArrowRight,
+                item =
+                    ListItemDataUi(
+                        itemId = "1",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
                     ),
-                ),
                 onItemClick = {},
             )
             WrapListItem(
                 modifier = Modifier.fillMaxWidth(),
-                item = ListItemDataUi(
-                    itemId = "4",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
-                    supportingText = "Supporting text $text",
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = AppIcons.KeyboardArrowRight,
+                item =
+                    ListItemDataUi(
+                        itemId = "2",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                        overlineText = "",
+                        supportingText = "",
                     ),
-                ),
+                onItemClick = {},
+            )
+            WrapListItem(
+                modifier = Modifier.fillMaxWidth(),
+                item =
+                    ListItemDataUi(
+                        itemId = "3",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                        overlineText = "Overline text $text",
+                        supportingText = "Supporting text $text",
+                        leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Sign),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                    ),
+                onItemClick = {},
+            )
+            WrapListItem(
+                modifier = Modifier.fillMaxWidth(),
+                item =
+                    ListItemDataUi(
+                        itemId = "4",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Main text $text"),
+                        supportingText = "Supporting text $text",
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                    ),
                 onItemClick = {},
             )
         }

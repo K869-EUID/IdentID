@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.common.qr_scan.component
+package com.k689.identid.ui.common.scan.component
 
 import android.graphics.ImageFormat
 import androidx.camera.core.ImageAnalysis
@@ -26,29 +26,30 @@ import com.google.zxing.qrcode.QRCodeReader
 import java.nio.ByteBuffer
 
 class QrCodeAnalyzer(
-    private val onQrCodeScanned: (String) -> Unit
+    private val onQrCodeScanned: (String) -> Unit,
 ) : ImageAnalysis.Analyzer {
-
-    private val supportedImageFormats = listOf(
-        ImageFormat.YUV_420_888,
-        ImageFormat.YUV_422_888,
-        ImageFormat.YUV_444_888,
-    )
+    private val supportedImageFormats =
+        listOf(
+            ImageFormat.YUV_420_888,
+            ImageFormat.YUV_422_888,
+            ImageFormat.YUV_444_888,
+        )
 
     override fun analyze(image: ImageProxy) {
         if (image.format in supportedImageFormats) {
             val plane = image.planes.first()
             val bytes = plane.buffer.toByteArray()
-            val source = PlanarYUVLuminanceSource(
-                bytes,
-                plane.rowStride,
-                image.height,
-                0,
-                0,
-                image.width,
-                image.height,
-                false
-            )
+            val source =
+                PlanarYUVLuminanceSource(
+                    bytes,
+                    plane.rowStride,
+                    image.height,
+                    0,
+                    0,
+                    image.width,
+                    image.height,
+                    false,
+                )
             val binaryBmp = BinaryBitmap(HybridBinarizer(source))
             try {
                 val result = QRCodeReader().decode(binaryBmp)

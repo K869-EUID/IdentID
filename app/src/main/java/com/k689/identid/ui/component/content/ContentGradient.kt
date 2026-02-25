@@ -35,7 +35,8 @@ import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.SIZE_XX_LARGE
 
 enum class GradientEdge {
-    TOP, BOTTOM
+    TOP,
+    BOTTOM,
 }
 
 @Composable
@@ -45,36 +46,38 @@ fun ContentGradient(
     gradientEndColor: Color = Color.Transparent,
     gradientEdge: GradientEdge = GradientEdge.BOTTOM,
     height: Dp = SIZE_XX_LARGE.dp,
-    bodyContent: @Composable () -> Unit
+    bodyContent: @Composable () -> Unit,
 ) {
-
     val colorStops: Array<Pair<Float, Color>>
     val gradientAlignment: Alignment
     when (gradientEdge) {
         GradientEdge.BOTTOM -> {
-            colorStops = arrayOf(
-                0F to gradientEndColor,
-                0.8F to gradientStartColor
-            )
+            colorStops =
+                arrayOf(
+                    0F to gradientEndColor,
+                    0.8F to gradientStartColor,
+                )
             gradientAlignment = Alignment.BottomCenter
         }
 
         GradientEdge.TOP -> {
-            colorStops = arrayOf(
-                0F to gradientStartColor,
-                0.8F to gradientEndColor
-            )
+            colorStops =
+                arrayOf(
+                    0F to gradientStartColor,
+                    0.8F to gradientEndColor,
+                )
             gradientAlignment = Alignment.TopCenter
         }
     }
     Box(modifier = modifier) {
         bodyContent()
         BoxGradient(
-            modifier = Modifier
-                .align(gradientAlignment)
-                .fillMaxWidth(),
+            modifier =
+                Modifier
+                    .align(gradientAlignment)
+                    .fillMaxWidth(),
             height = height,
-            colorStops = colorStops
+            colorStops = colorStops,
         )
     }
 }
@@ -83,13 +86,14 @@ fun ContentGradient(
 private fun BoxGradient(
     modifier: Modifier,
     height: Dp,
-    colorStops: Array<Pair<Float, Color>>
+    colorStops: Array<Pair<Float, Color>>,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(height = height)
-            .background(brush = Brush.verticalGradient(*colorStops))
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(height = height)
+                .background(brush = Brush.verticalGradient(*colorStops)),
     )
 }
 
@@ -98,12 +102,13 @@ private fun BoxGradient(
 private fun ContentGradientBottomPreview() {
     PreviewTheme {
         ContentGradient(
-            modifier = Modifier.size(100.dp, 100.dp)
+            modifier = Modifier.size(100.dp, 100.dp),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary),
             )
         }
     }
@@ -115,12 +120,13 @@ private fun ContentGradientTopPreview() {
     PreviewTheme {
         ContentGradient(
             modifier = Modifier.size(100.dp, 100.dp),
-            gradientEdge = GradientEdge.TOP
+            gradientEdge = GradientEdge.TOP,
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.primary)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primary),
             )
         }
     }
@@ -133,12 +139,13 @@ private fun ContentGradientColoredPreview() {
         ContentGradient(
             modifier = Modifier.size(100.dp, 100.dp),
             gradientEdge = GradientEdge.TOP,
-            gradientStartColor = Color.Red
+            gradientStartColor = Color.Red,
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.surface),
             )
         }
     }

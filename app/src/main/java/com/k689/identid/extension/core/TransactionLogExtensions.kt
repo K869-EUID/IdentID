@@ -21,26 +21,31 @@ import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLog
 import eu.europa.ec.eudi.wallet.transactionLogging.presentation.PresentationTransactionLog
 import com.k689.identid.model.storage.TransactionLog as StorageTransaction
 
-internal fun StorageTransaction.toCoreTransactionLog(): TransactionLog? = try {
-    Gson().fromJson(
-        this.value,
-        TransactionLog::class.java
-    )
-} catch (_: Exception) {
-    null
-}
+internal fun StorageTransaction.toCoreTransactionLog(): TransactionLog? =
+    try {
+        Gson().fromJson(
+            this.value,
+            TransactionLog::class.java,
+        )
+    } catch (_: Exception) {
+        null
+    }
 
 // TODO RETURN PROPER OBJECTS ONCE READY FROM CORE ISSUANCE,SIGNING
 @Throws(IllegalArgumentException::class)
 internal fun TransactionLog.parseTransactionLog(): Any? =
     when (this.type) {
-        TransactionLog.Type.Presentation ->
-            PresentationTransactionLog.fromTransactionLog(this)
+        TransactionLog.Type.Presentation -> {
+            PresentationTransactionLog
+                .fromTransactionLog(this)
                 .getOrNull()
+        }
 
-        TransactionLog.Type.Issuance ->
+        TransactionLog.Type.Issuance -> {
             throw IllegalArgumentException("UnSupported transaction log type")
+        }
 
-        TransactionLog.Type.Signing ->
+        TransactionLog.Type.Signing -> {
             throw IllegalArgumentException("UnSupported transaction log type")
+        }
     }

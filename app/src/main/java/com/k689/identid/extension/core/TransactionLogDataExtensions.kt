@@ -16,24 +16,29 @@
 
 package com.k689.identid.extension.core
 
-import com.k689.identid.util.business.toLocalDate
-import com.k689.identid.util.business.toLocalDateTime
 import com.k689.identid.model.core.TransactionLogDataDomain
 import com.k689.identid.model.core.TransactionLogDataDomain.PresentationLog
+import com.k689.identid.util.business.toLocalDate
+import com.k689.identid.util.business.toLocalDateTime
 import eu.europa.ec.eudi.wallet.transactionLogging.presentation.PresentationTransactionLog
 
 // TODO RETURN PROPER OBJECTS ONCE READY FROM CORE ISSUANCE,SIGNING
 @Throws(IllegalArgumentException::class)
-internal fun Any.toTransactionLogData(id: String): TransactionLogDataDomain = when (this) {
-    is PresentationTransactionLog -> PresentationLog(
-        id = id,
-        name = relyingParty.name,
-        status = status,
-        creationLocalDateTime = timestamp.toLocalDateTime(),
-        creationLocalDate = timestamp.toLocalDate(),
-        relyingParty = relyingParty,
-        documents = documents,
-    )
+internal fun Any.toTransactionLogData(id: String): TransactionLogDataDomain =
+    when (this) {
+        is PresentationTransactionLog -> {
+            PresentationLog(
+                id = id,
+                name = relyingParty.name,
+                status = status,
+                creationLocalDateTime = timestamp.toLocalDateTime(),
+                creationLocalDate = timestamp.toLocalDate(),
+                relyingParty = relyingParty,
+                documents = documents,
+            )
+        }
 
-    else -> throw IllegalArgumentException("Unknown transaction log type")
-}
+        else -> {
+            throw IllegalArgumentException("Unknown transaction log type")
+        }
+    }

@@ -26,27 +26,28 @@ import androidx.activity.ComponentActivity
 import com.k689.identid.ui.container.EudiComponentActivity
 
 fun Context.openDeepLink(deepLink: Uri) {
-    val intent = Intent(Intent.ACTION_VIEW).apply {
-        data = deepLink
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    }
+    val intent =
+        Intent(Intent.ACTION_VIEW).apply {
+            data = deepLink
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
     try {
         startActivity(intent)
     } catch (_: ActivityNotFoundException) {
     }
 }
 
-fun Context.getPendingDeepLink(): Uri? {
-    return (this as? EudiComponentActivity)?.pendingDeepLink?.let { deepLink ->
+fun Context.getPendingDeepLink(): Uri? =
+    (this as? EudiComponentActivity)?.pendingDeepLink?.let { deepLink ->
         clearPendingDeepLink()
         deepLink
     }
-}
 
 fun Context.cacheDeepLink(uri: Uri) {
-    val intent = Intent().apply {
-        data = uri
-    }
+    val intent =
+        Intent().apply {
+            data = uri
+        }
     (this as? EudiComponentActivity)?.cacheDeepLink(intent)
 }
 
@@ -93,7 +94,10 @@ fun Context.openBleSettings() {
     startActivity(intent)
 }
 
-fun Context.openIntentChooser(intent: Intent, title: String? = null) {
+fun Context.openIntentChooser(
+    intent: Intent,
+    title: String? = null,
+) {
     try {
         startActivity(Intent.createChooser(intent, title))
     } catch (_: Exception) {

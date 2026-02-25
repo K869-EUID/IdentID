@@ -29,12 +29,12 @@ import com.k689.identid.theme.values.ThemeColors
     name = "Light Mode",
     showBackground = true,
     uiMode = UI_MODE_NIGHT_NO or Configuration.UI_MODE_TYPE_NORMAL,
-    backgroundColor = ThemeColors.eudiw_theme_light_background_preview
+    backgroundColor = ThemeColors.eudiw_theme_light_background_preview,
 )
 @Preview(
     name = "Dark Mode",
     showBackground = true,
     uiMode = UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL,
-    backgroundColor = ThemeColors.eudiw_theme_dark_background_preview
+    backgroundColor = ThemeColors.eudiw_theme_dark_background_preview,
 )
 annotation class ThemeModePreviews

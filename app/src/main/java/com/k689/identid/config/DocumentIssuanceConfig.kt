@@ -33,9 +33,8 @@ import eu.europa.ec.eudi.wallet.document.CreateDocumentSettings.CredentialPolicy
  */
 data class DocumentIssuanceConfig(
     val defaultRule: DocumentIssuanceRule,
-    val documentSpecificRules: Map<DocumentIdentifier, DocumentIssuanceRule>
+    val documentSpecificRules: Map<DocumentIdentifier, DocumentIssuanceRule>,
 ) {
-
     /**
      * Retrieves the [DocumentIssuanceRule] for a given [DocumentIdentifier].
      *
@@ -47,8 +46,7 @@ data class DocumentIssuanceConfig(
      * @return The [DocumentIssuanceRule] applicable to the given [documentIdentifier], or the
      *         [defaultRule] if no specific rule is found.
      */
-    fun getRuleForDocument(documentIdentifier: DocumentIdentifier?): DocumentIssuanceRule =
-        documentSpecificRules[documentIdentifier] ?: defaultRule
+    fun getRuleForDocument(documentIdentifier: DocumentIdentifier?): DocumentIssuanceRule = documentSpecificRules[documentIdentifier] ?: defaultRule
 }
 
 /**

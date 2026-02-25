@@ -61,22 +61,32 @@ sealed interface FilterValidatorPartialState {
 
 interface FilterValidator {
     fun onFilterStateChange(): Flow<FilterValidatorPartialState>
+
     fun initializeValidator(
         filters: Filters,
         filterableList: FilterableList,
     )
 
     fun updateLists(filterableList: FilterableList)
+
     fun applyFilters()
+
     fun applySearch(query: String)
+
     fun resetFilters()
+
     fun revertFilters()
-    fun updateFilter(filterGroupId: String, filterId: String)
+
+    fun updateFilter(
+        filterGroupId: String,
+        filterId: String,
+    )
+
     fun updateDateFilter(
         filterGroupId: String,
         filterId: String,
         lowerLimit: LocalDateTime,
-        upperLimit: LocalDateTime
+        upperLimit: LocalDateTime,
     )
 
     fun updateSortOrder(sortOrder: SortOrder)
@@ -86,7 +96,6 @@ class FilterValidatorImpl(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO),
     sharingStarted: SharingStarted = SharingStarted.WhileSubscribed(5000L),
 ) : FilterValidator {
-
     // Filters
     private var appliedFilters: Filters = Filters.emptyFilters()
     private var snapshotFilters: Filters = Filters.emptyFilters()
@@ -100,13 +109,14 @@ class FilterValidatorImpl(
 
     // Flow
     private val emissionMutableFlow = MutableSharedFlow<FilterValidatorPartialState>()
-    private val filterResultFlow: SharedFlow<FilterValidatorPartialState> = emissionMutableFlow
-        .debounce(200L)
-        .shareIn(
-            scope,
-            sharingStarted,
-            replay = 1
-        )
+    private val filterResultFlow: SharedFlow<FilterValidatorPartialState> =
+        emissionMutableFlow
+            .debounce(200L)
+            .shareIn(
+                scope,
+                sharingStarted,
+                replay = 1,
+            )
 
     override fun initializeValidator(
         filters: Filters,
@@ -127,10 +137,11 @@ class FilterValidatorImpl(
             }
         }
 
-        appliedFilters = filters.copy(
-            sortOrder = if (appliedFilters.isEmpty) filters.sortOrder else appliedFilters.sortOrder,
-            filterGroups = mergedFilterGroups
-        )
+        appliedFilters =
+            filters.copy(
+                sortOrder = if (appliedFilters.isEmpty) filters.sortOrder else appliedFilters.sortOrder,
+                filterGroups = mergedFilterGroups,
+            )
         this.initialList = filterableList
     }
 
@@ -140,111 +151,119 @@ class FilterValidatorImpl(
 
     override fun onFilterStateChange(): Flow<FilterValidatorPartialState> = filterResultFlow
 
-    private fun updateFilterInGroup(group: FilterGroup, filterId: String): FilterGroup {
-        return when (group) {
+    private fun updateFilterInGroup(
+        group: FilterGroup,
+        filterId: String,
+    ): FilterGroup =
+        when (group) {
             is FilterGroup.MultipleSelectionFilterGroup<*> -> {
                 group.copy(
-                    filters = group.filters.map { filter ->
-                        if (filter.id == filterId && filter is FilterItem) {
-                            filter.copy(selected = !filter.selected)
-                        } else {
-                            filter
-                        }
-                    }
+                    filters =
+                        group.filters.map { filter ->
+                            if (filter.id == filterId && filter is FilterItem) {
+                                filter.copy(selected = !filter.selected)
+                            } else {
+                                filter
+                            }
+                        },
                 )
             }
 
             is FilterGroup.SingleSelectionFilterGroup -> {
                 group.copy(
-                    filters = group.filters.map { filter ->
-                        when (filter) {
-                            is FilterItem -> {
-                                filter.copy(selected = filter.id == filterId)
-                            }
+                    filters =
+                        group.filters.map { filter ->
+                            when (filter) {
+                                is FilterItem -> {
+                                    filter.copy(selected = filter.id == filterId)
+                                }
 
-                            is FilterElement.DateTimeRangeFilterItem -> {
-                                filter.copy(selected = filter.id == filterId)
+                                is FilterElement.DateTimeRangeFilterItem -> {
+                                    filter.copy(selected = filter.id == filterId)
+                                }
                             }
-                        }
-                    }
+                        },
                 )
             }
 
             is FilterGroup.ReversibleSingleSelectionFilterGroup -> {
                 group.copy(
-                    filters = toggleFilterSelection(group.filters, filterId)
+                    filters = toggleFilterSelection(group.filters, filterId),
                 )
             }
 
             is FilterGroup.ReversibleMultipleSelectionFilterGroup<*> -> {
                 group.copy(
-                    filters = toggleFilterSelection(group.filters, filterId)
+                    filters = toggleFilterSelection(group.filters, filterId),
                 )
             }
         }
-    }
 
     private fun updateFilterInGroup(
         group: FilterGroup,
         filterId: String,
         lowerLimit: LocalDateTime,
         upperLimit: LocalDateTime,
-    ): FilterGroup {
-        return when (group) {
+    ): FilterGroup =
+        when (group) {
             is FilterGroup.MultipleSelectionFilterGroup<*> -> {
                 group.copy(
-                    filters = toggleFilterSelection(group.filters, filterId)
+                    filters = toggleFilterSelection(group.filters, filterId),
                 )
             }
 
             is FilterGroup.SingleSelectionFilterGroup -> {
                 group.copy(
-                    filters = group.filters.map { filter ->
-                        when (filter) {
-                            is FilterItem -> {
-                                filter.copy(selected = filter.id == filterId)
-                            }
+                    filters =
+                        group.filters.map { filter ->
+                            when (filter) {
+                                is FilterItem -> {
+                                    filter.copy(selected = filter.id == filterId)
+                                }
 
-                            is FilterElement.DateTimeRangeFilterItem -> {
-                                filter.copy(startDateTime = lowerLimit, endDateTime = upperLimit)
+                                is FilterElement.DateTimeRangeFilterItem -> {
+                                    filter.copy(startDateTime = lowerLimit, endDateTime = upperLimit)
+                                }
                             }
-                        }
-                    }
+                        },
                 )
             }
 
             is FilterGroup.ReversibleSingleSelectionFilterGroup -> {
                 group.copy(
-                    filters = toggleFilterSelection(group.filters, filterId)
+                    filters = toggleFilterSelection(group.filters, filterId),
                 )
             }
 
             is FilterGroup.ReversibleMultipleSelectionFilterGroup<*> -> {
                 group.copy(
-                    filters = toggleFilterSelection(group.filters, filterId)
+                    filters = toggleFilterSelection(group.filters, filterId),
                 )
             }
         }
-    }
 
-    override fun updateFilter(filterGroupId: String, filterId: String) {
+    override fun updateFilter(
+        filterGroupId: String,
+        filterId: String,
+    ) {
         scope.launch {
             val filtersToUpdate = if (snapshotFilters.isEmpty) appliedFilters else snapshotFilters
-            val updatedFilterGroups = filtersToUpdate.filterGroups.map { group ->
-                if (group.id == filterGroupId) {
-                    updateFilterInGroup(group, filterId)
-                } else {
-                    group
+            val updatedFilterGroups =
+                filtersToUpdate.filterGroups.map { group ->
+                    if (group.id == filterGroupId) {
+                        updateFilterInGroup(group, filterId)
+                    } else {
+                        group
+                    }
                 }
-            }
 
             val updatedFilters = filtersToUpdate.copy(filterGroups = updatedFilterGroups)
             snapshotFilters = updatedFilters
 
             emissionMutableFlow.emit(
                 FilterValidatorPartialState.FilterUpdateResult(
-                    updatedFilters = snapshotFilters
-                )
+                    updatedFilters = snapshotFilters,
+                ),
             )
         }
     }
@@ -253,25 +272,26 @@ class FilterValidatorImpl(
         filterGroupId: String,
         filterId: String,
         lowerLimit: LocalDateTime,
-        upperLimit: LocalDateTime
+        upperLimit: LocalDateTime,
     ) {
         scope.launch {
             val filtersToUpdate = if (snapshotFilters.isEmpty) appliedFilters else snapshotFilters
-            val updatedFilterGroups = filtersToUpdate.filterGroups.map { group ->
-                if (group.id == filterGroupId) {
-                    updateFilterInGroup(group, filterId, lowerLimit, upperLimit)
-                } else {
-                    group
+            val updatedFilterGroups =
+                filtersToUpdate.filterGroups.map { group ->
+                    if (group.id == filterGroupId) {
+                        updateFilterInGroup(group, filterId, lowerLimit, upperLimit)
+                    } else {
+                        group
+                    }
                 }
-            }
 
             val updatedFilters = filtersToUpdate.copy(filterGroups = updatedFilterGroups)
             snapshotFilters = updatedFilters
 
             emissionMutableFlow.emit(
                 FilterValidatorPartialState.FilterUpdateResult(
-                    updatedFilters = snapshotFilters
-                )
+                    updatedFilters = snapshotFilters,
+                ),
             )
         }
     }
@@ -290,8 +310,8 @@ class FilterValidatorImpl(
             snapshotFilters = Filters.emptyFilters()
             emissionMutableFlow.emit(
                 FilterValidatorPartialState.FilterUpdateResult(
-                    updatedFilters = appliedFilters
-                )
+                    updatedFilters = appliedFilters,
+                ),
             )
         }
     }
@@ -303,8 +323,8 @@ class FilterValidatorImpl(
             snapshotFilters = filterToUpdateOrderChange.copy(sortOrder = sortOrder)
             emissionMutableFlow.emit(
                 FilterValidatorPartialState.FilterUpdateResult(
-                    updatedFilters = snapshotFilters
-                )
+                    updatedFilters = snapshotFilters,
+                ),
             )
         }
     }
@@ -320,14 +340,16 @@ class FilterValidatorImpl(
             val allFilters = appliedFilters.filterGroups.flatMap { it.filters }
 
             // Check if all selected filters are default filters
-            val allSelectedAreDefault = allFilters
-                .filter { it.selected }
-                .all { it.isDefault }
+            val allSelectedAreDefault =
+                allFilters
+                    .filter { it.selected }
+                    .all { it.isDefault }
 
             // Check if all unselected filters are NOT default filters
-            val allUnselectedAreNotDefault = allFilters
-                .filter { !it.selected }
-                .all { !it.isDefault }
+            val allUnselectedAreNotDefault =
+                allFilters
+                    .filter { !it.selected }
+                    .all { !it.isDefault }
 
             // Check if the sort order is the default one
             val isDefaultSortOrder = appliedFilters.sortOrder.isDefault
@@ -336,45 +358,54 @@ class FilterValidatorImpl(
             val allDefaultAreSelected =
                 allSelectedAreDefault && allUnselectedAreNotDefault && isDefaultSortOrder
 
-            val filteredList = appliedFilters.filterGroups
-                .fold(initialList) { currentList, group ->
-                    when (group) {
-                        is FilterGroup.MultipleSelectionFilterGroup<*> -> applyMultipleSelectionFilter(
-                            currentList,
-                            group
-                        )
+            val filteredList =
+                appliedFilters.filterGroups
+                    .fold(initialList) { currentList, group ->
+                        when (group) {
+                            is FilterGroup.MultipleSelectionFilterGroup<*> -> {
+                                applyMultipleSelectionFilter(
+                                    currentList,
+                                    group,
+                                )
+                            }
 
-                        is FilterGroup.SingleSelectionFilterGroup -> applySingleSelectionFilter(
-                            currentList,
-                            group
-                        )
+                            is FilterGroup.SingleSelectionFilterGroup -> {
+                                applySingleSelectionFilter(
+                                    currentList,
+                                    group,
+                                )
+                            }
 
-                        is FilterGroup.ReversibleSingleSelectionFilterGroup -> applyReversibleSingleSelectionFilter(
-                            currentList,
-                            group
-                        )
+                            is FilterGroup.ReversibleSingleSelectionFilterGroup -> {
+                                applyReversibleSingleSelectionFilter(
+                                    currentList,
+                                    group,
+                                )
+                            }
 
-                        is FilterGroup.ReversibleMultipleSelectionFilterGroup<*> -> applyReversibleMultipleSelectionFilter(
-                            currentList,
-                            group
-                        )
-                    }
+                            is FilterGroup.ReversibleMultipleSelectionFilterGroup<*> -> {
+                                applyReversibleMultipleSelectionFilter(
+                                    currentList,
+                                    group,
+                                )
+                            }
+                        }
+                    }.filterByQuery(searchQuery)
+                    .applySort(appliedFilters) // Apply sort after fold in order to avoid random order
+
+            val resultState =
+                if (filteredList.items.isEmpty()) {
+                    FilterValidatorPartialState.FilterListResult.FilterListEmptyResult(
+                        allDefaultFiltersAreSelected = allDefaultAreSelected,
+                        updatedFilters = appliedFilters,
+                    )
+                } else {
+                    FilterValidatorPartialState.FilterListResult.FilterApplyResult(
+                        filteredList = filteredList,
+                        updatedFilters = appliedFilters,
+                        allDefaultFiltersAreSelected = allDefaultAreSelected,
+                    )
                 }
-                .filterByQuery(searchQuery)
-                .applySort(appliedFilters) // Apply sort after fold in order to avoid random order
-
-            val resultState = if (filteredList.items.isEmpty()) {
-                FilterValidatorPartialState.FilterListResult.FilterListEmptyResult(
-                    allDefaultFiltersAreSelected = allDefaultAreSelected,
-                    updatedFilters = appliedFilters
-                )
-            } else {
-                FilterValidatorPartialState.FilterListResult.FilterApplyResult(
-                    filteredList = filteredList,
-                    updatedFilters = appliedFilters,
-                    allDefaultFiltersAreSelected = allDefaultAreSelected
-                )
-            }
 
             emissionMutableFlow.emit(resultState)
         }
@@ -387,27 +418,25 @@ class FilterValidatorImpl(
 
     private fun toggleFilterSelection(
         filters: List<FilterElement>,
-        filterId: String
-    ): List<FilterElement> {
-        return filters.map { filter ->
+        filterId: String,
+    ): List<FilterElement> =
+        filters.map { filter ->
             if (filter.id == filterId && filter is FilterItem) {
                 filter.copy(selected = !filter.selected)
             } else {
                 filter
             }
         }
-    }
 
     private fun applyMultipleSelectionFilter(
         currentList: FilterableList,
         group: FilterGroup.MultipleSelectionFilterGroup<*>,
-    ): FilterableList {
-        return if (group.filters.none { it.selected }) {
+    ): FilterableList =
+        if (group.filters.none { it.selected }) {
             FilterableList(emptyList())
         } else {
             group.filterableAction.applyFilter(currentList, group)
         }
-    }
 
     private fun applySingleSelectionFilter(
         currentList: FilterableList,
@@ -419,7 +448,7 @@ class FilterValidatorImpl(
         return selectedFilter?.filterableAction?.applyFilter(
             appliedFilters.sortOrder,
             currentList,
-            selectedFilter
+            selectedFilter,
         ) ?: currentList
     }
 
@@ -432,20 +461,19 @@ class FilterValidatorImpl(
         return selectedFilter?.filterableAction?.applyFilter(
             appliedFilters.sortOrder,
             currentList,
-            selectedFilter
+            selectedFilter,
         ) ?: currentList
     }
 
     private fun applyReversibleMultipleSelectionFilter(
         currentList: FilterableList,
         group: FilterGroup.ReversibleMultipleSelectionFilterGroup<*>,
-    ): FilterableList {
-        return if (group.filters.none { it.selected }) {
+    ): FilterableList =
+        if (group.filters.none { it.selected }) {
             currentList
         } else {
             group.filterableAction.applyFilter(currentList, group)
         }
-    }
 
     /** Create a merged FilterGroup with updated filters **/
     private fun mergeFilters(
@@ -478,8 +506,8 @@ class FilterValidatorImpl(
                                 newFilter.copy(
                                     selected = existingDateFilter.selected,
                                     startDateTime = existingDateFilter.startDateTime,
-                                    endDateTime = existingDateFilter.endDateTime
-                                )
+                                    endDateTime = existingDateFilter.endDateTime,
+                                ),
                             )
                         } else {
                             // Fallback: type mismatch, retain new filter as-is
@@ -512,5 +540,4 @@ class FilterValidatorImpl(
             }
         }
     }
-
 }

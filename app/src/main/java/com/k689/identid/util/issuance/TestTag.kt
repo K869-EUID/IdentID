@@ -17,11 +17,13 @@
 package com.k689.identid.util.issuance
 
 object TestTag {
-
     object AddDocumentScreen {
         const val SUBTITLE = "add_document_screen_subtitle"
-        fun optionItem(issuerId: String, configId: String) =
-            "add_document_screen_attestation_${issuerId}_$configId"
+
+        fun optionItem(
+            issuerId: String,
+            configId: String,
+        ) = "add_document_screen_attestation_${issuerId}_$configId"
     }
 
     object DocumentOfferScreen {

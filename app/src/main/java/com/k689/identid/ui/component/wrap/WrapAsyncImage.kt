@@ -38,22 +38,25 @@ fun WrapAsyncImage(
     fallback: IconDataUi? = null,
 ) {
     val context = LocalContext.current
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            add(SvgDecoder.Factory())
-        }
-        .build()
+    val imageLoader =
+        ImageLoader
+            .Builder(context)
+            .components {
+                add(SvgDecoder.Factory())
+            }.build()
 
     AsyncImage(
         modifier = modifier,
-        model = ImageRequest.Builder(context)
-            .data(source)
-            .build(),
+        model =
+            ImageRequest
+                .Builder(context)
+                .data(source)
+                .build(),
         imageLoader = imageLoader,
         contentDescription = contentDescription,
         contentScale = contentScale,
         error = error?.resourceId?.let { painterResource(it) },
         fallback = fallback?.resourceId?.let { painterResource(it) },
-        placeholder = placeholder?.resourceId?.let { painterResource(it) }
+        placeholder = placeholder?.resourceId?.let { painterResource(it) },
     )
 }

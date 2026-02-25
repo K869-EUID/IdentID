@@ -23,21 +23,19 @@ import org.json.JSONObject
 /**
  * Converts given [JSONArray] to a [List]
  */
-fun JSONArray.toList(): List<Any> {
-    return (0 until this.length()).map {
+fun JSONArray.toList(): List<Any> =
+    (0 until this.length()).map {
         this.get(it)
     }
-}
 
 /**
  * Attempts to get the given [key] from the [JSONObject]
  * @return its [String] value if it succeeds,
  * empty string if it fails.
  */
-fun JSONObject.getStringFromJsonOrEmpty(key: String): String {
-    return try {
+fun JSONObject.getStringFromJsonOrEmpty(key: String): String =
+    try {
         this.getString(key)
     } catch (_: JSONException) {
         ""
     }
-}

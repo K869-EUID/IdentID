@@ -18,21 +18,21 @@ package com.k689.identid.ui.proximity.loading
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.k689.identid.R
+import com.k689.identid.config.NavigationType
 import com.k689.identid.controller.authentication.DeviceAuthenticationResult
-import com.k689.identid.ui.common.loading.Effect
-import com.k689.identid.ui.common.loading.Event
-import com.k689.identid.ui.common.loading.LoadingViewModel
-import com.k689.identid.model.core.AuthenticationData
 import com.k689.identid.interactor.proximity.ProximityLoadingInteractor
 import com.k689.identid.interactor.proximity.ProximityLoadingObserveResponsePartialState
 import com.k689.identid.interactor.proximity.ProximityLoadingSendRequestedDocumentPartialState
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
-import com.k689.identid.ui.component.content.ContentErrorConfig
-import com.k689.identid.ui.component.content.ContentHeaderConfig
-import com.k689.identid.config.NavigationType
+import com.k689.identid.model.core.AuthenticationData
 import com.k689.identid.navigation.ProximityScreens
 import com.k689.identid.navigation.Screen
+import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.common.loading.Effect
+import com.k689.identid.ui.common.loading.Event
+import com.k689.identid.ui.common.loading.LoadingViewModel
+import com.k689.identid.ui.component.content.ContentErrorConfig
+import com.k689.identid.ui.component.content.ContentHeaderConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -45,24 +45,16 @@ class ProximityLoadingViewModel(
     private val resourceProvider: ResourceProvider,
     private val interactor: ProximityLoadingInteractor,
 ) : LoadingViewModel() {
-
-    override fun getHeaderConfig(): ContentHeaderConfig {
-        return ContentHeaderConfig(
+    override fun getHeaderConfig(): ContentHeaderConfig =
+        ContentHeaderConfig(
             description = resourceProvider.getString(R.string.loading_header_description),
         )
-    }
 
-    override fun getPreviousScreen(): Screen {
-        return ProximityScreens.Request
-    }
+    override fun getPreviousScreen(): Screen = ProximityScreens.Request
 
-    override fun getCallerScreen(): Screen {
-        return ProximityScreens.Loading
-    }
+    override fun getCallerScreen(): Screen = ProximityScreens.Loading
 
-    private fun getNextScreen(): String {
-        return ProximityScreens.Success.screenRoute
-    }
+    private fun getNextScreen(): String = ProximityScreens.Success.screenRoute
 
     override fun getCancellableTimeout(): Duration = 5.toDuration(DurationUnit.SECONDS)
 
@@ -73,14 +65,15 @@ class ProximityLoadingViewModel(
                     is ProximityLoadingObserveResponsePartialState.Failure -> {
                         setState {
                             copy(
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(Event.DoWork(context)) },
-                                    errorSubTitle = it.error,
-                                    onCancel = {
-                                        setEvent(Event.DismissError)
-                                        doNavigation(NavigationType.PopTo(getPreviousScreen()))
-                                    }
-                                )
+                                error =
+                                    ContentErrorConfig(
+                                        onRetry = { setEvent(Event.DoWork(context)) },
+                                        errorSubTitle = it.error,
+                                        onCancel = {
+                                            setEvent(Event.DismissError)
+                                            doNavigation(NavigationType.PopTo(getPreviousScreen()))
+                                        },
+                                    ),
                             )
                         }
                     }
@@ -94,10 +87,11 @@ class ProximityLoadingViewModel(
                     }
 
                     is ProximityLoadingObserveResponsePartialState.UserAuthenticationRequired -> {
-                        val popEffect = Effect.Navigation.PopBackStackUpTo(
-                            screenRoute = ProximityScreens.Request.screenRoute,
-                            inclusive = false
-                        )
+                        val popEffect =
+                            Effect.Navigation.PopBackStackUpTo(
+                                screenRoute = ProximityScreens.Request.screenRoute,
+                                inclusive = false,
+                            )
 
                         openAuthenticationPrompt(
                             context,
@@ -105,7 +99,7 @@ class ProximityLoadingViewModel(
                             it.authenticationData,
                             {
                                 sendRequestedDocuments(event = Event.DoWork(context))
-                            }
+                            },
                         )
                     }
                 }
@@ -114,26 +108,26 @@ class ProximityLoadingViewModel(
     }
 
     private fun sendRequestedDocuments(event: Event) {
-
         when (val result = interactor.sendRequestedDocuments()) {
-            is ProximityLoadingSendRequestedDocumentPartialState.Success -> { /*no op*/
+            is ProximityLoadingSendRequestedDocumentPartialState.Success -> { // no op
             }
 
             is ProximityLoadingSendRequestedDocumentPartialState.Failure -> {
                 setState {
                     copy(
-                        error = ContentErrorConfig(
-                            onRetry = { setEvent(event) },
-                            errorSubTitle = result.error,
-                            onCancel = {
-                                setEvent(Event.DismissError)
-                                doNavigation(
-                                    NavigationType.PopTo(
-                                        getPreviousScreen()
+                        error =
+                            ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = result.error,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    doNavigation(
+                                        NavigationType.PopTo(
+                                            getPreviousScreen(),
+                                        ),
                                     )
-                                )
-                            }
-                        )
+                                },
+                            ),
                     )
                 }
             }
@@ -153,31 +147,32 @@ class ProximityLoadingViewModel(
             context = context,
             crypto = authenticationData.crypto,
             notifyOnAuthenticationFailure = viewState.value.notifyOnAuthenticationFailure,
-            resultHandler = DeviceAuthenticationResult(
-                onAuthenticationSuccess = {
-                    authenticationData.onAuthenticationSuccess()
-                    if (isFinalAuthentication) {
-                        sendRequestedDocumentsAction()
-                    } else {
-                        delay(500)
-                        openAuthenticationPrompt(
-                            context,
-                            popEffect,
-                            authenticationDataList,
-                            sendRequestedDocumentsAction,
-                            index + 1
-                        )
-                    }
-                },
-                onAuthenticationError = { setEffect { popEffect } }
-            )
+            resultHandler =
+                DeviceAuthenticationResult(
+                    onAuthenticationSuccess = {
+                        authenticationData.onAuthenticationSuccess()
+                        if (isFinalAuthentication) {
+                            sendRequestedDocumentsAction()
+                        } else {
+                            delay(500)
+                            openAuthenticationPrompt(
+                                context,
+                                popEffect,
+                                authenticationDataList,
+                                sendRequestedDocumentsAction,
+                                index + 1,
+                            )
+                        }
+                    },
+                    onAuthenticationError = { setEffect { popEffect } },
+                ),
         )
     }
 
     private fun onSuccess() {
         setState {
             copy(
-                error = null
+                error = null,
             )
         }
         doNavigation(NavigationType.PushRoute(getNextScreen()))

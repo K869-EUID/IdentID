@@ -47,12 +47,13 @@ fun WrapChip(
     trailingIcon: IconDataUi? = null,
     shape: Shape = RoundedCornerShape(SIZE_SMALL.dp),
     colors: SelectableChipColors? = null,
-    border: BorderStroke? = InputChipDefaults.inputChipBorder(
-        enabled = enabled,
-        selected = selected,
-        borderColor = MaterialTheme.colorScheme.primary,
-        borderWidth = 1.dp
-    ),
+    border: BorderStroke? =
+        InputChipDefaults.inputChipBorder(
+            enabled = enabled,
+            selected = selected,
+            borderColor = MaterialTheme.colorScheme.primary,
+            borderWidth = 1.dp,
+        ),
 ) {
     val iconsSize = SIZE_MEDIUM.dp
 
@@ -62,34 +63,37 @@ fun WrapChip(
         label = label,
         modifier = modifier,
         enabled = enabled,
-        leadingIcon = if (leadingIcon != null) {
-            @Composable {
-                WrapIcon(
-                    iconData = leadingIcon,
-                    modifier = Modifier.size(iconsSize),
-                )
-            }
-        } else {
-            null
-        },
-        trailingIcon = if (trailingIcon != null) {
-            @Composable {
-                WrapIcon(
-                    iconData = trailingIcon,
-                    modifier = Modifier.size(iconsSize),
-                )
-            }
-        } else {
-            null
-        },
+        leadingIcon =
+            if (leadingIcon != null) {
+                @Composable {
+                    WrapIcon(
+                        iconData = leadingIcon,
+                        modifier = Modifier.size(iconsSize),
+                    )
+                }
+            } else {
+                null
+            },
+        trailingIcon =
+            if (trailingIcon != null) {
+                @Composable {
+                    WrapIcon(
+                        iconData = trailingIcon,
+                        modifier = Modifier.size(iconsSize),
+                    )
+                }
+            } else {
+                null
+            },
         shape = shape,
-        colors = colors ?: InputChipDefaults.inputChipColors(
-            labelColor = MaterialTheme.colorScheme.primary,
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            trailingIconColor = MaterialTheme.colorScheme.primary,
-            leadingIconColor = MaterialTheme.colorScheme.primary
-        ),
-        border = border
+        colors =
+            colors ?: InputChipDefaults.inputChipColors(
+                labelColor = MaterialTheme.colorScheme.primary,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                trailingIconColor = MaterialTheme.colorScheme.primary,
+                leadingIconColor = MaterialTheme.colorScheme.primary,
+            ),
+        border = border,
     )
 }
 
@@ -115,7 +119,7 @@ private fun WrapChipWithTrailingIconPreview() {
             label = {
                 Text(text = "Label text")
             },
-            trailingIcon = AppIcons.Close
+            trailingIcon = AppIcons.Close,
         )
     }
 }
@@ -129,7 +133,7 @@ private fun WrapChipWithLeadingIconPreview() {
             label = {
                 Text(text = "Label text")
             },
-            leadingIcon = AppIcons.Close
+            leadingIcon = AppIcons.Close,
         )
     }
 }

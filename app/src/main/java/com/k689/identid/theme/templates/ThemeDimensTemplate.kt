@@ -22,5 +22,5 @@ package com.k689.identid.theme.templates
  * @param screenPadding The padding to apply on every screen's content.
  */
 data class ThemeDimensTemplate(
-    val screenPadding: Double
+    val screenPadding: Double,
 )

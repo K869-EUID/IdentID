@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 import com.k689.identid.R
+import com.k689.identid.extension.ui.clickableNoRipple
 import com.k689.identid.ui.component.content.ContentErrorConfig
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
@@ -52,7 +53,6 @@ import com.k689.identid.ui.component.utils.SPACING_EXTRA_SMALL
 import com.k689.identid.ui.component.utils.SPACING_MEDIUM
 import com.k689.identid.ui.component.utils.SPACING_SMALL
 import com.k689.identid.ui.component.wrap.WrapIcon
-import com.k689.identid.extension.ui.clickableNoRipple
 
 @Composable
 fun InlineSnackbar(
@@ -60,9 +60,10 @@ fun InlineSnackbar(
     modifier: Modifier = Modifier,
     maxMessageLines: Int = 4,
 ) {
-    val message = error.errorTitle
-        ?: error.errorSubTitle
-        ?: stringResource(R.string.generic_error_message)
+    val message =
+        error.errorTitle
+            ?: error.errorSubTitle
+            ?: stringResource(R.string.generic_error_message)
     InlineSnackbar(
         message = message,
         onRetry = error.onRetry,
@@ -87,10 +88,11 @@ fun InlineSnackbar(
             contentColor = MaterialTheme.colorScheme.inverseOnSurface,
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = SPACING_MEDIUM.dp, vertical = SPACING_SMALL.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SPACING_MEDIUM.dp, vertical = SPACING_SMALL.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Compute “maxMessageLines” max height
                 val style = MaterialTheme.typography.bodyMedium
@@ -100,14 +102,15 @@ fun InlineSnackbar(
                     with(LocalDensity.current) { (lineHeightSp * maxMessageLines).toDp() }
 
                 Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .heightIn(max = maxHeight)
-                        .verticalScroll(rememberScrollState())
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .heightIn(max = maxHeight)
+                            .verticalScroll(rememberScrollState()),
                 ) {
                     Text(
                         text = message,
-                        style = style
+                        style = style,
                     )
                 }
 
@@ -116,29 +119,30 @@ fun InlineSnackbar(
                         text = stringResource(R.string.generic_error_button_retry),
                         color = MaterialTheme.colorScheme.inversePrimary,
                         style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier
-                            .padding(vertical = SPACING_EXTRA_SMALL.dp)
-                            .clip(RoundedCornerShape(50))
-                            .clickable { retry() }
-                            .padding(
-                                horizontal = SPACING_SMALL.dp,
-                                vertical = SPACING_EXTRA_SMALL.dp
-                            )
+                        modifier =
+                            Modifier
+                                .padding(vertical = SPACING_EXTRA_SMALL.dp)
+                                .clip(RoundedCornerShape(50))
+                                .clickable { retry() }
+                                .padding(
+                                    horizontal = SPACING_SMALL.dp,
+                                    vertical = SPACING_EXTRA_SMALL.dp,
+                                ),
                     )
                 }
             }
         }
 
         WrapIcon(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .offset(x = SPACING_SMALL.dp, y = (-SPACING_SMALL).dp)
-                .size(SIZE_LARGE.dp)
-                .background(MaterialTheme.colorScheme.inverseOnSurface, CircleShape)
-                .clickableNoRipple {
-                    onDismiss()
-                }
-                .padding(SPACING_EXTRA_SMALL.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = SPACING_SMALL.dp, y = (-SPACING_SMALL).dp)
+                    .size(SIZE_LARGE.dp)
+                    .background(MaterialTheme.colorScheme.inverseOnSurface, CircleShape)
+                    .clickableNoRipple {
+                        onDismiss()
+                    }.padding(SPACING_EXTRA_SMALL.dp),
             iconData = AppIcons.Close,
             customTint = MaterialTheme.colorScheme.inverseSurface,
         )
@@ -150,16 +154,17 @@ fun InlineSnackbar(
 private fun InlineSnackbar_Preview_NoAction() {
     PreviewTheme {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(SPACING_MEDIUM.dp),
         ) {
             InlineSnackbar(
                 message = "Something went wrong.",
                 onRetry = null,
                 onDismiss = {},
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
     }
@@ -170,16 +175,17 @@ private fun InlineSnackbar_Preview_NoAction() {
 private fun InlineSnackbar_Preview_WithAction() {
     PreviewTheme {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(SPACING_MEDIUM.dp),
         ) {
             InlineSnackbar(
                 message = "Network error. Please try again.",
                 onRetry = {},
                 onDismiss = {},
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
     }
@@ -191,23 +197,24 @@ private fun InlineSnackbar_Preview_LongScrollable() {
     PreviewTheme {
         val longText =
             "This is a very long message intended to demonstrate vertical scrolling inside the snackbar. " +
-                    "If the content exceeds the configured maximum number of lines, it should become scrollable " +
-                    "so the user can read everything without the snackbar growing too tall. ".repeat(
-                        4
-                    )
+                "If the content exceeds the configured maximum number of lines, it should become scrollable " +
+                "so the user can read everything without the snackbar growing too tall. ".repeat(
+                    4,
+                )
 
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(SPACING_MEDIUM.dp),
         ) {
             InlineSnackbar(
                 message = longText,
                 onRetry = {},
                 onDismiss = {},
                 modifier = Modifier.align(Alignment.BottomCenter),
-                maxMessageLines = 4
+                maxMessageLines = 4,
             )
         }
     }

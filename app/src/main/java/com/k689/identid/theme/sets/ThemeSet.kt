@@ -27,5 +27,5 @@ data class ThemeSet(
     val darkColors: ColorScheme,
     val typo: Typography,
     val shapes: Shapes,
-    val dimens: ThemeDimensTemplate
+    val dimens: ThemeDimensTemplate,
 )

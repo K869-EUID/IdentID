@@ -16,11 +16,11 @@
 
 package com.k689.identid.di.startup
 
-import com.k689.identid.interactor.common.QuickPinInteractor
 import com.k689.identid.controller.core.WalletCoreDocumentsController
-import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.interactor.common.QuickPinInteractor
 import com.k689.identid.interactor.startup.SplashInteractor
 import com.k689.identid.interactor.startup.SplashInteractorImpl
+import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.serializer.UiSerializer
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
@@ -35,10 +35,11 @@ fun provideSplashInteractor(
     quickPinInteractor: QuickPinInteractor,
     uiSerializer: UiSerializer,
     resourceProvider: ResourceProvider,
-    walletCoreDocumentsController: WalletCoreDocumentsController
-): SplashInteractor = SplashInteractorImpl(
-    quickPinInteractor,
-    uiSerializer,
-    resourceProvider,
-    walletCoreDocumentsController
-)
+    walletCoreDocumentsController: WalletCoreDocumentsController,
+): SplashInteractor =
+    SplashInteractorImpl(
+        quickPinInteractor,
+        uiSerializer,
+        resourceProvider,
+        walletCoreDocumentsController,
+    )

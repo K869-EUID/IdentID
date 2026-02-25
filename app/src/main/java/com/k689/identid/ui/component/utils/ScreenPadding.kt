@@ -26,37 +26,39 @@ private const val BOTTOM_SCREEN_PADDING = SPACING_MEDIUM
 private const val HORIZONTAL_SCREEN_PADDING = SPACING_LARGE
 
 enum class TopSpacing {
-    WithToolbar, WithoutToolbar
+    WithToolbar,
+    WithoutToolbar,
 }
 
 internal fun screenPaddings(
     hasStickyBottom: Boolean,
     append: PaddingValues? = null,
-    topSpacing: TopSpacing = TopSpacing.WithToolbar
+    topSpacing: TopSpacing = TopSpacing.WithToolbar,
 ) = PaddingValues(
     start = HORIZONTAL_SCREEN_PADDING.dp,
     top = calculateTopSpacing(topSpacing).dp + (append?.calculateTopPadding() ?: 0.dp),
     end = HORIZONTAL_SCREEN_PADDING.dp,
-    bottom = if (!hasStickyBottom) {
-        BOTTOM_SCREEN_PADDING.dp + (append?.calculateBottomPadding() ?: 0.dp)
-    } else {
-        0.dp
-    }
+    bottom =
+        if (!hasStickyBottom) {
+            BOTTOM_SCREEN_PADDING.dp + (append?.calculateBottomPadding() ?: 0.dp)
+        } else {
+            0.dp
+        },
 )
 
 internal fun stickyBottomPaddings(
     contentScreenPaddings: PaddingValues,
-    layoutDirection: LayoutDirection
-): PaddingValues {
-    return PaddingValues(
+    layoutDirection: LayoutDirection,
+): PaddingValues =
+    PaddingValues(
         start = contentScreenPaddings.calculateStartPadding(layoutDirection),
         top = BOTTOM_SCREEN_PADDING.dp,
         end = contentScreenPaddings.calculateEndPadding(layoutDirection),
-        bottom = BOTTOM_SCREEN_PADDING.dp
+        bottom = BOTTOM_SCREEN_PADDING.dp,
     )
-}
 
-private fun calculateTopSpacing(topSpacing: TopSpacing): Int = when (topSpacing) {
-    TopSpacing.WithToolbar -> SPACING_SMALL
-    TopSpacing.WithoutToolbar -> SPACING_XX_LARGE
-}
+private fun calculateTopSpacing(topSpacing: TopSpacing): Int =
+    when (topSpacing) {
+        TopSpacing.WithToolbar -> SPACING_SMALL
+        TopSpacing.WithoutToolbar -> SPACING_XX_LARGE
+    }

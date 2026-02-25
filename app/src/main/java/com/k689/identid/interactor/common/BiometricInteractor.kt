@@ -25,15 +25,19 @@ import kotlinx.coroutines.flow.Flow
 
 interface BiometricInteractor {
     fun getBiometricsAvailability(listener: (BiometricsAvailability) -> Unit)
+
     fun getBiometricUserSelection(): Boolean
+
     fun storeBiometricsUsageDecision(shouldUseBiometrics: Boolean)
+
     fun authenticateWithBiometrics(
         context: Context,
         notifyOnAuthenticationFailure: Boolean,
-        listener: (BiometricsAuthenticate) -> Unit
+        listener: (BiometricsAuthenticate) -> Unit,
     )
 
     fun launchBiometricSystemScreen()
+
     fun isPinValid(pin: String): Flow<QuickPinInteractorPinValidPartialState>
 }
 
@@ -42,17 +46,13 @@ class BiometricInteractorImpl(
     private val biometricAuthenticationController: BiometricAuthenticationController,
     private val quickPinInteractor: QuickPinInteractor,
 ) : BiometricInteractor {
-
-    override fun isPinValid(pin: String): Flow<QuickPinInteractorPinValidPartialState> =
-        quickPinInteractor.isCurrentPinValid(pin)
+    override fun isPinValid(pin: String): Flow<QuickPinInteractorPinValidPartialState> = quickPinInteractor.isCurrentPinValid(pin)
 
     override fun storeBiometricsUsageDecision(shouldUseBiometrics: Boolean) {
         biometryStorageController.setUseBiometricsAuth(shouldUseBiometrics)
     }
 
-    override fun getBiometricUserSelection(): Boolean {
-        return biometryStorageController.getUseBiometricsAuth()
-    }
+    override fun getBiometricUserSelection(): Boolean = biometryStorageController.getUseBiometricsAuth()
 
     override fun getBiometricsAvailability(listener: (BiometricsAvailability) -> Unit) {
         biometricAuthenticationController.deviceSupportsBiometrics(listener)
@@ -61,12 +61,12 @@ class BiometricInteractorImpl(
     override fun authenticateWithBiometrics(
         context: Context,
         notifyOnAuthenticationFailure: Boolean,
-        listener: (BiometricsAuthenticate) -> Unit
+        listener: (BiometricsAuthenticate) -> Unit,
     ) {
         biometricAuthenticationController.authenticate(
             context,
             notifyOnAuthenticationFailure,
-            listener
+            listener,
         )
     }
 

@@ -16,4 +16,6 @@
 
 package com.k689.identid.model.dashboard
 
-data class SearchItemUi(val searchLabel: String)
+data class SearchItemUi(
+    val searchLabel: String,
+)

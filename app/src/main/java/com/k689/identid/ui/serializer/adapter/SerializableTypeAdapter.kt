@@ -27,9 +27,10 @@ import java.lang.reflect.Type
 
 interface SerializableAdapterType
 
-class SerializableTypeAdapter<T : Any> : JsonSerializer<T>, JsonDeserializer<T>,
+class SerializableTypeAdapter<T : Any> :
+    JsonSerializer<T>,
+    JsonDeserializer<T>,
     SerializableAdapterType {
-
     private val CLASSNAME = "CLASSNAME"
     private val DATA = "DATA"
 
@@ -37,7 +38,7 @@ class SerializableTypeAdapter<T : Any> : JsonSerializer<T>, JsonDeserializer<T>,
     override fun serialize(
         src: T?,
         typeOfSrc: Type?,
-        context: JsonSerializationContext?
+        context: JsonSerializationContext?,
     ): JsonElement {
         if (src != null && context != null) {
             return JsonObject().apply {
@@ -52,7 +53,7 @@ class SerializableTypeAdapter<T : Any> : JsonSerializer<T>, JsonDeserializer<T>,
     override fun deserialize(
         json: JsonElement?,
         typeOfT: Type?,
-        context: JsonDeserializationContext?
+        context: JsonDeserializationContext?,
     ): T {
         val jsonObject = json?.asJsonObject
         val className = jsonObject?.get(CLASSNAME)?.asString

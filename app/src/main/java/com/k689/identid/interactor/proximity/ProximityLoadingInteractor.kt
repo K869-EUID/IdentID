@@ -19,11 +19,11 @@ package com.k689.identid.interactor.proximity
 import android.content.Context
 import com.k689.identid.controller.authentication.BiometricsAvailability
 import com.k689.identid.controller.authentication.DeviceAuthenticationResult
-import com.k689.identid.model.authentication.BiometricCrypto
-import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
 import com.k689.identid.controller.core.SendRequestedDocumentsPartialState
 import com.k689.identid.controller.core.WalletCorePartialState
 import com.k689.identid.controller.core.WalletCorePresentationController
+import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
+import com.k689.identid.model.authentication.BiometricCrypto
 import com.k689.identid.model.core.AuthenticationData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
@@ -33,19 +33,28 @@ sealed class ProximityLoadingObserveResponsePartialState {
         val authenticationData: List<AuthenticationData>,
     ) : ProximityLoadingObserveResponsePartialState()
 
-    data class Failure(val error: String) : ProximityLoadingObserveResponsePartialState()
+    data class Failure(
+        val error: String,
+    ) : ProximityLoadingObserveResponsePartialState()
+
     data object Success : ProximityLoadingObserveResponsePartialState()
+
     data object RequestReadyToBeSent : ProximityLoadingObserveResponsePartialState()
 }
 
 sealed class ProximityLoadingSendRequestedDocumentPartialState {
-    data class Failure(val error: String) : ProximityLoadingSendRequestedDocumentPartialState()
+    data class Failure(
+        val error: String,
+    ) : ProximityLoadingSendRequestedDocumentPartialState()
+
     data object Success : ProximityLoadingSendRequestedDocumentPartialState()
 }
 
 interface ProximityLoadingInteractor {
     fun observeResponse(): Flow<ProximityLoadingObserveResponsePartialState>
+
     fun sendRequestedDocuments(): ProximityLoadingSendRequestedDocumentPartialState
+
     fun handleUserAuthentication(
         context: Context,
         crypto: BiometricCrypto,
@@ -58,24 +67,32 @@ class ProximityLoadingInteractorImpl(
     private val walletCorePresentationController: WalletCorePresentationController,
     private val deviceAuthenticationInteractor: DeviceAuthenticationInteractor,
 ) : ProximityLoadingInteractor {
-
     override fun observeResponse(): Flow<ProximityLoadingObserveResponsePartialState> =
         walletCorePresentationController.observeSentDocumentsRequest().mapNotNull { response ->
             when (response) {
-                is WalletCorePartialState.Failure -> ProximityLoadingObserveResponsePartialState.Failure(
-                    error = response.error
-                )
-
-                is WalletCorePartialState.Redirect -> null
-
-                is WalletCorePartialState.Success -> ProximityLoadingObserveResponsePartialState.Success
-                is WalletCorePartialState.UserAuthenticationRequired -> {
-                    ProximityLoadingObserveResponsePartialState.UserAuthenticationRequired(
-                        response.authenticationData
+                is WalletCorePartialState.Failure -> {
+                    ProximityLoadingObserveResponsePartialState.Failure(
+                        error = response.error,
                     )
                 }
 
-                is WalletCorePartialState.RequestIsReadyToBeSent -> ProximityLoadingObserveResponsePartialState.RequestReadyToBeSent
+                is WalletCorePartialState.Redirect -> {
+                    null
+                }
+
+                is WalletCorePartialState.Success -> {
+                    ProximityLoadingObserveResponsePartialState.Success
+                }
+
+                is WalletCorePartialState.UserAuthenticationRequired -> {
+                    ProximityLoadingObserveResponsePartialState.UserAuthenticationRequired(
+                        response.authenticationData,
+                    )
+                }
+
+                is WalletCorePartialState.RequestIsReadyToBeSent -> {
+                    ProximityLoadingObserveResponsePartialState.RequestReadyToBeSent
+                }
             }
         }
 
@@ -92,7 +109,7 @@ class ProximityLoadingInteractorImpl(
                         context = context,
                         crypto = crypto,
                         notifyOnAuthenticationFailure = notifyOnAuthenticationFailure,
-                        resultHandler = resultHandler
+                        resultHandler = resultHandler,
                     )
                 }
 
@@ -107,12 +124,16 @@ class ProximityLoadingInteractorImpl(
         }
     }
 
-    override fun sendRequestedDocuments(): ProximityLoadingSendRequestedDocumentPartialState {
-        return when (val result = walletCorePresentationController.sendRequestedDocuments()) {
-            is SendRequestedDocumentsPartialState.RequestSent -> ProximityLoadingSendRequestedDocumentPartialState.Success
-            is SendRequestedDocumentsPartialState.Failure -> ProximityLoadingSendRequestedDocumentPartialState.Failure(
-                result.error
-            )
+    override fun sendRequestedDocuments(): ProximityLoadingSendRequestedDocumentPartialState =
+        when (val result = walletCorePresentationController.sendRequestedDocuments()) {
+            is SendRequestedDocumentsPartialState.RequestSent -> {
+                ProximityLoadingSendRequestedDocumentPartialState.Success
+            }
+
+            is SendRequestedDocumentsPartialState.Failure -> {
+                ProximityLoadingSendRequestedDocumentPartialState.Failure(
+                    result.error,
+                )
+            }
         }
-    }
 }

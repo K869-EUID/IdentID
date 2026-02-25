@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.common.qr_scan.component
+package com.k689.identid.ui.common.scan.component
 
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -38,7 +38,6 @@ fun DrawScope.qrBorderCanvas(
     cap: StrokeCap = StrokeCap.Square,
     lineCap: StrokeCap = StrokeCap.Round,
 ) {
-
     val curvePx = curve.toPx()
 
     val mCapSize = capSize.toPx()
@@ -56,10 +55,11 @@ fun DrawScope.qrBorderCanvas(
                 size = size,
                 topLeft = Offset(0f, 0f),
                 style = Stroke(width = i * 1f),
-                cornerRadius = CornerRadius(
-                    x = curvePx,
-                    y = curvePx
-                ),
+                cornerRadius =
+                    CornerRadius(
+                        x = curvePx,
+                        y = curvePx,
+                    ),
             )
         }
     }
@@ -73,9 +73,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            width - mCurve, height - mCurve
-        )
+        topLeft =
+            Offset(
+                width - mCurve,
+                height - mCurve,
+            ),
     )
     drawArc(
         color = borderColor,
@@ -84,9 +86,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            width - mCurve, height - mCurve
-        )
+        topLeft =
+            Offset(
+                width - mCurve,
+                height - mCurve,
+            ),
     )
 
     drawArc(
@@ -96,9 +100,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            0f, height - mCurve
-        )
+        topLeft =
+            Offset(
+                0f,
+                height - mCurve,
+            ),
     )
     drawArc(
         color = borderColor,
@@ -107,9 +113,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            0f, height - mCurve
-        )
+        topLeft =
+            Offset(
+                0f,
+                height - mCurve,
+            ),
     )
 
     drawArc(
@@ -119,9 +127,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            0f, 0f
-        )
+        topLeft =
+            Offset(
+                0f,
+                0f,
+            ),
     )
 
     drawArc(
@@ -131,11 +141,12 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            0f, 0f
-        )
+        topLeft =
+            Offset(
+                0f,
+                0f,
+            ),
     )
-
 
     drawArc(
         color = borderColor,
@@ -144,9 +155,11 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            width - mCurve, 0f
-        )
+        topLeft =
+            Offset(
+                width - mCurve,
+                0f,
+            ),
     )
 
     drawArc(
@@ -156,50 +169,74 @@ fun DrawScope.qrBorderCanvas(
         sweepAngle = sweepAngle,
         useCenter = false,
         size = Size(mCurve, mCurve),
-        topLeft = Offset(
-            width - mCurve, 0f
-        )
-    )
-
-
-    drawLine(
-        SolidColor(borderColor), Offset(width, height - mCapSize), Offset(width, height - curvePx),
-        strokeWidth.toPx(), lineCap,
+        topLeft =
+            Offset(
+                width - mCurve,
+                0f,
+            ),
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(width - mCapSize, height), Offset(width - curvePx, height),
-        strokeWidth.toPx(), lineCap,
+        SolidColor(borderColor),
+        Offset(width, height - mCapSize),
+        Offset(width, height - curvePx),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(mCapSize, height), Offset(curvePx, height),
-        strokeWidth.toPx(), lineCap,
+        SolidColor(borderColor),
+        Offset(width - mCapSize, height),
+        Offset(width - curvePx, height),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(0f, height - curvePx), Offset(0f, height - mCapSize),
-        strokeWidth.toPx(), lineCap
+        SolidColor(borderColor),
+        Offset(mCapSize, height),
+        Offset(curvePx, height),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(0f, curvePx), Offset(0f, mCapSize),
-        strokeWidth.toPx(), lineCap,
+        SolidColor(borderColor),
+        Offset(0f, height - curvePx),
+        Offset(0f, height - mCapSize),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(curvePx, 0f), Offset(mCapSize, 0f),
-        strokeWidth.toPx(), lineCap,
+        SolidColor(borderColor),
+        Offset(0f, curvePx),
+        Offset(0f, mCapSize),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(width - curvePx, 0f), Offset(width - mCapSize, 0f),
-        strokeWidth.toPx(), lineCap,
+        SolidColor(borderColor),
+        Offset(curvePx, 0f),
+        Offset(mCapSize, 0f),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
     drawLine(
-        SolidColor(borderColor), Offset(width, curvePx), Offset(width, mCapSize),
-        strokeWidth.toPx(), lineCap
+        SolidColor(borderColor),
+        Offset(width - curvePx, 0f),
+        Offset(width - mCapSize, 0f),
+        strokeWidth.toPx(),
+        lineCap,
     )
 
+    drawLine(
+        SolidColor(borderColor),
+        Offset(width, curvePx),
+        Offset(width, mCapSize),
+        strokeWidth.toPx(),
+        lineCap,
+    )
 }

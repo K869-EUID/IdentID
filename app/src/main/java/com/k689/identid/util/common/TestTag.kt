@@ -17,7 +17,6 @@
 package com.k689.identid.util.common
 
 object TestTag {
-
     object PinScreen {
         const val TITLE = "pin_screen_title"
         const val BUTTON = "pin_screen_button"

@@ -36,18 +36,20 @@ private val primaryFabContainerColor: Color
     @Composable get() = MaterialTheme.colorScheme.primary
 
 private val primaryFabContentColor: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color.White
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color.White
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
 
 private val secondaryFabContainerColor: Color
-    @Composable get() = if (ThemeManager.instance.set.isInDarkMode) {
-        Color.DarkGray
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
+    @Composable get() =
+        if (ThemeManager.instance.set.isInDarkMode) {
+            Color.DarkGray
+        } else {
+            MaterialTheme.colorScheme.surface
+        }
 
 private val secondaryFabContentColor: Color
     @Composable get() = MaterialTheme.colorScheme.onSurface
@@ -115,7 +117,7 @@ fun WrapPrimaryExtendedFab(
         contentColor = contentColor,
         onClick = data.onClick,
         icon = data.icon,
-        text = data.text
+        text = data.text,
     )
 }
 
@@ -141,10 +143,11 @@ fun WrapSecondaryExtendedFab(
 private fun WrapPrimaryFabPreview() {
     PreviewTheme {
         WrapPrimaryFab(
-            data = FabDataUi(
-                icon = { WrapIcon(iconData = AppIcons.Add) },
-                onClick = {}
-            )
+            data =
+                FabDataUi(
+                    icon = { WrapIcon(iconData = AppIcons.Add) },
+                    onClick = {},
+                ),
         )
     }
 }

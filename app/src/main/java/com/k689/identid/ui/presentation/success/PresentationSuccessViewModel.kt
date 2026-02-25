@@ -17,13 +17,13 @@
 package com.k689.identid.ui.presentation.success
 
 import androidx.lifecycle.viewModelScope
-import com.k689.identid.ui.common.document_success.DocumentSuccessViewModel
+import com.k689.identid.config.ConfigNavigation
+import com.k689.identid.config.NavigationType
 import com.k689.identid.di.core.getOrCreatePresentationScope
 import com.k689.identid.interactor.presentation.PresentationSuccessInteractor
 import com.k689.identid.interactor.presentation.PresentationSuccessInteractorGetUiItemsPartialState
-import com.k689.identid.config.ConfigNavigation
-import com.k689.identid.config.NavigationType
 import com.k689.identid.navigation.DashboardScreens
+import com.k689.identid.ui.common.document.sucess.DocumentSuccessViewModel
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
@@ -31,14 +31,15 @@ import org.koin.android.annotation.KoinViewModel
 class PresentationSuccessViewModel(
     private val interactor: PresentationSuccessInteractor,
 ) : DocumentSuccessViewModel() {
-
     override fun getNextScreenConfigNavigation(): ConfigNavigation {
         val redirectUri = interactor.redirectUri
-        val deepLinkWithUriOrPopToDashboard = ConfigNavigation(
-            navigationType = redirectUri?.let {
-                NavigationType.Deeplink(it.toString(), interactor.initiatorRoute)
-            } ?: NavigationType.PopTo(DashboardScreens.Dashboard)
-        )
+        val deepLinkWithUriOrPopToDashboard =
+            ConfigNavigation(
+                navigationType =
+                    redirectUri?.let {
+                        NavigationType.Deeplink(it.toString(), interactor.initiatorRoute)
+                    } ?: NavigationType.PopTo(DashboardScreens.Dashboard),
+            )
 
         return deepLinkWithUriOrPopToDashboard
     }

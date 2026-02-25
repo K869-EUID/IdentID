@@ -20,12 +20,14 @@ import androidx.compose.ui.text.font.FontStyle
 
 sealed class ThemeFontStyle {
     data object Normal : ThemeFontStyle()
+
     data object Italic : ThemeFontStyle()
 
     companion object {
-        fun ThemeFontStyle.toFontStyle(): FontStyle = when (this) {
-            Normal -> FontStyle.Normal
-            Italic -> FontStyle.Italic
-        }
+        fun ThemeFontStyle.toFontStyle(): FontStyle =
+            when (this) {
+                Normal -> FontStyle.Normal
+                Italic -> FontStyle.Italic
+            }
     }
 }

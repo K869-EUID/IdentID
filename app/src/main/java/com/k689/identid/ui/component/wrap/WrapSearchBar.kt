@@ -50,9 +50,10 @@ fun WrapSearchBar(
         placeholder = {
             Text(text = placeholder)
         },
-        colors = colors ?: OutlinedTextFieldDefaults.colors(
-            unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
-        ),
+        colors =
+            colors ?: OutlinedTextFieldDefaults.colors(
+                unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+            ),
         maxLines = maxLines,
     )
 }
@@ -60,14 +61,14 @@ fun WrapSearchBar(
 @ThemeModePreviews
 @Composable
 private fun WrapSearchBarWithTextPreview(
-    @PreviewParameter(TextLengthPreviewProvider::class) text: String
+    @PreviewParameter(TextLengthPreviewProvider::class) text: String,
 ) {
     PreviewTheme {
         WrapSearchBar(
             modifier = Modifier.fillMaxWidth(),
             searchText = text,
             placeholder = "Search Documents",
-            onSearchTextChanged = {}
+            onSearchTextChanged = {},
         )
     }
 }
@@ -80,7 +81,7 @@ private fun WrapSearchBarWithNoTextPreview() {
             modifier = Modifier.fillMaxWidth(),
             searchText = "",
             placeholder = "Search Documents",
-            onSearchTextChanged = {}
+            onSearchTextChanged = {},
         )
     }
 }

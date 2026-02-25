@@ -21,22 +21,26 @@ import com.k689.identid.model.validator.FilterElement
 import com.k689.identid.model.validator.FilterableList
 import com.k689.identid.model.validator.Filters
 
-fun FilterableList.filterByQuery(searchQuery: String): FilterableList {
-    return copy(
-        items = items.filter { item ->
-            item.attributes.searchTags.any { searchTag ->
-                searchTag.contains(
-                    other = searchQuery,
-                    ignoreCase = true
-                )
-            }
-        }
+fun FilterableList.filterByQuery(searchQuery: String): FilterableList =
+    copy(
+        items =
+            items.filter { item ->
+                item.attributes.searchTags.any { searchTag ->
+                    searchTag.contains(
+                        other = searchQuery,
+                        ignoreCase = true,
+                    )
+                }
+            },
     )
-}
 
-internal fun FilterableList.applySort(filters: Filters): FilterableList {
-    return filters.filterGroups.flatMap { it.filters }
-        .firstOrNull { it.filterableAction is FilterAction.Sort<*, *> && it.selected }?.filterableAction?.applyFilter(
-            filters.sortOrder, this, FilterElement.FilterItem.emptyFilter()
+internal fun FilterableList.applySort(filters: Filters): FilterableList =
+    filters.filterGroups
+        .flatMap { it.filters }
+        .firstOrNull { it.filterableAction is FilterAction.Sort<*, *> && it.selected }
+        ?.filterableAction
+        ?.applyFilter(
+            filters.sortOrder,
+            this,
+            FilterElement.FilterItem.emptyFilter(),
         ) ?: this
-}

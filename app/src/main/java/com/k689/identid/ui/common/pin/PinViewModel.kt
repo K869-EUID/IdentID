@@ -17,33 +17,33 @@
 package com.k689.identid.ui.common.pin
 
 import androidx.lifecycle.viewModelScope
-import com.k689.identid.validator.Form
-import com.k689.identid.validator.FormValidationResult
-import com.k689.identid.validator.Rule
+import com.k689.identid.R
+import com.k689.identid.config.ConfigNavigation
 import com.k689.identid.config.IssuanceFlowType
 import com.k689.identid.config.IssuanceUiConfig
+import com.k689.identid.config.NavigationType
 import com.k689.identid.config.SuccessUIConfig
 import com.k689.identid.interactor.common.QuickPinInteractor
 import com.k689.identid.interactor.common.QuickPinInteractorPinValidPartialState
 import com.k689.identid.interactor.common.QuickPinInteractorSetPinPartialState
 import com.k689.identid.model.common.PinFlow
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
-import com.k689.identid.ui.component.AppIcons
-import com.k689.identid.ui.component.content.ScreenNavigateAction
-import com.k689.identid.config.ConfigNavigation
-import com.k689.identid.config.NavigationType
-import com.k689.identid.ui.mvi.MviViewModel
-import com.k689.identid.ui.mvi.ViewEvent
-import com.k689.identid.ui.mvi.ViewSideEffect
-import com.k689.identid.ui.mvi.ViewState
 import com.k689.identid.navigation.CommonScreens
 import com.k689.identid.navigation.DashboardScreens
 import com.k689.identid.navigation.IssuanceScreens
 import com.k689.identid.navigation.ModuleRoute
 import com.k689.identid.navigation.helper.generateComposableArguments
 import com.k689.identid.navigation.helper.generateComposableNavigationLink
+import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.component.AppIcons
+import com.k689.identid.ui.component.content.ScreenNavigateAction
+import com.k689.identid.ui.mvi.MviViewModel
+import com.k689.identid.ui.mvi.ViewEvent
+import com.k689.identid.ui.mvi.ViewSideEffect
+import com.k689.identid.ui.mvi.ViewState
 import com.k689.identid.ui.serializer.UiSerializer
+import com.k689.identid.validator.Form
+import com.k689.identid.validator.FormValidationResult
+import com.k689.identid.validator.Rule
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -52,7 +52,7 @@ import org.koin.core.annotation.InjectedParam
 enum class PinValidationState {
     ENTER,
     REENTER,
-    VALIDATE
+    VALIDATE,
 }
 
 data class State(
@@ -69,7 +69,7 @@ data class State(
     val resetPin: Boolean = false,
     val pinState: PinValidationState,
     val isBottomSheetOpen: Boolean = false,
-    val quickPinSize: Int = 6
+    val quickPinSize: Int = 6,
 ) : ViewState {
     val action: ScreenNavigateAction
         get() {
@@ -89,15 +89,26 @@ data class State(
 }
 
 sealed class Event : ViewEvent {
-    data class NextButtonPressed(val pin: String) : Event()
-    data class OnQuickPinEntered(val quickPin: String) : Event()
+    data class NextButtonPressed(
+        val pin: String,
+    ) : Event()
+
+    data class OnQuickPinEntered(
+        val quickPin: String,
+    ) : Event()
+
     data object CancelPressed : Event()
+
     data object Finish : Event()
+
     sealed class BottomSheet : Event() {
-        data class UpdateBottomSheetState(val isOpen: Boolean) : BottomSheet()
+        data class UpdateBottomSheetState(
+            val isOpen: Boolean,
+        ) : BottomSheet()
 
         sealed class Cancel : BottomSheet() {
             data object PrimaryButtonPressed : Cancel()
+
             data object SecondaryButtonPressed : Cancel()
         }
     }
@@ -105,14 +116,21 @@ sealed class Event : ViewEvent {
 
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
-        data class SwitchModule(val moduleRoute: ModuleRoute) : Navigation()
-        data class SwitchScreen(val screen: String) : Navigation()
+        data class SwitchModule(
+            val moduleRoute: ModuleRoute,
+        ) : Navigation()
+
+        data class SwitchScreen(
+            val screen: String,
+        ) : Navigation()
 
         data object Pop : Navigation()
+
         data object Finish : Navigation()
     }
 
     data object ShowBottomSheet : Effect()
+
     data object CloseBottomSheet : Effect()
 }
 
@@ -121,9 +139,8 @@ class PinViewModel(
     private val interactor: QuickPinInteractor,
     private val resourceProvider: ResourceProvider,
     private val uiSerializer: UiSerializer,
-    @InjectedParam private val pinFlow: PinFlow
+    @InjectedParam private val pinFlow: PinFlow,
 ) : MviViewModel<Event, State, Effect>() {
-
     override fun setInitialState(): State {
         val title: String
         val subtitle: String
@@ -153,7 +170,7 @@ class PinViewModel(
             subtitle = subtitle,
             pinState = pinState,
             buttonText = buttonText,
-            pinFlow = pinFlow
+            pinFlow = pinFlow,
         )
     }
 
@@ -205,29 +222,32 @@ class PinViewModel(
                 }
             }
 
-            is Event.Finish -> setEffect { Effect.Navigation.Finish }
+            is Event.Finish -> {
+                setEffect { Effect.Navigation.Finish }
+            }
         }
     }
 
     private fun validatePin(currentPin: String) {
         viewModelScope.launch {
-            interactor.isCurrentPinValid(
-                pin = currentPin
-            ).collect {
-                when (it) {
-                    is QuickPinInteractorPinValidPartialState.Failed -> {
-                        setState {
-                            copy(
-                                quickPinError = it.errorMessage
-                            )
+            interactor
+                .isCurrentPinValid(
+                    pin = currentPin,
+                ).collect {
+                    when (it) {
+                        is QuickPinInteractorPinValidPartialState.Failed -> {
+                            setState {
+                                copy(
+                                    quickPinError = it.errorMessage,
+                                )
+                            }
+                        }
+
+                        QuickPinInteractorPinValidPartialState.Success -> {
+                            setupEnterPhase()
                         }
                     }
-
-                    QuickPinInteractorPinValidPartialState.Success -> {
-                        setupEnterPhase()
-                    }
                 }
-            }
         }
     }
 
@@ -242,7 +262,7 @@ class PinViewModel(
                 buttonText = calculateButtonText(newPinState),
                 pin = "",
                 resetPin = true,
-                subtitle = calculateSubtitle(newPinState)
+                subtitle = calculateSubtitle(newPinState),
             )
         }
     }
@@ -258,52 +278,55 @@ class PinViewModel(
                 buttonText = calculateButtonText(newPinState),
                 pin = "",
                 resetPin = true,
-                subtitle = calculateSubtitle(newPinState)
+                subtitle = calculateSubtitle(newPinState),
             )
         }
     }
 
-    private fun saveNewPin(newPin: String, enteredPin: String) {
+    private fun saveNewPin(
+        newPin: String,
+        enteredPin: String,
+    ) {
         viewModelScope.launch {
-            interactor.setPin(
-                newPin = newPin,
-                initialPin = enteredPin
-            ).collect {
-                when (it) {
-                    is QuickPinInteractorSetPinPartialState.Failed -> {
-                        setState {
-                            copy(
-                                quickPinError = it.errorMessage
-                            )
+            interactor
+                .setPin(
+                    newPin = newPin,
+                    initialPin = enteredPin,
+                ).collect {
+                    when (it) {
+                        is QuickPinInteractorSetPinPartialState.Failed -> {
+                            setState {
+                                copy(
+                                    quickPinError = it.errorMessage,
+                                )
+                            }
                         }
-                    }
 
-                    is QuickPinInteractorSetPinPartialState.Success -> {
-                        setEffect {
-                            Effect.Navigation.SwitchScreen(getNextScreenRoute())
+                        is QuickPinInteractorSetPinPartialState.Success -> {
+                            setEffect {
+                                Effect.Navigation.SwitchScreen(getNextScreenRoute())
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
-    private fun getListOfRules(pin: String): Form {
-        return Form(
+    private fun getListOfRules(pin: String): Form =
+        Form(
             mapOf(
                 listOf(
                     Rule.ValidateStringRange(
                         viewState.value.quickPinSize..viewState.value.quickPinSize,
-                        ""
+                        "",
                     ),
                     Rule.ValidateRegex(
                         "-?\\d+(\\.\\d+)?".toRegex(),
-                        resourceProvider.getString(R.string.quick_pin_numerical_rule_invalid_error_message)
-                    )
-                ) to pin
-            )
+                        resourceProvider.getString(R.string.quick_pin_numerical_rule_invalid_error_message),
+                    ),
+                ) to pin,
+            ),
         )
-    }
 
     private fun validateForm(pin: String) {
         viewModelScope.launch {
@@ -314,14 +337,14 @@ class PinViewModel(
                     isButtonEnabled = validationResult.isValid,
                     quickPinError = validationResult.message,
                     pin = pin,
-                    resetPin = false
+                    resetPin = false,
                 )
             }
         }
     }
 
-    private fun calculateSubtitle(pinState: PinValidationState): String {
-        return when (pinFlow) {
+    private fun calculateSubtitle(pinState: PinValidationState): String =
+        when (pinFlow) {
             PinFlow.UPDATE -> {
                 when (pinState) {
                     PinValidationState.ENTER -> resourceProvider.getString(R.string.quick_pin_change_enter_new_subtitle)
@@ -338,85 +361,104 @@ class PinViewModel(
                 }
             }
         }
-    }
 
-    private fun calculateButtonText(pinState: PinValidationState): String {
-        return when (pinState) {
+    private fun calculateButtonText(pinState: PinValidationState): String =
+        when (pinState) {
             PinValidationState.ENTER -> resourceProvider.getString(R.string.generic_next_capitalized)
             PinValidationState.REENTER -> resourceProvider.getString(R.string.generic_confirm_capitalized)
             PinValidationState.VALIDATE -> resourceProvider.getString(R.string.generic_next_capitalized)
         }
-    }
 
     private fun getNextScreenRoute(): String {
+        val navigationAfterCreate =
+            ConfigNavigation(
+                navigationType =
+                    NavigationType.PushScreen(
+                        screen = IssuanceScreens.AddDocument,
+                        arguments =
+                            mapOf(
+                                IssuanceUiConfig.serializedKeyName to
+                                    uiSerializer.toBase64(
+                                        model =
+                                            IssuanceUiConfig(
+                                                flowType = IssuanceFlowType.NoDocument,
+                                            ),
+                                        parser = IssuanceUiConfig.Parser,
+                                    ),
+                            ),
+                        popUpToScreen = CommonScreens.QuickPin,
+                    ),
+            )
 
-        val navigationAfterCreate = ConfigNavigation(
-            navigationType = NavigationType.PushScreen(
-                screen = IssuanceScreens.AddDocument,
-                arguments = mapOf(
-                    IssuanceUiConfig.serializedKeyName to uiSerializer.toBase64(
-                        model = IssuanceUiConfig(
-                            flowType = IssuanceFlowType.NoDocument
-                        ),
-                        parser = IssuanceUiConfig.Parser
-                    )
-                ),
-                popUpToScreen = CommonScreens.QuickPin
-            ),
-        )
-
-        val navigationAfterUpdate = ConfigNavigation(
-            navigationType = NavigationType.PopTo(DashboardScreens.Dashboard),
-        )
+        val navigationAfterUpdate =
+            ConfigNavigation(
+                navigationType = NavigationType.PopTo(DashboardScreens.Dashboard),
+            )
 
         return generateComposableNavigationLink(
             screen = CommonScreens.Success,
-            arguments = generateComposableArguments(
-                mapOf(
-                    SuccessUIConfig.serializedKeyName to uiSerializer.toBase64(
-                        SuccessUIConfig(
-                            textElementsConfig = SuccessUIConfig.TextElementsConfig(
-                                text = when (pinFlow) {
-                                    PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_text)
-                                    PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_text)
-                                },
-                                description = when (pinFlow) {
-                                    PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_description)
-                                    PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_description)
-                                }
-                            ),
-                            imageConfig = when (pinFlow) {
-                                PinFlow.CREATE -> SuccessUIConfig.ImageConfig(
-                                    type = SuccessUIConfig.ImageConfig.Type.Drawable(
-                                        icon = AppIcons.WalletSecured
-                                    ),
-                                    tint = null,
-                                )
+            arguments =
+                generateComposableArguments(
+                    mapOf(
+                        SuccessUIConfig.serializedKeyName to
+                            uiSerializer
+                                .toBase64(
+                                    SuccessUIConfig(
+                                        textElementsConfig =
+                                            SuccessUIConfig.TextElementsConfig(
+                                                text =
+                                                    when (pinFlow) {
+                                                        PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_text)
+                                                        PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_text)
+                                                    },
+                                                description =
+                                                    when (pinFlow) {
+                                                        PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_description)
+                                                        PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_description)
+                                                    },
+                                            ),
+                                        imageConfig =
+                                            when (pinFlow) {
+                                                PinFlow.CREATE -> {
+                                                    SuccessUIConfig.ImageConfig(
+                                                        type =
+                                                            SuccessUIConfig.ImageConfig.Type.Drawable(
+                                                                icon = AppIcons.WalletSecured,
+                                                            ),
+                                                        tint = null,
+                                                    )
+                                                }
 
-                                PinFlow.UPDATE -> SuccessUIConfig.ImageConfig()
-                            },
-                            buttonConfig = listOf(
-                                SuccessUIConfig.ButtonConfig(
-                                    text = when (pinFlow) {
-                                        PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_btn)
-                                        PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_btn)
-                                    },
-                                    style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
-                                    navigation = when (pinFlow) {
-                                        PinFlow.CREATE -> navigationAfterCreate
-                                        PinFlow.UPDATE -> navigationAfterUpdate
-                                    }
-                                )
-                            ),
-                            onBackScreenToNavigate = when (pinFlow) {
-                                PinFlow.CREATE -> navigationAfterCreate
-                                PinFlow.UPDATE -> navigationAfterUpdate
-                            },
-                        ),
-                        SuccessUIConfig.Parser
-                    ).orEmpty()
-                )
-            )
+                                                PinFlow.UPDATE -> {
+                                                    SuccessUIConfig.ImageConfig()
+                                                }
+                                            },
+                                        buttonConfig =
+                                            listOf(
+                                                SuccessUIConfig.ButtonConfig(
+                                                    text =
+                                                        when (pinFlow) {
+                                                            PinFlow.CREATE -> resourceProvider.getString(R.string.quick_pin_create_success_btn)
+                                                            PinFlow.UPDATE -> resourceProvider.getString(R.string.quick_pin_change_success_btn)
+                                                        },
+                                                    style = SuccessUIConfig.ButtonConfig.Style.PRIMARY,
+                                                    navigation =
+                                                        when (pinFlow) {
+                                                            PinFlow.CREATE -> navigationAfterCreate
+                                                            PinFlow.UPDATE -> navigationAfterUpdate
+                                                        },
+                                                ),
+                                            ),
+                                        onBackScreenToNavigate =
+                                            when (pinFlow) {
+                                                PinFlow.CREATE -> navigationAfterCreate
+                                                PinFlow.UPDATE -> navigationAfterUpdate
+                                            },
+                                    ),
+                                    SuccessUIConfig.Parser,
+                                ).orEmpty(),
+                    ),
+                ),
         )
     }
 

@@ -20,20 +20,26 @@ import androidx.compose.ui.text.style.TextAlign
 
 sealed class ThemeTextAlign {
     data object Left : ThemeTextAlign()
+
     data object Right : ThemeTextAlign()
+
     data object Center : ThemeTextAlign()
+
     data object Justify : ThemeTextAlign()
+
     data object Start : ThemeTextAlign()
+
     data object End : ThemeTextAlign()
 
     companion object {
-        fun ThemeTextAlign.toTextAlign(): TextAlign = when (this) {
-            Left -> TextAlign.Left
-            Right -> TextAlign.Right
-            Center -> TextAlign.Center
-            Justify -> TextAlign.Justify
-            Start -> TextAlign.Start
-            End -> TextAlign.End
-        }
+        fun ThemeTextAlign.toTextAlign(): TextAlign =
+            when (this) {
+                Left -> TextAlign.Left
+                Right -> TextAlign.Right
+                Center -> TextAlign.Center
+                Justify -> TextAlign.Justify
+                Start -> TextAlign.Start
+                End -> TextAlign.End
+            }
     }
 }

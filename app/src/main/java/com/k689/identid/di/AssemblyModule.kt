@@ -36,30 +36,28 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.GlobalContext.startKoin
 import org.koin.ksp.generated.module
 
-private val assembledModules = listOf(
+private val assembledModules =
+    listOf(
+        // Logic Modules
+        LogicNetworkModule().module,
+        LogicUiModule().module,
+        LogicResourceModule().module,
+        LogicBusinessModule().module,
+        LogicAuthenticationModule().module,
+        LogicCoreModule().module,
+        LogicStorageModule().module,
+        // Feature Modules
+        FeatureCommonModule().module,
+        FeatureDashboardModule().module,
+        FeatureStartupModule().module,
+        FeaturePresentationModule().module,
+        FeatureProximityModule().module,
+        FeatureIssuanceModule().module,
+    )
 
-    // Logic Modules
-    LogicNetworkModule().module,
-    LogicUiModule().module,
-    LogicResourceModule().module,
-    LogicBusinessModule().module,
-    LogicAuthenticationModule().module,
-    LogicCoreModule().module,
-    LogicStorageModule().module,
-
-    // Feature Modules
-    FeatureCommonModule().module,
-    FeatureDashboardModule().module,
-    FeatureStartupModule().module,
-    FeaturePresentationModule().module,
-    FeatureProximityModule().module,
-    FeatureIssuanceModule().module
-)
-
-internal fun Application.setupKoin(): KoinApplication {
-    return startKoin {
+internal fun Application.setupKoin(): KoinApplication =
+    startKoin {
         androidContext(this@setupKoin)
         androidLogger()
         modules(assembledModules)
     }
-}

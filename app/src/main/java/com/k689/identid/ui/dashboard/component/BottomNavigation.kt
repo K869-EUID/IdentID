@@ -32,13 +32,13 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.k689.identid.util.dashboard.TestTag
 import com.k689.identid.R
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.IconDataUi
 import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.wrap.WrapIcon
+import com.k689.identid.util.dashboard.TestTag
 
 sealed class BottomNavigationItem(
     val route: String,
@@ -48,29 +48,30 @@ sealed class BottomNavigationItem(
     data object Home : BottomNavigationItem(
         route = "HOME",
         titleRes = R.string.home_screen_title,
-        icon = AppIcons.Home
+        icon = AppIcons.Home,
     )
 
     data object Documents : BottomNavigationItem(
         route = "DOCUMENTS",
         titleRes = R.string.documents_screen_title,
-        icon = AppIcons.Documents
+        icon = AppIcons.Documents,
     )
 
     data object Transactions : BottomNavigationItem(
         route = "TRANSACTIONS",
         titleRes = R.string.transactions_screen_title,
-        icon = AppIcons.Transactions
+        icon = AppIcons.Transactions,
     )
 }
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    val navItems = listOf(
-        BottomNavigationItem.Home,
-        BottomNavigationItem.Documents,
-        BottomNavigationItem.Transactions,
-    )
+    val navItems =
+        listOf(
+            BottomNavigationItem.Home,
+            BottomNavigationItem.Documents,
+            BottomNavigationItem.Transactions,
+        )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -80,26 +81,30 @@ fun BottomNavigationBar(navController: NavController) {
     ) {
         navItems.forEach { screen ->
             NavigationBarItem(
-                modifier = Modifier.testTag(
-                    TestTag.DashboardScreen.bottomNavigationItem(
-                        navItem = screen.route.lowercase()
-                    )
-                ),
+                modifier =
+                    Modifier.testTag(
+                        TestTag.DashboardScreen.bottomNavigationItem(
+                            navItem = screen.route.lowercase(),
+                        ),
+                    ),
                 icon = {
                     WrapIcon(
                         iconData = screen.icon,
                     )
                 },
                 label = { Text(text = stringResource(screen.titleRes)) },
-                colors = NavigationBarItemDefaults.colors()
-                    .copy(
-                        selectedIndicatorColor = MaterialTheme.colorScheme.primary,
-                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-                selected = currentDestination?.hierarchy?.any {
-                    it.route == screen.route
-                } == true,
+                colors =
+                    NavigationBarItemDefaults
+                        .colors()
+                        .copy(
+                            selectedIndicatorColor = MaterialTheme.colorScheme.primary,
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                            selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                        ),
+                selected =
+                    currentDestination?.hierarchy?.any {
+                        it.route == screen.route
+                    } == true,
                 onClick = {
                     navController.navigate(screen.route) {
                         popUpTo(navController.graph.findStartDestination().id) {
@@ -108,7 +113,7 @@ fun BottomNavigationBar(navController: NavController) {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
             )
         }
     }

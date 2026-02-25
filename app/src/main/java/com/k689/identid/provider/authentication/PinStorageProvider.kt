@@ -18,6 +18,8 @@ package com.k689.identid.provider.authentication
 
 interface PinStorageProvider {
     fun retrievePin(): String
+
     fun setPin(pin: String)
+
     fun isPinValid(pin: String): Boolean
 }

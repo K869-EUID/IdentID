@@ -86,20 +86,21 @@ fun IssuerDetailsCard(
         onClick = onClick,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = SPACING_MEDIUM.dp,
-                    vertical = SPACING_SMALL.dp
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SPACING_MEDIUM.dp,
+                        vertical = SPACING_SMALL.dp,
+                    ),
             verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.Start,
         ) {
             item.issuerLogo?.let { safeIssuerLogo ->
                 WrapAsyncImage(
                     modifier = Modifier.fillMaxWidth(0.5f),
                     source = safeIssuerLogo.toString(),
-                    contentScale = ContentScale.FillWidth
+                    contentScale = ContentScale.FillWidth,
                 )
             }
 
@@ -107,18 +108,19 @@ fun IssuerDetailsCard(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (item.issuerIsVerified) {
                         WrapIcon(
-                            modifier = Modifier
-                                .size(18.dp)
-                                .padding(
-                                    start = 0.dp,
-                                    end = SPACING_EXTRA_SMALL.dp,
-                                    top = SPACING_EXTRA_SMALL.dp,
-                                    bottom = SPACING_EXTRA_SMALL.dp
-                                ),
+                            modifier =
+                                Modifier
+                                    .size(18.dp)
+                                    .padding(
+                                        start = 0.dp,
+                                        end = SPACING_EXTRA_SMALL.dp,
+                                        top = SPACING_EXTRA_SMALL.dp,
+                                        bottom = SPACING_EXTRA_SMALL.dp,
+                                    ),
                             iconData = AppIcons.Verified,
                             customTint = MaterialTheme.colorScheme.success,
                         )
@@ -127,13 +129,13 @@ fun IssuerDetailsCard(
                     Text(
                         modifier = Modifier.fillMaxWidth(),
                         text = safeIssuerName,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                        ),
+                        style =
+                            MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurface,
+                            ),
                     )
                 }
             }
-
         }
     }
 }
@@ -143,11 +145,12 @@ fun IssuerDetailsCard(
 private fun IssuerDetailsCardPreview() {
     PreviewTheme {
         Column(modifier = Modifier.fillMaxWidth()) {
-            val issuerDetails = IssuerDetailsCardDataUi(
-                issuerName = "Hellenic Government",
-                issuerLogo = null,
-                issuerIsVerified = false,
-            )
+            val issuerDetails =
+                IssuerDetailsCardDataUi(
+                    issuerName = "Hellenic Government",
+                    issuerLogo = null,
+                    issuerIsVerified = false,
+                )
 
             IssuerDetailsCard(
                 item = issuerDetails,

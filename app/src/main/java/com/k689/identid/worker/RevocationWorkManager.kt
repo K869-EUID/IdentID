@@ -22,12 +22,12 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.k689.identid.controller.core.WalletCoreDocumentsController
 import com.k689.identid.model.core.RevokedDocumentDataDomain
+import com.k689.identid.model.storage.RevokedDocument
+import com.k689.identid.storage.dao.RevokedDocumentDao
 import com.k689.identid.util.core.CoreActions
 import com.k689.identid.util.core.CoreActions.REVOCATION_IDS_DETAILS_EXTRA
 import eu.europa.ec.eudi.statium.Status
 import eu.europa.ec.eudi.wallet.document.IssuedDocument
-import com.k689.identid.storage.dao.RevokedDocumentDao
-import com.k689.identid.model.storage.RevokedDocument
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -57,8 +57,8 @@ import org.koin.core.component.inject
 class RevocationWorkManager(
     appContext: Context,
     workerParams: WorkerParameters,
-) : CoroutineWorker(appContext, workerParams), KoinComponent {
-
+) : CoroutineWorker(appContext, workerParams),
+    KoinComponent {
     private val revokedDocumentDao: RevokedDocumentDao by inject()
     private val walletCoreDocumentsController: WalletCoreDocumentsController by inject()
 
@@ -68,7 +68,6 @@ class RevocationWorkManager(
 
     override suspend fun doWork(): Result {
         try {
-
             val storedRevokedDocuments = walletCoreDocumentsController.getRevokedDocumentIds()
             val fromRevokedToValid = mutableListOf<String>()
             val revokedDocuments = mutableListOf<IssuedDocument>()
@@ -94,7 +93,7 @@ class RevocationWorkManager(
                                 else -> {}
                             }
                         },
-                        onFailure = {}
+                        onFailure = {},
                     )
                 }
 
@@ -120,7 +119,7 @@ class RevocationWorkManager(
     @Throws(IllegalArgumentException::class)
     private suspend fun storeRevokedDocuments(revokedDocuments: List<IssuedDocument>) {
         revokedDocumentDao.storeAll(
-            revokedDocuments.map { RevokedDocument(identifier = it.id) }
+            revokedDocuments.map { RevokedDocument(identifier = it.id) },
         )
     }
 
@@ -132,26 +131,27 @@ class RevocationWorkManager(
     }
 
     private fun sendRevocationBroadcasts(revokedDocuments: List<IssuedDocument>) {
-
-        val messageIntent = Intent(CoreActions.REVOCATION_WORK_MESSAGE_ACTION).apply {
-            putParcelableArrayListExtra(
-                CoreActions.REVOCATION_IDS_EXTRA,
-                ArrayList(
-                    revokedDocuments.map {
-                        RevokedDocumentDataDomain(name = it.name, id = it.id)
-                    }
+        val messageIntent =
+            Intent(CoreActions.REVOCATION_WORK_MESSAGE_ACTION).apply {
+                putParcelableArrayListExtra(
+                    CoreActions.REVOCATION_IDS_EXTRA,
+                    ArrayList(
+                        revokedDocuments.map {
+                            RevokedDocumentDataDomain(name = it.name, id = it.id)
+                        },
+                    ),
                 )
-            )
-        }
+            }
 
-        val detailsIntent = Intent(CoreActions.REVOCATION_WORK_REFRESH_DETAILS_ACTION).apply {
-            putStringArrayListExtra(
-                REVOCATION_IDS_DETAILS_EXTRA,
-                ArrayList(
-                    revokedDocuments.map { it.id }
+        val detailsIntent =
+            Intent(CoreActions.REVOCATION_WORK_REFRESH_DETAILS_ACTION).apply {
+                putStringArrayListExtra(
+                    REVOCATION_IDS_DETAILS_EXTRA,
+                    ArrayList(
+                        revokedDocuments.map { it.id },
+                    ),
                 )
-            )
-        }
+            }
 
         applicationContext.sendBroadcast(messageIntent)
         applicationContext.sendBroadcast(detailsIntent)

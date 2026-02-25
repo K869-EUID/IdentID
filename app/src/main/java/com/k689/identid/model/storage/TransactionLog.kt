@@ -23,5 +23,5 @@ import androidx.room.PrimaryKey
 data class TransactionLog(
     @PrimaryKey
     val identifier: String,
-    val value: String
+    val value: String,
 )

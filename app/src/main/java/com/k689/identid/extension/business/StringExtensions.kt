@@ -34,10 +34,11 @@ import java.net.URLEncoder
  *
  * @return The Base64 encoded string.
  */
-fun String.encodeToBase64(): String = Base64.encodeToString(
-    this.toByteArray(Charsets.UTF_8),
-    Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE
-)
+fun String.encodeToBase64(): String =
+    Base64.encodeToString(
+        this.toByteArray(Charsets.UTF_8),
+        Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE,
+    )
 
 /**
  * Decodes a Base64 encoded string to its original UTF-8 representation.
@@ -45,9 +46,12 @@ fun String.encodeToBase64(): String = Base64.encodeToString(
  *
  * @return The decoded string.
  */
-fun String.decodeFromBase64(): String = Base64.decode(
-    this, Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE
-).toString(Charsets.UTF_8)
+fun String.decodeFromBase64(): String =
+    Base64
+        .decode(
+            this,
+            Base64.NO_WRAP or Base64.NO_PADDING or Base64.URL_SAFE,
+        ).toString(Charsets.UTF_8)
 
 /**
  * Encodes a string into a URL-safe format using UTF-8 encoding.
@@ -76,11 +80,12 @@ fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
  *
  * @return The parsed [Uri] if the string is a valid URI, otherwise [Uri.EMPTY].
  */
-fun String.toUri(): Uri = try {
-    Uri.parse(this)
-} catch (_: Exception) {
-    Uri.EMPTY
-}
+fun String.toUri(): Uri =
+    try {
+        Uri.parse(this)
+    } catch (_: Exception) {
+        Uri.EMPTY
+    }
 
 /**
  * Parses a JSON string into an object of the specified type [T].
@@ -116,13 +121,12 @@ fun String.toUri(): Uri = try {
  * println(result) // Output: null
  * ```
  */
-inline fun <reified T> String.parseFromJson(): T? {
-    return try {
+inline fun <reified T> String.parseFromJson(): T? =
+    try {
         Gson().fromJson(this, T::class.java)
     } catch (_: Exception) {
         null
     }
-}
 
 /**
  * Converts Pem base64 String to Byte Array
@@ -130,9 +134,7 @@ inline fun <reified T> String.parseFromJson(): T? {
  * @receiver String object
  * @return Byte Array object
  */
-fun String.decodeFromPemBase64String(): ByteArray? {
-    return Base64.decode(this.replace("\n", ""), Base64.NO_WRAP)
-}
+fun String.decodeFromPemBase64String(): ByteArray? = Base64.decode(this.replace("\n", ""), Base64.NO_WRAP)
 
 /**
  * String split into substrings. The maximum length of the substring
@@ -142,9 +144,10 @@ fun String.decodeFromPemBase64String(): ByteArray? {
  * @param lineLength - maximum number of characters per line
  * @return String object
  */
-fun String.splitToLines(lineLength: Int): String {
-    return if (lineLength <= 0 || this.length <= lineLength) this
-    else {
+fun String.splitToLines(lineLength: Int): String =
+    if (lineLength <= 0 || this.length <= lineLength) {
+        this
+    } else {
         var result = ""
         var index = 0
         while (index < length) {
@@ -154,7 +157,6 @@ fun String.splitToLines(lineLength: Int): String {
         }
         result
     }
-}
 
 fun String.firstPart(separator: String): String = this.split(separator).firstOrNull() ?: this
 
@@ -179,20 +181,18 @@ fun String.firstPart(separator: String): String = this.split(separator).firstOrN
  * println(str3.ifEmptyOrNull("Default")) // Output: Hello, Kotlin!
  * ```
  */
-fun String?.ifEmptyOrNull(default: String): String {
-    return if (this.isNullOrBlank()) default else this
-}
+fun String?.ifEmptyOrNull(default: String): String = if (this.isNullOrBlank()) default else this
 
 private val FY_SEED = intArrayOf(1, 3, 5, 7, 9, 2, 4, 6, 8)
 
-internal fun String.shuffle(seed: IntArray = FY_SEED): String =
-    encodeToBase64().computeShuffle(seed)
+internal fun String.shuffle(seed: IntArray = FY_SEED): String = encodeToBase64().computeShuffle(seed)
 
-internal fun String.unShuffle(seed: IntArray = FY_SEED): String =
-    computeShuffle(seed, true).decodeFromBase64()
+internal fun String.unShuffle(seed: IntArray = FY_SEED): String = computeShuffle(seed, true).decodeFromBase64()
 
-private fun String.computeShuffle(seed: IntArray, unShuffle: Boolean = false): String {
-
+private fun String.computeShuffle(
+    seed: IntArray,
+    unShuffle: Boolean = false,
+): String {
     val items = mutableMapOf<Int, String?>()
     this.toCharArray().forEachIndexed { index, character -> items[index] = character.toString() }
 

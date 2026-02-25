@@ -18,21 +18,21 @@ package com.k689.identid.ui.presentation.loading
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.k689.identid.R
+import com.k689.identid.config.NavigationType
 import com.k689.identid.controller.authentication.DeviceAuthenticationResult
-import com.k689.identid.ui.common.loading.Effect
-import com.k689.identid.ui.common.loading.Event
-import com.k689.identid.ui.common.loading.LoadingViewModel
-import com.k689.identid.model.core.AuthenticationData
 import com.k689.identid.interactor.presentation.PresentationLoadingInteractor
 import com.k689.identid.interactor.presentation.PresentationLoadingObserveResponsePartialState
 import com.k689.identid.interactor.presentation.PresentationLoadingSendRequestedDocumentPartialState
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
-import com.k689.identid.ui.component.content.ContentErrorConfig
-import com.k689.identid.ui.component.content.ContentHeaderConfig
-import com.k689.identid.config.NavigationType
+import com.k689.identid.model.core.AuthenticationData
 import com.k689.identid.navigation.PresentationScreens
 import com.k689.identid.navigation.Screen
+import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.common.loading.Effect
+import com.k689.identid.ui.common.loading.Event
+import com.k689.identid.ui.common.loading.LoadingViewModel
+import com.k689.identid.ui.component.content.ContentErrorConfig
+import com.k689.identid.ui.component.content.ContentHeaderConfig
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
@@ -45,24 +45,16 @@ class PresentationLoadingViewModel(
     private val resourceProvider: ResourceProvider,
     private val interactor: PresentationLoadingInteractor,
 ) : LoadingViewModel() {
-
-    override fun getHeaderConfig(): ContentHeaderConfig {
-        return ContentHeaderConfig(
+    override fun getHeaderConfig(): ContentHeaderConfig =
+        ContentHeaderConfig(
             description = resourceProvider.getString(R.string.loading_header_description),
         )
-    }
 
-    override fun getPreviousScreen(): Screen {
-        return PresentationScreens.PresentationRequest
-    }
+    override fun getPreviousScreen(): Screen = PresentationScreens.PresentationRequest
 
-    override fun getCallerScreen(): Screen {
-        return PresentationScreens.PresentationLoading
-    }
+    override fun getCallerScreen(): Screen = PresentationScreens.PresentationLoading
 
-    private fun getNextScreen(): String {
-        return PresentationScreens.PresentationSuccess.screenRoute
-    }
+    private fun getNextScreen(): String = PresentationScreens.PresentationSuccess.screenRoute
 
     override fun getCancellableTimeout(): Duration = 5.toDuration(DurationUnit.SECONDS)
 
@@ -73,14 +65,15 @@ class PresentationLoadingViewModel(
                     is PresentationLoadingObserveResponsePartialState.Failure -> {
                         setState {
                             copy(
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(Event.DoWork(context)) },
-                                    errorSubTitle = it.error,
-                                    onCancel = {
-                                        setEvent(Event.DismissError)
-                                        doNavigation(NavigationType.PopTo(getPreviousScreen()))
-                                    }
-                                )
+                                error =
+                                    ContentErrorConfig(
+                                        onRetry = { setEvent(Event.DoWork(context)) },
+                                        errorSubTitle = it.error,
+                                        onCancel = {
+                                            setEvent(Event.DismissError)
+                                            doNavigation(NavigationType.PopTo(getPreviousScreen()))
+                                        },
+                                    ),
                             )
                         }
                     }
@@ -98,10 +91,11 @@ class PresentationLoadingViewModel(
                     }
 
                     is PresentationLoadingObserveResponsePartialState.UserAuthenticationRequired -> {
-                        val popEffect = Effect.Navigation.PopBackStackUpTo(
-                            screenRoute = PresentationScreens.PresentationRequest.screenRoute,
-                            inclusive = false
-                        )
+                        val popEffect =
+                            Effect.Navigation.PopBackStackUpTo(
+                                screenRoute = PresentationScreens.PresentationRequest.screenRoute,
+                                inclusive = false,
+                            )
 
                         openAuthenticationPrompt(
                             context,
@@ -109,7 +103,7 @@ class PresentationLoadingViewModel(
                             it.authenticationData,
                             {
                                 sendRequestedDocuments(Event.DoWork(context))
-                            }
+                            },
                         )
                     }
                 }
@@ -118,26 +112,26 @@ class PresentationLoadingViewModel(
     }
 
     private fun sendRequestedDocuments(event: Event) {
-
         when (val result = interactor.sendRequestedDocuments()) {
-            is PresentationLoadingSendRequestedDocumentPartialState.Success -> { /*no op*/
+            is PresentationLoadingSendRequestedDocumentPartialState.Success -> { // no op
             }
 
             is PresentationLoadingSendRequestedDocumentPartialState.Failure -> {
                 setState {
                     copy(
-                        error = ContentErrorConfig(
-                            onRetry = { setEvent(event) },
-                            errorSubTitle = result.error,
-                            onCancel = {
-                                setEvent(Event.DismissError)
-                                doNavigation(
-                                    NavigationType.PopTo(
-                                        getPreviousScreen()
+                        error =
+                            ContentErrorConfig(
+                                onRetry = { setEvent(event) },
+                                errorSubTitle = result.error,
+                                onCancel = {
+                                    setEvent(Event.DismissError)
+                                    doNavigation(
+                                        NavigationType.PopTo(
+                                            getPreviousScreen(),
+                                        ),
                                     )
-                                )
-                            }
-                        )
+                                },
+                            ),
                     )
                 }
             }
@@ -157,31 +151,32 @@ class PresentationLoadingViewModel(
             context = context,
             crypto = authenticationData.crypto,
             notifyOnAuthenticationFailure = viewState.value.notifyOnAuthenticationFailure,
-            resultHandler = DeviceAuthenticationResult(
-                onAuthenticationSuccess = {
-                    authenticationData.onAuthenticationSuccess()
-                    if (isFinalAuthentication) {
-                        sendRequestedDocumentsAction()
-                    } else {
-                        delay(500)
-                        openAuthenticationPrompt(
-                            context,
-                            popEffect,
-                            authenticationDataList,
-                            sendRequestedDocumentsAction,
-                            index + 1
-                        )
-                    }
-                },
-                onAuthenticationError = { setEffect { popEffect } }
-            )
+            resultHandler =
+                DeviceAuthenticationResult(
+                    onAuthenticationSuccess = {
+                        authenticationData.onAuthenticationSuccess()
+                        if (isFinalAuthentication) {
+                            sendRequestedDocumentsAction()
+                        } else {
+                            delay(500)
+                            openAuthenticationPrompt(
+                                context,
+                                popEffect,
+                                authenticationDataList,
+                                sendRequestedDocumentsAction,
+                                index + 1,
+                            )
+                        }
+                    },
+                    onAuthenticationError = { setEffect { popEffect } },
+                ),
         )
     }
 
     private fun onSuccess() {
         setState {
             copy(
-                error = null
+                error = null,
             )
         }
         doNavigation(NavigationType.PushRoute(getNextScreen()))

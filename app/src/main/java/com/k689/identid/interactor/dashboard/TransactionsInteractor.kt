@@ -16,7 +16,38 @@
 
 package com.k689.identid.interactor.dashboard
 
+import com.k689.identid.R
+import com.k689.identid.controller.core.WalletCoreDocumentsController
 import com.k689.identid.extension.business.safeAsync
+import com.k689.identid.model.core.TransactionLogDataDomain
+import com.k689.identid.model.core.TransactionLogDataDomain.Companion.getTransactionDocumentNames
+import com.k689.identid.model.core.TransactionLogDataDomain.Companion.getTransactionTypeLabel
+import com.k689.identid.model.validator.FilterAction
+import com.k689.identid.model.validator.FilterElement
+import com.k689.identid.model.validator.FilterElement.FilterItem
+import com.k689.identid.model.validator.FilterGroup
+import com.k689.identid.model.validator.FilterMultipleAction
+import com.k689.identid.model.validator.FilterableItem
+import com.k689.identid.model.validator.FilterableList
+import com.k689.identid.model.validator.Filters
+import com.k689.identid.model.validator.SortOrder
+import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.component.AppIcons
+import com.k689.identid.ui.component.ListItemDataUi
+import com.k689.identid.ui.component.ListItemMainContentDataUi
+import com.k689.identid.ui.component.ListItemTrailingContentDataUi
+import com.k689.identid.ui.component.wrap.CheckboxDataUi
+import com.k689.identid.ui.component.wrap.ExpandableListItemUi
+import com.k689.identid.ui.component.wrap.RadioButtonDataUi
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionCategoryUi
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionFilterIds
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionUi
+import com.k689.identid.ui.dashboard.transactions.list.model.TransactionsFilterableAttributes
+import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
+import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi.Companion.toUiText
+import com.k689.identid.ui.dashboard.transactions.model.TransactionTypeUi
+import com.k689.identid.ui.dashboard.transactions.model.toTransactionStatusUi
+import com.k689.identid.ui.dashboard.transactions.model.toTransactionTypeUi
 import com.k689.identid.util.business.fullDateTimeFormatter
 import com.k689.identid.util.business.hoursMinutesFormatter
 import com.k689.identid.util.business.isJustNow
@@ -27,37 +58,6 @@ import com.k689.identid.util.business.minutesToNow
 import com.k689.identid.util.business.safeLet
 import com.k689.identid.validator.FilterValidator
 import com.k689.identid.validator.FilterValidatorPartialState
-import com.k689.identid.model.validator.FilterAction
-import com.k689.identid.model.validator.FilterElement
-import com.k689.identid.model.validator.FilterElement.FilterItem
-import com.k689.identid.model.validator.FilterGroup
-import com.k689.identid.model.validator.FilterMultipleAction
-import com.k689.identid.model.validator.FilterableItem
-import com.k689.identid.model.validator.FilterableList
-import com.k689.identid.model.validator.Filters
-import com.k689.identid.model.validator.SortOrder
-import com.k689.identid.controller.core.WalletCoreDocumentsController
-import com.k689.identid.model.core.TransactionLogDataDomain
-import com.k689.identid.model.core.TransactionLogDataDomain.Companion.getTransactionDocumentNames
-import com.k689.identid.model.core.TransactionLogDataDomain.Companion.getTransactionTypeLabel
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionCategoryUi
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionFilterIds
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionUi
-import com.k689.identid.ui.dashboard.transactions.list.model.TransactionsFilterableAttributes
-import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi
-import com.k689.identid.ui.dashboard.transactions.model.TransactionStatusUi.Companion.toUiText
-import com.k689.identid.ui.dashboard.transactions.model.TransactionTypeUi
-import com.k689.identid.ui.dashboard.transactions.model.toTransactionStatusUi
-import com.k689.identid.ui.dashboard.transactions.model.toTransactionTypeUi
-import com.k689.identid.R
-import com.k689.identid.provider.resources.ResourceProvider
-import com.k689.identid.ui.component.AppIcons
-import com.k689.identid.ui.component.ListItemDataUi
-import com.k689.identid.ui.component.ListItemMainContentDataUi
-import com.k689.identid.ui.component.ListItemTrailingContentDataUi
-import com.k689.identid.ui.component.wrap.CheckboxDataUi
-import com.k689.identid.ui.component.wrap.ExpandableListItemUi
-import com.k689.identid.ui.component.wrap.RadioButtonDataUi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -81,23 +81,31 @@ sealed class TransactionInteractorFilterPartialState {
 sealed class TransactionInteractorGetTransactionsPartialState {
     data class Success(
         val allTransactions: FilterableList,
-        val availableDates: Pair<LocalDate, LocalDate>?
+        val availableDates: Pair<LocalDate, LocalDate>?,
     ) : TransactionInteractorGetTransactionsPartialState()
 
-    data class Failure(val error: String) : TransactionInteractorGetTransactionsPartialState()
+    data class Failure(
+        val error: String,
+    ) : TransactionInteractorGetTransactionsPartialState()
 }
 
 sealed class TransactionInteractorDateTimeCategoryPartialState {
     data object JustNow : TransactionInteractorDateTimeCategoryPartialState()
-    data class WithinLastHour(val minutes: Long) :
-        TransactionInteractorDateTimeCategoryPartialState()
 
-    data class Today(val time: String) : TransactionInteractorDateTimeCategoryPartialState()
-    data class WithinMonth(val date: String) : TransactionInteractorDateTimeCategoryPartialState()
+    data class WithinLastHour(
+        val minutes: Long,
+    ) : TransactionInteractorDateTimeCategoryPartialState()
+
+    data class Today(
+        val time: String,
+    ) : TransactionInteractorDateTimeCategoryPartialState()
+
+    data class WithinMonth(
+        val date: String,
+    ) : TransactionInteractorDateTimeCategoryPartialState()
 }
 
 interface TransactionsInteractor {
-
     fun getTransactions(): Flow<TransactionInteractorGetTransactionsPartialState>
 
     fun getTransactionCategory(dateTime: LocalDateTime): TransactionCategoryUi
@@ -107,105 +115,130 @@ interface TransactionsInteractor {
     )
 
     fun applySearch(query: String)
+
     fun applyFilters()
-    fun updateFilter(filterGroupId: String, filterId: String)
+
+    fun updateFilter(
+        filterGroupId: String,
+        filterId: String,
+    )
+
     fun updateDateFilterById(
         filterGroupId: String,
         filterId: String,
         lowerLimitDate: LocalDateTime,
-        upperLimitDate: LocalDateTime
+        upperLimitDate: LocalDateTime,
     )
 
-    fun addDynamicFilters(transactions: FilterableList, filters: Filters): Filters
+    fun addDynamicFilters(
+        transactions: FilterableList,
+        filters: Filters,
+    ): Filters
+
     fun getFilters(): Filters
+
     fun resetFilters()
+
     fun onFilterStateChange(): Flow<TransactionInteractorFilterPartialState>
+
     fun updateSortOrder(sortOrder: SortOrder)
+
     fun revertFilters()
+
     fun updateLists(filterableList: FilterableList)
 }
 
 class TransactionsInteractorImpl(
     private val resourceProvider: ResourceProvider,
     private val filterValidator: FilterValidator,
-    private val walletCoreDocumentsController: WalletCoreDocumentsController
+    private val walletCoreDocumentsController: WalletCoreDocumentsController,
 ) : TransactionsInteractor {
-
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
     override fun revertFilters() = filterValidator.revertFilters()
-    override fun updateLists(filterableList: FilterableList) =
-        filterValidator.updateLists(filterableList)
+
+    override fun updateLists(filterableList: FilterableList) = filterValidator.updateLists(filterableList)
 
     override fun initializeFilters(
         filterableList: FilterableList,
     ) = filterValidator.initializeValidator(
         addDynamicFilters(filterableList, getFilters()),
-        filterableList
+        filterableList,
     )
 
     override fun onFilterStateChange(): Flow<TransactionInteractorFilterPartialState> =
         filterValidator.onFilterStateChange().map { result ->
-            val transactionsUi = when (result) {
-                is FilterValidatorPartialState.FilterListResult.FilterApplyResult -> {
-                    result.filteredList.items.mapNotNull { filterableItem ->
-                        filterableItem.payload as? TransactionUi
+            val transactionsUi =
+                when (result) {
+                    is FilterValidatorPartialState.FilterListResult.FilterApplyResult -> {
+                        result.filteredList.items.mapNotNull { filterableItem ->
+                            filterableItem.payload as? TransactionUi
+                        }
                     }
-                }
 
-                is FilterValidatorPartialState.FilterListResult.FilterListEmptyResult -> {
-                    emptyList()
-                }
-
-                else -> {
-                    emptyList()
-                }
-            }.groupBy {
-                it.transactionCategoryUi
-            }.toList()
-
-            val filtersUi = result.updatedFilters.filterGroups.map { filterGroup ->
-                ExpandableListItemUi.NestedListItem(
-                    isExpanded = true,
-                    header = ListItemDataUi(
-                        itemId = filterGroup.id,
-                        mainContentData = ListItemMainContentDataUi.Text(filterGroup.name),
-                        trailingContentData = ListItemTrailingContentDataUi.Icon(
-                            iconData = AppIcons.KeyboardArrowRight
-                        )
-                    ),
-                    nestedItems = filterGroup.filters.map { filterItem ->
-                        ExpandableListItemUi.SingleListItem(
-                            header = ListItemDataUi(
-                                itemId = filterItem.id,
-                                mainContentData = ListItemMainContentDataUi.Text(filterItem.name),
-                                trailingContentData = when (filterGroup) {
-                                    is FilterGroup.MultipleSelectionFilterGroup<*>,
-                                    is FilterGroup.ReversibleMultipleSelectionFilterGroup<*> -> {
-                                        ListItemTrailingContentDataUi.Checkbox(
-                                            checkboxData = CheckboxDataUi(
-                                                isChecked = filterItem.selected,
-                                                enabled = true
-                                            )
-                                        )
-                                    }
-
-                                    is FilterGroup.SingleSelectionFilterGroup,
-                                    is FilterGroup.ReversibleSingleSelectionFilterGroup -> {
-                                        ListItemTrailingContentDataUi.RadioButton(
-                                            radioButtonData = RadioButtonDataUi(
-                                                isSelected = filterItem.selected,
-                                                enabled = true
-                                            )
-                                        )
-                                    }
-                                },
-                            )
-                        )
+                    is FilterValidatorPartialState.FilterListResult.FilterListEmptyResult -> {
+                        emptyList()
                     }
-                )
-            }
+
+                    else -> {
+                        emptyList()
+                    }
+                }.groupBy {
+                    it.transactionCategoryUi
+                }.toList()
+
+            val filtersUi =
+                result.updatedFilters.filterGroups.map { filterGroup ->
+                    ExpandableListItemUi.NestedListItem(
+                        isExpanded = true,
+                        header =
+                            ListItemDataUi(
+                                itemId = filterGroup.id,
+                                mainContentData = ListItemMainContentDataUi.Text(filterGroup.name),
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(
+                                        iconData = AppIcons.KeyboardArrowRight,
+                                    ),
+                            ),
+                        nestedItems =
+                            filterGroup.filters.map { filterItem ->
+                                ExpandableListItemUi.SingleListItem(
+                                    header =
+                                        ListItemDataUi(
+                                            itemId = filterItem.id,
+                                            mainContentData = ListItemMainContentDataUi.Text(filterItem.name),
+                                            trailingContentData =
+                                                when (filterGroup) {
+                                                    is FilterGroup.MultipleSelectionFilterGroup<*>,
+                                                    is FilterGroup.ReversibleMultipleSelectionFilterGroup<*>,
+                                                    -> {
+                                                        ListItemTrailingContentDataUi.Checkbox(
+                                                            checkboxData =
+                                                                CheckboxDataUi(
+                                                                    isChecked = filterItem.selected,
+                                                                    enabled = true,
+                                                                ),
+                                                        )
+                                                    }
+
+                                                    is FilterGroup.SingleSelectionFilterGroup,
+                                                    is FilterGroup.ReversibleSingleSelectionFilterGroup,
+                                                    -> {
+                                                        ListItemTrailingContentDataUi.RadioButton(
+                                                            radioButtonData =
+                                                                RadioButtonDataUi(
+                                                                    isSelected = filterItem.selected,
+                                                                    enabled = true,
+                                                                ),
+                                                        )
+                                                    }
+                                                },
+                                        ),
+                                )
+                            },
+                    )
+                }
 
             when (result) {
                 is FilterValidatorPartialState.FilterListResult -> {
@@ -213,14 +246,14 @@ class TransactionsInteractorImpl(
                         transactions = transactionsUi,
                         filters = filtersUi,
                         sortOrder = result.updatedFilters.sortOrder,
-                        allDefaultFiltersAreSelected = result.allDefaultFiltersAreSelected
+                        allDefaultFiltersAreSelected = result.allDefaultFiltersAreSelected,
                     )
                 }
 
                 is FilterValidatorPartialState.FilterUpdateResult -> {
                     TransactionInteractorFilterPartialState.FilterUpdateResult(
                         filters = filtersUi,
-                        sortOrder = result.updatedFilters.sortOrder
+                        sortOrder = result.updatedFilters.sortOrder,
                     )
                 }
             }
@@ -229,80 +262,95 @@ class TransactionsInteractorImpl(
     override fun getTransactions(): Flow<TransactionInteractorGetTransactionsPartialState> =
         flow {
             val transactions = walletCoreDocumentsController.getTransactionLogs()
-            val filterableItems = transactions.map { transaction ->
+            val filterableItems =
+                transactions.map { transaction ->
 
-                val trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                    text = transaction.getTransactionTypeLabel(resourceProvider),
-                    iconData = AppIcons.KeyboardArrowRight
-                )
+                    val trailingContentData =
+                        ListItemTrailingContentDataUi.TextWithIcon(
+                            text = transaction.getTransactionTypeLabel(resourceProvider),
+                            iconData = AppIcons.KeyboardArrowRight,
+                        )
 
-                val transactionName = transaction.name
-                val transactionStatus = transaction.status.toTransactionStatusUi()
-                val transactionDocumentNames = transaction.getTransactionDocumentNames(
-                    userLocale = resourceProvider.getLocale()
-                )
+                    val transactionName = transaction.name
+                    val transactionStatus = transaction.status.toTransactionStatusUi()
+                    val transactionDocumentNames =
+                        transaction.getTransactionDocumentNames(
+                            userLocale = resourceProvider.getLocale(),
+                        )
 
-                FilterableItem(
-                    payload = TransactionUi(
-                        uiData = ExpandableListItemUi.SingleListItem(
-                            header = ListItemDataUi(
-                                itemId = transaction.id,
-                                mainContentData = ListItemMainContentDataUi.Text(text = transactionName),
-                                overlineText = transactionStatus.toUiText(resourceProvider),
-                                supportingText = transaction.creationLocalDateTime.toFormattedDisplayableDate(),
-                                trailingContentData = trailingContentData
-                            )
-                        ),
-                        uiStatus = transaction.status.toTransactionStatusUi(),
-                        transactionCategoryUi = getTransactionCategory(dateTime = transaction.creationLocalDateTime),
-                    ),
-                    attributes = TransactionsFilterableAttributes(
-                        searchTags = buildList {
-                            add(transactionName)
-                            if (transactionDocumentNames.isNotEmpty()) {
-                                addAll(transactionDocumentNames)
-                            }
-                        },
-                        transactionStatus = transactionStatus,
-                        transactionType = transaction.toTransactionTypeUi(),
-                        creationLocalDateTime = transaction.creationLocalDateTime,
-                        relyingPartyName = when (transaction) {
-                            is TransactionLogDataDomain.IssuanceLog -> null // TODO Update this once Core supports Issuance transactions
-                            is TransactionLogDataDomain.PresentationLog -> transaction.relyingParty.name
-                            is TransactionLogDataDomain.SigningLog -> null
-                        }
+                    FilterableItem(
+                        payload =
+                            TransactionUi(
+                                uiData =
+                                    ExpandableListItemUi.SingleListItem(
+                                        header =
+                                            ListItemDataUi(
+                                                itemId = transaction.id,
+                                                mainContentData = ListItemMainContentDataUi.Text(text = transactionName),
+                                                overlineText = transactionStatus.toUiText(resourceProvider),
+                                                supportingText = transaction.creationLocalDateTime.toFormattedDisplayableDate(),
+                                                trailingContentData = trailingContentData,
+                                            ),
+                                    ),
+                                uiStatus = transaction.status.toTransactionStatusUi(),
+                                transactionCategoryUi = getTransactionCategory(dateTime = transaction.creationLocalDateTime),
+                            ),
+                        attributes =
+                            TransactionsFilterableAttributes(
+                                searchTags =
+                                    buildList {
+                                        add(transactionName)
+                                        if (transactionDocumentNames.isNotEmpty()) {
+                                            addAll(transactionDocumentNames)
+                                        }
+                                    },
+                                transactionStatus = transactionStatus,
+                                transactionType = transaction.toTransactionTypeUi(),
+                                creationLocalDateTime = transaction.creationLocalDateTime,
+                                relyingPartyName =
+                                    when (transaction) {
+                                        is TransactionLogDataDomain.IssuanceLog -> null
+
+                                        // TODO Update this once Core supports Issuance transactions
+                                        is TransactionLogDataDomain.PresentationLog -> transaction.relyingParty.name
+
+                                        is TransactionLogDataDomain.SigningLog -> null
+                                    },
+                            ),
                     )
-                )
-            }
-
-            val creationDates = filterableItems
-                .mapNotNull {
-                    (it.attributes as? TransactionsFilterableAttributes)?.creationLocalDateTime?.toLocalDate()
                 }
+
+            val creationDates =
+                filterableItems
+                    .mapNotNull {
+                        (it.attributes as? TransactionsFilterableAttributes)?.creationLocalDateTime?.toLocalDate()
+                    }
 
             emit(
                 TransactionInteractorGetTransactionsPartialState.Success(
                     allTransactions = FilterableList(items = filterableItems),
-                    availableDates = safeLet(
-                        creationDates.minOrNull(),
-                        creationDates.maxOrNull()
-                    ) { minDate, maxDate ->
-                        minDate to maxDate
-                    }
-                )
+                    availableDates =
+                        safeLet(
+                            creationDates.minOrNull(),
+                            creationDates.maxOrNull(),
+                        ) { minDate, maxDate ->
+                            minDate to maxDate
+                        },
+                ),
             )
         }.safeAsync {
             TransactionInteractorGetTransactionsPartialState.Failure(
-                error = it.localizedMessage ?: genericErrorMsg
+                error = it.localizedMessage ?: genericErrorMsg,
             )
         }
 
     override fun getTransactionCategory(dateTime: LocalDateTime): TransactionCategoryUi {
-        val transactionCategoryUi = when {
-            dateTime.isToday() -> TransactionCategoryUi.Today
-            dateTime.isWithinThisWeek() -> TransactionCategoryUi.ThisWeek
-            else -> TransactionCategoryUi.Month(dateTime = dateTime)
-        }
+        val transactionCategoryUi =
+            when {
+                dateTime.isToday() -> TransactionCategoryUi.Today
+                dateTime.isWithinThisWeek() -> TransactionCategoryUi.ThisWeek
+                else -> TransactionCategoryUi.Month(dateTime = dateTime)
+            }
         return transactionCategoryUi
     }
 
@@ -310,256 +358,290 @@ class TransactionsInteractorImpl(
 
     override fun applyFilters() = filterValidator.applyFilters()
 
-    override fun addDynamicFilters(transactions: FilterableList, filters: Filters): Filters {
-        return filters.copy(
-            filterGroups = filters.filterGroups.map { filterGroup ->
-                when (filterGroup.id) {
-                    TransactionFilterIds.FILTER_BY_RELYING_PARTY_GROUP_ID -> {
-                        filterGroup as FilterGroup.MultipleSelectionFilterGroup<*>
-                        filterGroup.copy(
-                            filters = addRelyingPartyFilter(transactions)
-                        )
-                    }
-
-                    else -> {
-                        filterGroup
-                    }
-                }
-            },
-            sortOrder = filters.sortOrder
-        )
-    }
-
-    override fun getFilters(): Filters = Filters(
-        sortOrder = SortOrder.Descending(isDefault = true),
-        filterGroups = listOf(
-            // Sort, descending/ascending buttons will be displayed within this group, identified by group id
-            FilterGroup.SingleSelectionFilterGroup(
-                id = TransactionFilterIds.FILTER_SORT_GROUP_ID,
-                name = resourceProvider.getString(R.string.transactions_screen_filters_sort_by),
-                filters = listOf(
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_SORT_TRANSACTION_DATE,
-                        name = resourceProvider.getString(R.string.transactions_screen_filters_sort_transaction_date),
-                        selected = true,
-                        isDefault = true,
-                        filterableAction = FilterAction.Sort<TransactionsFilterableAttributes, LocalDateTime> { attributes ->
-                            attributes.creationLocalDateTime
-                        }
-                    ),
-                )
-            ),
-
-            // Filter by Transaction date
-            FilterGroup.SingleSelectionFilterGroup(
-                id = TransactionFilterIds.FILTER_BY_TRANSACTION_DATE_GROUP_ID,
-                name = resourceProvider.getString(R.string.transactions_screen_filter_by_date_period),
-                filters = listOf(
-                    FilterElement.DateTimeRangeFilterItem(
-                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_DATE_RANGE,
-                        name = resourceProvider.getString(R.string.transactions_screen_filter_by_date_period),
-                        selected = true,
-                        isDefault = true,
-                        startDateTime = LocalDateTime.MIN,
-                        endDateTime = LocalDateTime.MAX,
-                        filterableAction = FilterAction.Filter<TransactionsFilterableAttributes> { attributes, filter ->
-                            return@Filter isDateAttributeWithinFilterRange(
-                                filter = filter,
-                                attributes = attributes
+    override fun addDynamicFilters(
+        transactions: FilterableList,
+        filters: Filters,
+    ): Filters =
+        filters.copy(
+            filterGroups =
+                filters.filterGroups.map { filterGroup ->
+                    when (filterGroup.id) {
+                        TransactionFilterIds.FILTER_BY_RELYING_PARTY_GROUP_ID -> {
+                            filterGroup as FilterGroup.MultipleSelectionFilterGroup<*>
+                            filterGroup.copy(
+                                filters = addRelyingPartyFilter(transactions),
                             )
                         }
-                    ),
-                ),
-            ),
 
-            // Filter by Status
-            FilterGroup.MultipleSelectionFilterGroup(
-                id = TransactionFilterIds.FILTER_BY_STATUS_GROUP_ID,
-                name = resourceProvider.getString(R.string.transactions_screen_filter_by_status),
-                filters = listOf(
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_BY_STATUS_COMPLETE,
-                        name = resourceProvider.getString(R.string.transactions_filter_item_status_completed),
-                        selected = true,
-                        isDefault = true,
-                    ),
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_BY_STATUS_FAILED,
-                        name = resourceProvider.getString(R.string.transactions_filter_item_status_failed),
-                        selected = true,
-                        isDefault = true,
-                    )
-                ),
-                filterableAction = FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
-                    when (filter.id) {
-                        TransactionFilterIds.FILTER_BY_STATUS_COMPLETE -> {
-                            attributes.transactionStatus == TransactionStatusUi.Completed
+                        else -> {
+                            filterGroup
                         }
-
-                        TransactionFilterIds.FILTER_BY_STATUS_FAILED -> attributes.transactionStatus == TransactionStatusUi.Failed
-
-                        else -> true
                     }
-                }
-            ),
-
-            // Filter by Relying Party
-            FilterGroup.MultipleSelectionFilterGroup(
-                id = TransactionFilterIds.FILTER_BY_RELYING_PARTY_GROUP_ID,
-                name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_relying_party),
-                filters = emptyList(),
-                filterableAction = FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
-                    // Check if it is the "no relying party" filter
-                    if (filter.id == TransactionFilterIds.FILTER_BY_RELYING_PARTY_WITHOUT_NAME) {
-                        // Return true only for transactions with no relying party
-                        return@FilterMultipleAction attributes.relyingPartyName == null
-                    }
-
-                    // Check if the transaction has a relying party and matches the filter name
-                    if (attributes.relyingPartyName != null) {
-                        return@FilterMultipleAction attributes.relyingPartyName == filter.name
-                    }
-
-                    // Default case: return false if no conditions are met
-                    return@FilterMultipleAction false
-                }
-            ),
-
-            // Filter by Transaction Type
-            FilterGroup.MultipleSelectionFilterGroup(
-                id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_GROUP_ID,
-                name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type),
-                filters = listOf(
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_PRESENTATION,
-                        name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_presentation),
-                        selected = true,
-                        isDefault = true,
-                    ),
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_ISSUANCE,
-                        name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_issuance),
-                        selected = true,
-                        isDefault = true,
-                    ),
-                    FilterItem(
-                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_SIGNING,
-                        name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_signing),
-                        selected = true,
-                        isDefault = true,
-                    ),
-                ),
-                filterableAction = FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
-                    when (filter.id) {
-                        TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_PRESENTATION -> {
-                            attributes.transactionType == TransactionTypeUi.PRESENTATION
-                        }
-
-                        TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_ISSUANCE -> {
-                            attributes.transactionType == TransactionTypeUi.ISSUANCE
-                        }
-
-                        TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_SIGNING -> {
-                            attributes.transactionType == TransactionTypeUi.SIGNING
-                        }
-
-                        else -> false
-                    }
-                }
-            )
+                },
+            sortOrder = filters.sortOrder,
         )
-    )
+
+    override fun getFilters(): Filters =
+        Filters(
+            sortOrder = SortOrder.Descending(isDefault = true),
+            filterGroups =
+                listOf(
+                    // Sort, descending/ascending buttons will be displayed within this group, identified by group id
+                    FilterGroup.SingleSelectionFilterGroup(
+                        id = TransactionFilterIds.FILTER_SORT_GROUP_ID,
+                        name = resourceProvider.getString(R.string.transactions_screen_filters_sort_by),
+                        filters =
+                            listOf(
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_SORT_TRANSACTION_DATE,
+                                    name = resourceProvider.getString(R.string.transactions_screen_filters_sort_transaction_date),
+                                    selected = true,
+                                    isDefault = true,
+                                    filterableAction =
+                                        FilterAction.Sort<TransactionsFilterableAttributes, LocalDateTime> { attributes ->
+                                            attributes.creationLocalDateTime
+                                        },
+                                ),
+                            ),
+                    ),
+                    // Filter by Transaction date
+                    FilterGroup.SingleSelectionFilterGroup(
+                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_DATE_GROUP_ID,
+                        name = resourceProvider.getString(R.string.transactions_screen_filter_by_date_period),
+                        filters =
+                            listOf(
+                                FilterElement.DateTimeRangeFilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_TRANSACTION_DATE_RANGE,
+                                    name = resourceProvider.getString(R.string.transactions_screen_filter_by_date_period),
+                                    selected = true,
+                                    isDefault = true,
+                                    startDateTime = LocalDateTime.MIN,
+                                    endDateTime = LocalDateTime.MAX,
+                                    filterableAction =
+                                        FilterAction.Filter<TransactionsFilterableAttributes> { attributes, filter ->
+                                            return@Filter isDateAttributeWithinFilterRange(
+                                                filter = filter,
+                                                attributes = attributes,
+                                            )
+                                        },
+                                ),
+                            ),
+                    ),
+                    // Filter by Status
+                    FilterGroup.MultipleSelectionFilterGroup(
+                        id = TransactionFilterIds.FILTER_BY_STATUS_GROUP_ID,
+                        name = resourceProvider.getString(R.string.transactions_screen_filter_by_status),
+                        filters =
+                            listOf(
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_STATUS_COMPLETE,
+                                    name = resourceProvider.getString(R.string.transactions_filter_item_status_completed),
+                                    selected = true,
+                                    isDefault = true,
+                                ),
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_STATUS_FAILED,
+                                    name = resourceProvider.getString(R.string.transactions_filter_item_status_failed),
+                                    selected = true,
+                                    isDefault = true,
+                                ),
+                            ),
+                        filterableAction =
+                            FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
+                                when (filter.id) {
+                                    TransactionFilterIds.FILTER_BY_STATUS_COMPLETE -> {
+                                        attributes.transactionStatus == TransactionStatusUi.Completed
+                                    }
+
+                                    TransactionFilterIds.FILTER_BY_STATUS_FAILED -> {
+                                        attributes.transactionStatus == TransactionStatusUi.Failed
+                                    }
+
+                                    else -> {
+                                        true
+                                    }
+                                }
+                            },
+                    ),
+                    // Filter by Relying Party
+                    FilterGroup.MultipleSelectionFilterGroup(
+                        id = TransactionFilterIds.FILTER_BY_RELYING_PARTY_GROUP_ID,
+                        name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_relying_party),
+                        filters = emptyList(),
+                        filterableAction =
+                            FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
+                                // Check if it is the "no relying party" filter
+                                if (filter.id == TransactionFilterIds.FILTER_BY_RELYING_PARTY_WITHOUT_NAME) {
+                                    // Return true only for transactions with no relying party
+                                    return@FilterMultipleAction attributes.relyingPartyName == null
+                                }
+
+                                // Check if the transaction has a relying party and matches the filter name
+                                if (attributes.relyingPartyName != null) {
+                                    return@FilterMultipleAction attributes.relyingPartyName == filter.name
+                                }
+
+                                // Default case: return false if no conditions are met
+                                return@FilterMultipleAction false
+                            },
+                    ),
+                    // Filter by Transaction Type
+                    FilterGroup.MultipleSelectionFilterGroup(
+                        id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_GROUP_ID,
+                        name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type),
+                        filters =
+                            listOf(
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_PRESENTATION,
+                                    name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_presentation),
+                                    selected = true,
+                                    isDefault = true,
+                                ),
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_ISSUANCE,
+                                    name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_issuance),
+                                    selected = true,
+                                    isDefault = true,
+                                ),
+                                FilterItem(
+                                    id = TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_SIGNING,
+                                    name = resourceProvider.getString(R.string.transactions_screen_filters_filter_by_transaction_type_signing),
+                                    selected = true,
+                                    isDefault = true,
+                                ),
+                            ),
+                        filterableAction =
+                            FilterMultipleAction<TransactionsFilterableAttributes> { attributes, filter ->
+                                when (filter.id) {
+                                    TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_PRESENTATION -> {
+                                        attributes.transactionType == TransactionTypeUi.PRESENTATION
+                                    }
+
+                                    TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_ISSUANCE -> {
+                                        attributes.transactionType == TransactionTypeUi.ISSUANCE
+                                    }
+
+                                    TransactionFilterIds.FILTER_BY_TRANSACTION_TYPE_SIGNING -> {
+                                        attributes.transactionType == TransactionTypeUi.SIGNING
+                                    }
+
+                                    else -> {
+                                        false
+                                    }
+                                }
+                            },
+                    ),
+                ),
+        )
 
     override fun resetFilters() = filterValidator.resetFilters()
 
-    override fun updateFilter(filterGroupId: String, filterId: String) =
-        filterValidator.updateFilter(filterGroupId, filterId)
+    override fun updateFilter(
+        filterGroupId: String,
+        filterId: String,
+    ) = filterValidator.updateFilter(filterGroupId, filterId)
 
     override fun updateDateFilterById(
         filterGroupId: String,
         filterId: String,
         lowerLimitDate: LocalDateTime,
-        upperLimitDate: LocalDateTime
+        upperLimitDate: LocalDateTime,
     ) {
         filterValidator.updateDateFilter(
             filterGroupId,
             filterId,
             lowerLimitDate,
-            upperLimitDate
+            upperLimitDate,
         )
     }
 
-    override fun updateSortOrder(sortOrder: SortOrder) =
-        filterValidator.updateSortOrder(sortOrder)
+    override fun updateSortOrder(sortOrder: SortOrder) = filterValidator.updateSortOrder(sortOrder)
 
-    private fun LocalDateTime.toDateTimeState(): TransactionInteractorDateTimeCategoryPartialState {
-        return when {
-            isJustNow() -> TransactionInteractorDateTimeCategoryPartialState.JustNow
-
-            isWithinLastHour() -> TransactionInteractorDateTimeCategoryPartialState.WithinLastHour(
-                minutes = minutesToNow()
-            )
-
-            isToday() -> TransactionInteractorDateTimeCategoryPartialState.Today(
-                time = format(
-                    hoursMinutesFormatter
-                )
-            )
-
-            else -> TransactionInteractorDateTimeCategoryPartialState.WithinMonth(
-                date = format(
-                    fullDateTimeFormatter
-                )
-            )
-        }
-    }
-
-    private fun LocalDateTime.toFormattedDisplayableDate(): String {
-        return runCatching {
-            when (val dateTimeState = this.toDateTimeState()) {
-                is TransactionInteractorDateTimeCategoryPartialState.JustNow -> resourceProvider.getString(
-                    R.string.transactions_screen_0_minutes_ago_message
-                )
-
-                is TransactionInteractorDateTimeCategoryPartialState.WithinLastHour -> resourceProvider.getQuantityString(
-                    R.plurals.transactions_screen_some_minutes_ago_message,
-                    dateTimeState.minutes.toInt(),
-                    dateTimeState.minutes
-                )
-
-                is TransactionInteractorDateTimeCategoryPartialState.Today -> dateTimeState.time
-                is TransactionInteractorDateTimeCategoryPartialState.WithinMonth -> dateTimeState.date
+    private fun LocalDateTime.toDateTimeState(): TransactionInteractorDateTimeCategoryPartialState =
+        when {
+            isJustNow() -> {
+                TransactionInteractorDateTimeCategoryPartialState.JustNow
             }
-        }.getOrDefault(this.toString())
-    }
 
-    private fun addRelyingPartyFilter(transactions: FilterableList): List<FilterItem> {
-        val transactionsWithRelyingParty = transactions.items
-            .distinctBy { (it.attributes as TransactionsFilterableAttributes).relyingPartyName }
-            .mapNotNull { filterableItem ->
-                with(filterableItem.attributes as TransactionsFilterableAttributes) {
-                    if (relyingPartyName != null) {
-                        FilterItem(
-                            id = relyingPartyName,
-                            name = relyingPartyName,
-                            selected = true,
-                            isDefault = true,
-                        )
-                    } else {
-                        null
-                    }
+            isWithinLastHour() -> {
+                TransactionInteractorDateTimeCategoryPartialState.WithinLastHour(
+                    minutes = minutesToNow(),
+                )
+            }
+
+            isToday() -> {
+                TransactionInteractorDateTimeCategoryPartialState.Today(
+                    time =
+                        format(
+                            hoursMinutesFormatter,
+                        ),
+                )
+            }
+
+            else -> {
+                TransactionInteractorDateTimeCategoryPartialState.WithinMonth(
+                    date =
+                        format(
+                            fullDateTimeFormatter,
+                        ),
+                )
+            }
+        }
+
+    private fun LocalDateTime.toFormattedDisplayableDate(): String =
+        runCatching {
+            when (val dateTimeState = this.toDateTimeState()) {
+                is TransactionInteractorDateTimeCategoryPartialState.JustNow -> {
+                    resourceProvider.getString(
+                        R.string.transactions_screen_0_minutes_ago_message,
+                    )
+                }
+
+                is TransactionInteractorDateTimeCategoryPartialState.WithinLastHour -> {
+                    resourceProvider.getQuantityString(
+                        R.plurals.transactions_screen_some_minutes_ago_message,
+                        dateTimeState.minutes.toInt(),
+                        dateTimeState.minutes,
+                    )
+                }
+
+                is TransactionInteractorDateTimeCategoryPartialState.Today -> {
+                    dateTimeState.time
+                }
+
+                is TransactionInteractorDateTimeCategoryPartialState.WithinMonth -> {
+                    dateTimeState.date
                 }
             }
-            .sortedBy { it.name.lowercase() } // Sort by name
+        }.getOrDefault(this.toString())
 
-        //Put the "Transactions without Relying Party" filter first in the list
+    private fun addRelyingPartyFilter(transactions: FilterableList): List<FilterItem> {
+        val transactionsWithRelyingParty =
+            transactions.items
+                .distinctBy { (it.attributes as TransactionsFilterableAttributes).relyingPartyName }
+                .mapNotNull { filterableItem ->
+                    with(filterableItem.attributes as TransactionsFilterableAttributes) {
+                        if (relyingPartyName != null) {
+                            FilterItem(
+                                id = relyingPartyName,
+                                name = relyingPartyName,
+                                selected = true,
+                                isDefault = true,
+                            )
+                        } else {
+                            null
+                        }
+                    }
+                }.sortedBy { it.name.lowercase() } // Sort by name
+
+        // Put the "Transactions without Relying Party" filter first in the list
         return listOf(
             FilterItem(
                 id = TransactionFilterIds.FILTER_BY_RELYING_PARTY_WITHOUT_NAME,
                 name = resourceProvider.getString(R.string.transactions_filter_item_no_relying_party_transactions),
                 selected = true,
                 isDefault = true,
-            )
+            ),
         ) + transactionsWithRelyingParty
     }
 

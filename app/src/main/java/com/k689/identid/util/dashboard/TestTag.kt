@@ -17,10 +17,8 @@
 package com.k689.identid.util.dashboard
 
 object TestTag {
-
     object DashboardScreen {
-        fun bottomNavigationItem(navItem: String) =
-            "dashboard_screen_bottom_navigation_item_$navItem"
+        fun bottomNavigationItem(navItem: String) = "dashboard_screen_bottom_navigation_item_$navItem"
     }
 
     object DocumentsScreen {

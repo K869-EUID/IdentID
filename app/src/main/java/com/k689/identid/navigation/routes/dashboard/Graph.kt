@@ -27,10 +27,10 @@ import com.k689.identid.BuildConfig
 import com.k689.identid.navigation.DashboardScreens
 import com.k689.identid.navigation.ModuleRoute
 import com.k689.identid.ui.dashboard.dashboard.DashboardScreen
-import com.k689.identid.ui.dashboard.document_sign.DocumentSignScreen
 import com.k689.identid.ui.dashboard.documents.detail.DocumentDetailsScreen
 import com.k689.identid.ui.dashboard.preferences.PreferencesScreen
 import com.k689.identid.ui.dashboard.settings.SettingsScreen
+import com.k689.identid.ui.dashboard.sign.DocumentSignScreen
 import com.k689.identid.ui.dashboard.transactions.detail.TransactionDetailsScreen
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

@@ -26,24 +26,48 @@ import timber.log.Timber
 import java.io.File
 
 interface LogController {
-    fun d(tag: String, message: () -> String)
+    fun d(
+        tag: String,
+        message: () -> String,
+    )
+
     fun d(message: () -> String)
-    fun e(tag: String, message: () -> String)
-    fun e(tag: String, exception: Throwable)
+
+    fun e(
+        tag: String,
+        message: () -> String,
+    )
+
+    fun e(
+        tag: String,
+        exception: Throwable,
+    )
+
     fun e(message: () -> String)
+
     fun e(exception: Throwable)
-    fun w(tag: String, message: () -> String)
+
+    fun w(
+        tag: String,
+        message: () -> String,
+    )
+
     fun w(message: () -> String)
-    fun i(tag: String, message: () -> String)
+
+    fun i(
+        tag: String,
+        message: () -> String,
+    )
+
     fun i(message: () -> String)
+
     fun retrieveLogFileUris(): List<Uri>
 }
 
 class LogControllerImpl(
     private val context: Context,
-    configLogic: ConfigLogic
+    configLogic: ConfigLogic,
 ) : LogController {
-
     companion object {
         private const val LOG_FILE_NAME = "eudi-android-wallet-logs%g.txt"
         private const val FILE_SIZE_LIMIT = 5242880
@@ -52,14 +76,16 @@ class LogControllerImpl(
 
     private val logsDir = File(context.filesDir.absolutePath + "/logs")
 
-    private val fileLoggerTree: FileLoggerTree = FileLoggerTree.Builder()
-        .withFileName(LOG_FILE_NAME)
-        .withDir(logsDir)
-        .withSizeLimit(FILE_SIZE_LIMIT)
-        .withFileLimit(FILE_LIMIT)
-        .withMinPriority(Log.DEBUG)
-        .appendToFile(true)
-        .build()
+    private val fileLoggerTree: FileLoggerTree =
+        FileLoggerTree
+            .Builder()
+            .withFileName(LOG_FILE_NAME)
+            .withDir(logsDir)
+            .withSizeLimit(FILE_SIZE_LIMIT)
+            .withFileLimit(FILE_LIMIT)
+            .withMinPriority(Log.DEBUG)
+            .appendToFile(true)
+            .build()
 
     init {
         Timber.plant(Timber.DebugTree(), fileLoggerTree)
@@ -67,7 +93,10 @@ class LogControllerImpl(
 
     private val tag: String = "EUDI Wallet ${configLogic.appFlavor}-${configLogic.appBuildType}"
 
-    override fun d(tag: String, message: () -> String) {
+    override fun d(
+        tag: String,
+        message: () -> String,
+    ) {
         Timber.tag(tag).d(message())
     }
 
@@ -75,11 +104,17 @@ class LogControllerImpl(
         d(tag = tag, message = message)
     }
 
-    override fun e(tag: String, message: () -> String) {
+    override fun e(
+        tag: String,
+        message: () -> String,
+    ) {
         Timber.tag(tag).e(message())
     }
 
-    override fun e(tag: String, exception: Throwable) {
+    override fun e(
+        tag: String,
+        exception: Throwable,
+    ) {
         Timber.tag(tag).e(exception.message.orEmpty())
     }
 
@@ -91,7 +126,10 @@ class LogControllerImpl(
         e(tag, exception)
     }
 
-    override fun w(tag: String, message: () -> String) {
+    override fun w(
+        tag: String,
+        message: () -> String,
+    ) {
         Timber.tag(tag).w(message())
     }
 
@@ -99,7 +137,10 @@ class LogControllerImpl(
         w(tag, message)
     }
 
-    override fun i(tag: String, message: () -> String) {
+    override fun i(
+        tag: String,
+        message: () -> String,
+    ) {
         Timber.tag(tag).i(message())
     }
 
@@ -107,9 +148,8 @@ class LogControllerImpl(
         i(tag, message)
     }
 
-    override fun retrieveLogFileUris(): List<Uri> {
-        return fileLoggerTree.files.map {
+    override fun retrieveLogFileUris(): List<Uri> =
+        fileLoggerTree.files.map {
             FileProvider.getUriForFile(context, "${context.packageName}.provider", it)
         }
-    }
 }

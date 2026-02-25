@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 object VSpacer {
-
     @Composable
     fun Custom(space: Int) = Spacer(modifier = Modifier.height(space.dp))
 
@@ -45,11 +44,9 @@ object VSpacer {
 
     @Composable
     fun XXLarge() = Spacer(modifier = Modifier.height(SPACING_XX_LARGE.dp))
-
 }
 
 object HSpacer {
-
     @Composable
     fun Custom(space: Int) = Spacer(modifier = Modifier.width(space.dp))
 
@@ -70,5 +67,4 @@ object HSpacer {
 
     @Composable
     fun XXLarge() = Spacer(modifier = Modifier.width(SPACING_XX_LARGE.dp))
-
 }

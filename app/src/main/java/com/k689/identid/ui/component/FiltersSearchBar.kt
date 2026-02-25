@@ -50,8 +50,9 @@ fun FiltersSearchBar(
 ) {
     val focusManager = LocalFocusManager.current
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         OutlinedTextField(
@@ -66,43 +67,48 @@ fun FiltersSearchBar(
             leadingIcon = {
                 WrapIcon(
                     iconData = AppIcons.Search,
-                    customTint = MaterialTheme.colorScheme.onSurfaceVariant
+                    customTint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
-            trailingIcon = if (text.isNotEmpty()) {
-                {
-                    WrapIconButton(
-                        iconData = AppIcons.Close,
-                        onClick = {
-                            onClearClick()
-                            focusManager.clearFocus()
-                        }
-                    )
-                }
-            } else null,
+            trailingIcon =
+                if (text.isNotEmpty()) {
+                    {
+                        WrapIconButton(
+                            iconData = AppIcons.Close,
+                            onClick = {
+                                onClearClick()
+                                focusManager.clearFocus()
+                            },
+                        )
+                    }
+                } else {
+                    null
+                },
             shape = MaterialTheme.shapes.extraLarge,
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
-                focusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest
-            )
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
+                    focusedBorderColor = MaterialTheme.colorScheme.surfaceContainer,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+                ),
         )
 
         Box {
             WrapIconButton(
                 iconData = AppIcons.Filters,
-                customTint = MaterialTheme.colorScheme.onSurfaceVariant
+                customTint = MaterialTheme.colorScheme.onSurfaceVariant,
             ) {
                 onFilterClick()
             }
             if (isFilteringActive) {
                 Box(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = SPACING_SMALL.dp, end = SPACING_SMALL.dp)
-                        .size((SIZE_SMALL * 1.5).dp)
-                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = SPACING_SMALL.dp, end = SPACING_SMALL.dp)
+                            .size((SIZE_SMALL * 1.5).dp)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape),
                 )
             }
         }

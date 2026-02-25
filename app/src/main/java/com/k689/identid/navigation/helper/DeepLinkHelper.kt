@@ -22,79 +22,86 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import com.k689.identid.extension.business.toUri
-import com.k689.identid.util.business.safeLet
-import com.k689.identid.util.core.CoreActions
-import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
-import eu.europa.ec.eudi.rqesui.infrastructure.RemoteUri
 import com.k689.identid.BuildConfig
-import com.k689.identid.ui.container.EudiComponentActivity
+import com.k689.identid.extension.business.toUri
 import com.k689.identid.extension.ui.openUrl
 import com.k689.identid.navigation.IssuanceScreens
 import com.k689.identid.navigation.PresentationScreens
 import com.k689.identid.navigation.Screen
+import com.k689.identid.ui.container.EudiComponentActivity
+import com.k689.identid.util.business.safeLet
+import com.k689.identid.util.core.CoreActions
+import eu.europa.ec.eudi.rqesui.infrastructure.EudiRQESUi
+import eu.europa.ec.eudi.rqesui.infrastructure.RemoteUri
 
 fun <T> generateComposableArguments(arguments: Map<String, T>): String {
     if (arguments.isEmpty()) return ""
-    return StringBuilder().apply {
-        append("?")
-        arguments.onEachIndexed { index, entry ->
-            if (index > 0) {
-                append("&")
+    return StringBuilder()
+        .apply {
+            append("?")
+            arguments.onEachIndexed { index, entry ->
+                if (index > 0) {
+                    append("&")
+                }
+                append("${entry.key}=${entry.value}")
             }
-            append("${entry.key}=${entry.value}")
-        }
-    }.toString()
+        }.toString()
 }
 
-fun generateComposableDeepLinkUri(screen: Screen, arguments: String): Uri =
-    generateComposableDeepLinkUri(screen.screenName, arguments)
+fun generateComposableDeepLinkUri(
+    screen: Screen,
+    arguments: String,
+): Uri = generateComposableDeepLinkUri(screen.screenName, arguments)
 
-fun generateComposableDeepLinkUri(screen: String, arguments: String): Uri =
-    "${BuildConfig.DEEPLINK}/${screen}$arguments".toUri()
+fun generateComposableDeepLinkUri(
+    screen: String,
+    arguments: String,
+): Uri = "${BuildConfig.DEEPLINK}/${screen}$arguments".toUri()
 
-fun generateComposableNavigationLink(screen: Screen, arguments: String): String =
-    generateComposableNavigationLink(screen.screenName, arguments)
+fun generateComposableNavigationLink(
+    screen: Screen,
+    arguments: String,
+): String = generateComposableNavigationLink(screen.screenName, arguments)
 
-fun generateComposableNavigationLink(screen: String, arguments: String): String =
-    "${screen}$arguments"
+fun generateComposableNavigationLink(
+    screen: String,
+    arguments: String,
+): String = "${screen}$arguments"
 
 fun generateNewTaskDeepLink(
     context: Context,
     screen: Screen,
     arguments: String = "",
-    flags: Int = 0
-): Intent =
-    generateNewTaskDeepLink(context, screen.screenName, arguments, flags)
+    flags: Int = 0,
+): Intent = generateNewTaskDeepLink(context, screen.screenName, arguments, flags)
 
 fun generateNewTaskDeepLink(
     context: Context,
     screen: String,
     arguments: String = "",
-    flags: Int = 0
+    flags: Int = 0,
 ): Intent =
     Intent(
         Intent.ACTION_VIEW,
         generateComposableDeepLinkUri(screen, arguments),
         context,
-        EudiComponentActivity::class.java
+        EudiComponentActivity::class.java,
     ).apply {
         addFlags(flags)
     }
 
-fun hasDeepLink(deepLinkUri: Uri?): DeepLinkAction? {
-    return safeLet(
+fun hasDeepLink(deepLinkUri: Uri?): DeepLinkAction? =
+    safeLet(
         deepLinkUri,
-        deepLinkUri?.scheme
+        deepLinkUri?.scheme,
     ) { uri, scheme ->
         DeepLinkAction(link = uri, type = DeepLinkType.parse(scheme, uri.host))
     }
-}
 
 fun handleDeepLinkAction(
     navController: NavController,
     uri: Uri,
-    arguments: String? = null
+    arguments: String? = null,
 ) {
     hasDeepLink(uri)?.let { action ->
         handleDeepLinkAction(navController, action, arguments)
@@ -104,7 +111,7 @@ fun handleDeepLinkAction(
 fun handleDeepLinkAction(
     navController: NavController,
     action: DeepLinkAction,
-    arguments: String? = null
+    arguments: String? = null,
 ) {
     val screen: Screen
 
@@ -121,7 +128,7 @@ fun handleDeepLinkAction(
             notify(
                 navController.context,
                 CoreActions.VCI_RESUME_ACTION,
-                bundleOf(Pair("uri", action.link.toString()))
+                bundleOf(Pair("uri", action.link.toString())),
             )
             return
         }
@@ -135,7 +142,7 @@ fun handleDeepLinkAction(
             notify(
                 navController.context,
                 CoreActions.VCI_DYNAMIC_PRESENTATION,
-                bundleOf(Pair("uri", action.link.toString()))
+                bundleOf(Pair("uri", action.link.toString())),
             )
             return
         }
@@ -144,7 +151,7 @@ fun handleDeepLinkAction(
             action.link.getQueryParameter("code")?.let {
                 EudiRQESUi.resume(
                     context = navController.context,
-                    authorizationCode = it
+                    authorizationCode = it,
                 )
             }
             return
@@ -153,88 +160,107 @@ fun handleDeepLinkAction(
         DeepLinkType.RQES_DOC_RETRIEVAL -> {
             EudiRQESUi.initiate(
                 context = navController.context,
-                remoteUri = RemoteUri(action.link)
+                remoteUri = RemoteUri(action.link),
             )
             return
         }
     }
 
-    val navigationLink = arguments?.let {
-        generateComposableNavigationLink(
-            screen = screen,
-            arguments = arguments
-        )
-    } ?: screen.screenRoute
+    val navigationLink =
+        arguments?.let {
+            generateComposableNavigationLink(
+                screen = screen,
+                arguments = arguments,
+            )
+        } ?: screen.screenRoute
 
     navController.navigate(navigationLink) {
         popUpTo(screen.screenRoute) { inclusive = true }
     }
 }
 
-data class DeepLinkAction(val link: Uri, val type: DeepLinkType)
-enum class DeepLinkType(val schemas: List<String>, val host: String? = null) {
+data class DeepLinkAction(
+    val link: Uri,
+    val type: DeepLinkType,
+)
 
+enum class DeepLinkType(
+    val schemas: List<String>,
+    val host: String? = null,
+) {
     OPENID4VP(
-        schemas = listOf(
-            BuildConfig.OPENID4VP_SCHEME,
-            BuildConfig.EUDI_OPENID4VP_SCHEME,
-            BuildConfig.MDOC_OPENID4VP_SCHEME,
-            BuildConfig.HAIP_OPENID4VP_SCHEME
-        )
+        schemas =
+            listOf(
+                BuildConfig.OPENID4VP_SCHEME,
+                BuildConfig.EUDI_OPENID4VP_SCHEME,
+                BuildConfig.MDOC_OPENID4VP_SCHEME,
+                BuildConfig.HAIP_OPENID4VP_SCHEME,
+            ),
     ),
     CREDENTIAL_OFFER(
-        schemas = listOf(
-            BuildConfig.CREDENTIAL_OFFER_SCHEME,
-            BuildConfig.CREDENTIAL_OFFER_HAIP_SCHEME
-        )
+        schemas =
+            listOf(
+                BuildConfig.CREDENTIAL_OFFER_SCHEME,
+                BuildConfig.CREDENTIAL_OFFER_HAIP_SCHEME,
+            ),
     ),
     ISSUANCE(
         schemas = listOf(BuildConfig.ISSUE_AUTHORIZATION_SCHEME),
-        host = BuildConfig.ISSUE_AUTHORIZATION_HOST
+        host = BuildConfig.ISSUE_AUTHORIZATION_HOST,
     ),
     EXTERNAL(
-        emptyList()
+        emptyList(),
     ),
     DYNAMIC_PRESENTATION(
-        emptyList()
+        emptyList(),
     ),
     RQES(
         schemas = listOf(BuildConfig.RQES_SCHEME),
-        host = BuildConfig.RQES_HOST
+        host = BuildConfig.RQES_HOST,
     ),
     RQES_DOC_RETRIEVAL(
-        schemas = listOf(BuildConfig.RQES_DOC_RETRIEVAL_SCHEME)
-    );
+        schemas = listOf(BuildConfig.RQES_DOC_RETRIEVAL_SCHEME),
+    ),
+    ;
 
     companion object {
-        fun parse(scheme: String, host: String? = null): DeepLinkType = when {
+        fun parse(
+            scheme: String,
+            host: String? = null,
+        ): DeepLinkType =
+            when {
+                OPENID4VP.schemas.contains(scheme) -> {
+                    OPENID4VP
+                }
 
-            OPENID4VP.schemas.contains(scheme) -> {
-                OPENID4VP
+                CREDENTIAL_OFFER.schemas.contains(scheme) -> {
+                    CREDENTIAL_OFFER
+                }
+
+                ISSUANCE.schemas.contains(scheme) && host == ISSUANCE.host -> {
+                    ISSUANCE
+                }
+
+                RQES.schemas.contains(scheme) && host == RQES.host -> {
+                    RQES
+                }
+
+                RQES_DOC_RETRIEVAL.schemas.contains(scheme) -> {
+                    RQES_DOC_RETRIEVAL
+                }
+
+                else -> {
+                    EXTERNAL
+                }
             }
-
-            CREDENTIAL_OFFER.schemas.contains(scheme) -> {
-                CREDENTIAL_OFFER
-            }
-
-            ISSUANCE.schemas.contains(scheme) && host == ISSUANCE.host -> {
-                ISSUANCE
-            }
-
-            RQES.schemas.contains(scheme) && host == RQES.host -> {
-                RQES
-            }
-
-            RQES_DOC_RETRIEVAL.schemas.contains(scheme) -> {
-                RQES_DOC_RETRIEVAL
-            }
-
-            else -> EXTERNAL
-        }
     }
 }
 
-private fun notify(context: Context, action: String, bundle: Bundle? = null) {
+private fun notify(
+    context: Context,
+    action: String,
+    bundle: Bundle? = null,
+) {
     Intent().also { intent ->
         intent.action = action
         bundle?.let { intent.putExtras(it) }

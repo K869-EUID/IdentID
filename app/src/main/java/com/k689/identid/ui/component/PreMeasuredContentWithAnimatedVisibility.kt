@@ -44,7 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 fun PreMeasuredContentWithAnimatedVisibility(
     modifier: Modifier = Modifier,
     showContent: Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     // State to store the measured height of the content
     var contentHeight by remember { mutableIntStateOf(0) }
@@ -53,15 +53,16 @@ fun PreMeasuredContentWithAnimatedVisibility(
     // Box to reserve space dynamically
     Box(
         modifier = modifier,
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         // SubcomposeLayout to pre-measure the content only if not already measured
         if (!isHeightMeasured) {
             SubcomposeLayout { constraints ->
                 // Subcompose the content when it's not yet visible to measure its height
-                val contentPlaceables = subcompose("Content") {
-                    content()
-                }.map { it.measure(constraints) }
+                val contentPlaceables =
+                    subcompose("Content") {
+                        content()
+                    }.map { it.measure(constraints) }
 
                 // Update height only if it is not yet measured
                 if (contentHeight == 0 && contentPlaceables.isNotEmpty()) {

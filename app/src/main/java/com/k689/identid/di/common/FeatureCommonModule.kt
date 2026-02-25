@@ -20,7 +20,6 @@ import com.k689.identid.controller.authentication.BiometricAuthenticationControl
 import com.k689.identid.controller.authentication.DeviceAuthenticationController
 import com.k689.identid.controller.storage.BiometryStorageController
 import com.k689.identid.controller.storage.PinStorageController
-import com.k689.identid.validator.FormValidator
 import com.k689.identid.interactor.common.BiometricInteractor
 import com.k689.identid.interactor.common.BiometricInteractorImpl
 import com.k689.identid.interactor.common.DeviceAuthenticationInteractor
@@ -30,9 +29,10 @@ import com.k689.identid.interactor.common.QrScanInteractorImpl
 import com.k689.identid.interactor.common.QuickPinInteractor
 import com.k689.identid.interactor.common.QuickPinInteractorImpl
 import com.k689.identid.provider.resources.ResourceProvider
+import com.k689.identid.ui.common.CredentialOfferIssuanceScope
+import com.k689.identid.validator.FormValidator
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
-import com.k689.identid.ui.common.CredentialOfferIssuanceScope
 import org.koin.core.annotation.Module
 import org.koin.mp.KoinPlatform
 
@@ -46,38 +46,32 @@ class FeatureCommonModule
 fun provideQuickPinInteractor(
     formValidator: FormValidator,
     pinStorageController: PinStorageController,
-    resourceProvider: ResourceProvider
-): QuickPinInteractor {
-    return QuickPinInteractorImpl(formValidator, pinStorageController, resourceProvider)
-}
+    resourceProvider: ResourceProvider,
+): QuickPinInteractor = QuickPinInteractorImpl(formValidator, pinStorageController, resourceProvider)
 
 @Factory
 fun provideBiometricInteractor(
     biometryStorageController: BiometryStorageController,
     biometricAuthenticationController: BiometricAuthenticationController,
-    quickPinInteractor: QuickPinInteractor
-): BiometricInteractor {
-    return BiometricInteractorImpl(
+    quickPinInteractor: QuickPinInteractor,
+): BiometricInteractor =
+    BiometricInteractorImpl(
         biometryStorageController,
         biometricAuthenticationController,
-        quickPinInteractor
+        quickPinInteractor,
     )
-}
 
 @Factory
 fun provideDeviceAuthenticationInteractor(
-    deviceAuthenticationController: DeviceAuthenticationController
-): DeviceAuthenticationInteractor {
-    return DeviceAuthenticationInteractorImpl(deviceAuthenticationController)
-}
+    deviceAuthenticationController: DeviceAuthenticationController,
+): DeviceAuthenticationInteractor = DeviceAuthenticationInteractorImpl(deviceAuthenticationController)
 
 @Factory
 fun provideQrScanInteractor(
-    formValidator: FormValidator
-): QrScanInteractor {
-    return QrScanInteractorImpl(formValidator)
-}
+    formValidator: FormValidator,
+): QrScanInteractor = QrScanInteractorImpl(formValidator)
 
 fun getOrCreateCredentialOfferScope(): org.koin.core.scope.Scope =
-    KoinPlatform.getKoin()
+    KoinPlatform
+        .getKoin()
         .getOrCreateScope<CredentialOfferIssuanceScope>(CREDENTIAL_OFFER_ISSUANCE_SCOPE_ID)

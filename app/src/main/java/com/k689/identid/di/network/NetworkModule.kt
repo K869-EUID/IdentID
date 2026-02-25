@@ -39,33 +39,35 @@ import org.koin.core.annotation.Single
 class LogicNetworkModule
 
 @Single
-fun provideJson(): Json = Json {
-    ignoreUnknownKeys = true
-    prettyPrint = true
-    isLenient = true
-}
+fun provideJson(): Json =
+    Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+        isLenient = true
+    }
 
 @Single
-fun provideHttpClient(json: Json, configLogic: ConfigLogic): HttpClient {
-    return HttpClient(Android) {
-
+fun provideHttpClient(
+    json: Json,
+    configLogic: ConfigLogic,
+): HttpClient =
+    HttpClient(Android) {
         install(Logging) {
             logger = Logger.DEFAULT
-            level = when (configLogic.appBuildType) {
-                AppBuildType.DEBUG -> LogLevel.BODY
-                AppBuildType.RELEASE -> LogLevel.NONE
-            }
+            level =
+                when (configLogic.appBuildType) {
+                    AppBuildType.DEBUG -> LogLevel.BODY
+                    AppBuildType.RELEASE -> LogLevel.NONE
+                }
         }
 
         install(ContentNegotiation) {
             json(
                 json = json,
-                contentType = ContentType.Application.Json
+                contentType = ContentType.Application.Json,
             )
         }
     }
-}
 
 @Single
-fun provideWalletAttestationRepository(httpClient: HttpClient): WalletAttestationRepository =
-    WalletAttestationRepositoryImpl(httpClient)
+fun provideWalletAttestationRepository(httpClient: HttpClient): WalletAttestationRepository = WalletAttestationRepositoryImpl(httpClient)

@@ -40,13 +40,14 @@ fun rememberBase64DecodedBitmap(base64Image: String): ImageBitmap? {
     LaunchedEffect(decodedImage) {
         if (decodedImage != null) return@LaunchedEffect
         launch(Dispatchers.Default) {
-            decodedImage = try {
-                val decodedImageByteArray: ByteArray =
-                    decodeFromBase64(base64Image, Base64.URL_SAFE)
-                BitmapFactory.decodeByteArray(decodedImageByteArray, 0, decodedImageByteArray.size)
-            } catch (e: Exception) {
-                null
-            }
+            decodedImage =
+                try {
+                    val decodedImageByteArray: ByteArray =
+                        decodeFromBase64(base64Image, Base64.URL_SAFE)
+                    BitmapFactory.decodeByteArray(decodedImageByteArray, 0, decodedImageByteArray.size)
+                } catch (e: Exception) {
+                    null
+                }
         }
     }
 

@@ -31,11 +31,11 @@ import com.k689.identid.controller.storage.PrefsController
 import com.k689.identid.controller.storage.PrefsControllerImpl
 import com.k689.identid.provider.UuidProvider
 import com.k689.identid.provider.UuidProviderImpl
+import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.validator.FilterValidator
 import com.k689.identid.validator.FilterValidatorImpl
 import com.k689.identid.validator.FormValidator
 import com.k689.identid.validator.FormValidatorImpl
-import com.k689.identid.provider.resources.ResourceProvider
 import org.koin.core.annotation.ComponentScan
 import org.koin.core.annotation.Factory
 import org.koin.core.annotation.Module
@@ -49,37 +49,32 @@ class LogicBusinessModule
 fun provideConfigLogic(context: Context): ConfigLogic = ConfigLogicImpl(context)
 
 @Single
-fun provideLogController(context: Context, configLogic: ConfigLogic): LogController =
-    LogControllerImpl(context, configLogic)
+fun provideLogController(
+    context: Context,
+    configLogic: ConfigLogic,
+): LogController = LogControllerImpl(context, configLogic)
 
 @Single
-fun providePrefsController(resourceProvider: ResourceProvider): PrefsController =
-    PrefsControllerImpl(resourceProvider)
+fun providePrefsController(resourceProvider: ResourceProvider): PrefsController = PrefsControllerImpl(resourceProvider)
 
 @Single
-fun providePrefKeys(prefsController: PrefsController): PrefKeys =
-    PrefKeysImpl(prefsController)
+fun providePrefKeys(prefsController: PrefsController): PrefKeys = PrefKeysImpl(prefsController)
 
 @Single
 fun provideKeystoreController(
     prefKeys: PrefKeys,
     logController: LogController,
-    uuidProvider: UuidProvider
-): KeystoreController =
-    KeystoreControllerImpl(prefKeys, logController, uuidProvider)
+    uuidProvider: UuidProvider,
+): KeystoreController = KeystoreControllerImpl(prefKeys, logController, uuidProvider)
 
 @Factory
-fun provideCryptoController(keystoreController: KeystoreController): CryptoController =
-    CryptoControllerImpl(keystoreController)
+fun provideCryptoController(keystoreController: KeystoreController): CryptoController = CryptoControllerImpl(keystoreController)
 
 @Factory
-fun provideFormValidator(logController: LogController): FormValidator =
-    FormValidatorImpl(logController)
+fun provideFormValidator(logController: LogController): FormValidator = FormValidatorImpl(logController)
 
 @Factory
 fun provideFiltersValidator(): FilterValidator = FilterValidatorImpl()
 
 @Single
-fun provideUuidProvider(): UuidProvider {
-    return UuidProviderImpl()
-}
+fun provideUuidProvider(): UuidProvider = UuidProviderImpl()

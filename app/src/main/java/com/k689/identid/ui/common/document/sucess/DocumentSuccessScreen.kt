@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 European Commission
+ * Copyright (c) 2026 European Commission
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the European
  * Commission - subsequent versions of the EUPL (the "Licence"); You may not use this work
@@ -14,7 +14,7 @@
  * governing permissions and limitations under the Licence.
  */
 
-package com.k689.identid.ui.common.document_success
+package com.k689.identid.ui.common.document.sucess
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,8 +37,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.k689.identid.util.common.TestTag
 import com.k689.identid.R
+import com.k689.identid.extension.ui.cacheDeepLink
 import com.k689.identid.ui.component.content.ContentHeader
 import com.k689.identid.ui.component.content.ContentScreen
 import com.k689.identid.ui.component.content.ScreenNavigateAction
@@ -51,7 +51,7 @@ import com.k689.identid.ui.component.wrap.StickyBottomConfig
 import com.k689.identid.ui.component.wrap.StickyBottomType
 import com.k689.identid.ui.component.wrap.WrapExpandableListItem
 import com.k689.identid.ui.component.wrap.WrapStickyBottomContent
-import com.k689.identid.extension.ui.cacheDeepLink
+import com.k689.identid.util.common.TestTag
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -68,19 +68,23 @@ fun DocumentSuccessScreen(
         isLoading = false,
         stickyBottom = { paddingValues ->
             WrapStickyBottomContent(
-                modifier = Modifier
-                    .testTag(TestTag.DocumentSuccessScreen.BUTTON)
-                    .fillMaxWidth()
-                    .padding(paddingValues),
-                stickyBottomConfig = StickyBottomConfig(
-                    type = StickyBottomType.OneButton(
-                        config = ButtonConfig(
-                            type = ButtonType.SECONDARY,
-                            enabled = !state.isLoading,
-                            onClick = { viewModel.setEvent(Event.StickyButtonPressed) }
-                        )
-                    )
-                )
+                modifier =
+                    Modifier
+                        .testTag(TestTag.DocumentSuccessScreen.BUTTON)
+                        .fillMaxWidth()
+                        .padding(paddingValues),
+                stickyBottomConfig =
+                    StickyBottomConfig(
+                        type =
+                            StickyBottomType.OneButton(
+                                config =
+                                    ButtonConfig(
+                                        type = ButtonType.SECONDARY,
+                                        enabled = !state.isLoading,
+                                        onClick = { viewModel.setEvent(Event.StickyButtonPressed) },
+                                    ),
+                            ),
+                    ),
             ) {
                 Text(text = stringResource(R.string.document_success_sticky_button_text))
             }
@@ -106,7 +110,7 @@ fun DocumentSuccessScreen(
                     is Effect.Navigation.PopBackStackUpTo -> {
                         navController.popBackStack(
                             route = navigationEffect.screenRoute,
-                            inclusive = navigationEffect.inclusive
+                            inclusive = navigationEffect.inclusive,
                         )
                     }
 
@@ -115,15 +119,17 @@ fun DocumentSuccessScreen(
                         navigationEffect.routeToPop?.let {
                             navController.popBackStack(
                                 route = it,
-                                inclusive = false
+                                inclusive = false,
                             )
                         } ?: navController.popBackStack()
                     }
 
-                    is Effect.Navigation.Pop -> navController.popBackStack()
+                    is Effect.Navigation.Pop -> {
+                        navController.popBackStack()
+                    }
                 }
             },
-            paddingValues = paddingValues
+            paddingValues = paddingValues,
         )
     }
 
@@ -141,10 +147,11 @@ private fun Content(
     paddingValues: PaddingValues,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(paddingValues)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues),
     ) {
         ContentHeader(
             modifier = Modifier.fillMaxWidth(),
@@ -153,16 +160,18 @@ private fun Content(
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = SPACING_SMALL.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(vertical = SPACING_SMALL.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_MEDIUM.dp),
         ) {
             state.items.forEachIndexed { index, successItem ->
                 WrapExpandableListItem(
-                    modifier = Modifier
-                        .testTag(TestTag.DocumentSuccessScreen.successDocument(index = index))
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .testTag(TestTag.DocumentSuccessScreen.successDocument(index = index))
+                            .fillMaxWidth(),
                     header = successItem.header,
                     data = successItem.nestedItems,
                     onItemClick = null,
@@ -174,19 +183,21 @@ private fun Content(
                     hideSensitiveContent = false,
                     collapsedMainContentVerticalPadding = SPACING_MEDIUM.dp,
                     expandedMainContentVerticalPadding = SPACING_MEDIUM.dp,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiary,
-                    )
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.tertiary,
+                        ),
                 )
             }
         }
     }
 
     LaunchedEffect(Unit) {
-        effectFlow.onEach { effect ->
-            when (effect) {
-                is Effect.Navigation -> onNavigationRequested(effect)
-            }
-        }.collect()
+        effectFlow
+            .onEach { effect ->
+                when (effect) {
+                    is Effect.Navigation -> onNavigationRequested(effect)
+                }
+            }.collect()
     }
 }

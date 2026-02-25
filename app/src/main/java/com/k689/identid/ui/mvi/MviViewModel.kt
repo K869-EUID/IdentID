@@ -27,16 +27,15 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : ViewSideEffect> :
-    ViewModel() {
-
+abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : ViewSideEffect> : ViewModel() {
     private val initialState: UiState by lazy { setInitialState() }
+
     abstract fun setInitialState(): UiState
 
     private val _viewState: MutableStateFlow<UiState> by lazy { MutableStateFlow(initialState) }
     val viewState: StateFlow<UiState> by lazy { _viewState.asStateFlow() }
 
-    private val _event: MutableSharedFlow<Event> = MutableSharedFlow()
+    private val incomingEvent: MutableSharedFlow<Event> = MutableSharedFlow()
 
     private val _effect: Channel<Effect> = Channel()
     val effect = _effect.receiveAsFlow()
@@ -49,7 +48,7 @@ abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : Vie
     }
 
     fun setEvent(event: Event) {
-        viewModelScope.launch { _event.emit(event) }
+        viewModelScope.launch { incomingEvent.emit(event) }
     }
 
     protected fun setState(reducer: UiState.() -> UiState) {
@@ -60,7 +59,7 @@ abstract class MviViewModel<Event : ViewEvent, UiState : ViewState, Effect : Vie
 
     private fun subscribeToEvents() {
         viewModelScope.launch {
-            _event.collect {
+            incomingEvent.collect {
                 handleEvents(it)
             }
         }

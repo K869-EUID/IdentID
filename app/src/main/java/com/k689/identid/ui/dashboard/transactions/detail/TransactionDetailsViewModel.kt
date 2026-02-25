@@ -17,15 +17,15 @@
 package com.k689.identid.ui.dashboard.transactions.detail
 
 import androidx.lifecycle.viewModelScope
+import com.k689.identid.R
+import com.k689.identid.extension.ui.toggleExpansionState
 import com.k689.identid.interactor.dashboard.TransactionDetailsInteractor
 import com.k689.identid.interactor.dashboard.TransactionDetailsInteractorPartialState
-import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsUi
-import com.k689.identid.R
 import com.k689.identid.provider.resources.ResourceProvider
 import com.k689.identid.ui.component.AppIcons
 import com.k689.identid.ui.component.ListItemTrailingContentDataUi
 import com.k689.identid.ui.component.content.ContentErrorConfig
-import com.k689.identid.extension.ui.toggleExpansionState
+import com.k689.identid.ui.dashboard.transactions.detail.model.TransactionDetailsUi
 import com.k689.identid.ui.mvi.MviViewModel
 import com.k689.identid.ui.mvi.ViewEvent
 import com.k689.identid.ui.mvi.ViewSideEffect
@@ -38,29 +38,34 @@ import org.koin.core.annotation.InjectedParam
 data class State(
     val isLoading: Boolean = false,
     val error: ContentErrorConfig? = null,
-
     val title: String,
     val transactionDetailsUi: TransactionDetailsUi? = null,
 ) : ViewState
 
 sealed class Event : ViewEvent {
     data object Init : Event()
+
     data object Pop : Event()
+
     data object DismissError : Event()
 
-    data class ExpandOrCollapseGroupItem(val itemId: String) : Event()
+    data class ExpandOrCollapseGroupItem(
+        val itemId: String,
+    ) : Event()
 
     data object RequestDataDeletionPressed : Event()
+
     data object ReportSuspiciousTransactionPressed : Event()
 }
 
 sealed class Effect : ViewSideEffect {
     sealed class Navigation : Effect() {
         data object Pop : Navigation()
+
         data class SwitchScreen(
             val screenRoute: String,
             val popUpToScreenRoute: String,
-            val inclusive: Boolean
+            val inclusive: Boolean,
         ) : Navigation()
     }
 }
@@ -71,9 +76,10 @@ internal class TransactionDetailsViewModel(
     private val resourceProvider: ResourceProvider,
     @InjectedParam private val transactionId: String,
 ) : MviViewModel<Event, State, Effect>() {
-    override fun setInitialState(): State = State(
-        title = resourceProvider.getString(R.string.transaction_details_screen_title),
-    )
+    override fun setInitialState(): State =
+        State(
+            title = resourceProvider.getString(R.string.transaction_details_screen_title),
+        )
 
     override fun handleEvents(event: Event) {
         when (event) {
@@ -112,40 +118,42 @@ internal class TransactionDetailsViewModel(
         setState {
             copy(
                 isLoading = true,
-                error = null
+                error = null,
             )
         }
 
         viewModelScope.launch {
-            interactor.getTransactionDetails(
-                transactionId = transactionId,
-            ).collect { response ->
-                when (response) {
-                    is TransactionDetailsInteractorPartialState.Success -> {
-                        val transactionDetailsUi = response.transactionDetailsUi
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = null,
-                                transactionDetailsUi = transactionDetailsUi
-                            )
-                        }
-                    }
-
-                    is TransactionDetailsInteractorPartialState.Failure -> {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = ContentErrorConfig(
-                                    onRetry = { setEvent(event) },
-                                    errorSubTitle = response.error,
-                                    onCancel = { setEvent(Event.Pop) }
+            interactor
+                .getTransactionDetails(
+                    transactionId = transactionId,
+                ).collect { response ->
+                    when (response) {
+                        is TransactionDetailsInteractorPartialState.Success -> {
+                            val transactionDetailsUi = response.transactionDetailsUi
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error = null,
+                                    transactionDetailsUi = transactionDetailsUi,
                                 )
-                            )
+                            }
+                        }
+
+                        is TransactionDetailsInteractorPartialState.Failure -> {
+                            setState {
+                                copy(
+                                    isLoading = false,
+                                    error =
+                                        ContentErrorConfig(
+                                            onRetry = { setEvent(event) },
+                                            errorSubTitle = response.error,
+                                            onCancel = { setEvent(Event.Pop) },
+                                        ),
+                                )
+                            }
                         }
                     }
                 }
-            }
         }
     }
 
@@ -154,43 +162,48 @@ internal class TransactionDetailsViewModel(
 
             val updatedItems =
                 safeTransactionDetailsUi.transactionDetailsDataShared.dataSharedItems.map { dataSharedItem ->
-                    val newHeader = if (dataSharedItem.header.itemId == itemId) {
-                        val newIsExpanded = !dataSharedItem.isExpanded
-                        val newCollapsed = dataSharedItem.header.copy(
-                            trailingContentData = ListItemTrailingContentDataUi.Icon(
-                                iconData = if (newIsExpanded) {
-                                    AppIcons.KeyboardArrowUp
-                                } else {
-                                    AppIcons.KeyboardArrowDown
-                                }
-                            )
-                        )
+                    val newHeader =
+                        if (dataSharedItem.header.itemId == itemId) {
+                            val newIsExpanded = !dataSharedItem.isExpanded
+                            val newCollapsed =
+                                dataSharedItem.header.copy(
+                                    trailingContentData =
+                                        ListItemTrailingContentDataUi.Icon(
+                                            iconData =
+                                                if (newIsExpanded) {
+                                                    AppIcons.KeyboardArrowUp
+                                                } else {
+                                                    AppIcons.KeyboardArrowDown
+                                                },
+                                        ),
+                                )
 
-                        dataSharedItem.copy(
-                            header = newCollapsed,
-                            isExpanded = newIsExpanded
-                        )
-                    } else {
-                        dataSharedItem
-                    }
+                            dataSharedItem.copy(
+                                header = newCollapsed,
+                                isExpanded = newIsExpanded,
+                            )
+                        } else {
+                            dataSharedItem
+                        }
 
                     dataSharedItem.copy(
                         header = newHeader.header,
                         isExpanded = newHeader.isExpanded,
-                        nestedItems = newHeader.nestedItems.toggleExpansionState(itemId)
+                        nestedItems = newHeader.nestedItems.toggleExpansionState(itemId),
                     )
                 }
 
             setState {
                 copy(
-                    transactionDetailsUi = safeTransactionDetailsUi.copy(
-                        transactionDetailsDataShared = safeTransactionDetailsUi.transactionDetailsDataShared.copy(
-                            dataSharedItems = updatedItems
-                        )
-                    )
+                    transactionDetailsUi =
+                        safeTransactionDetailsUi.copy(
+                            transactionDetailsDataShared =
+                                safeTransactionDetailsUi.transactionDetailsDataShared.copy(
+                                    dataSharedItems = updatedItems,
+                                ),
+                        ),
                 )
             }
         }
     }
-
 }

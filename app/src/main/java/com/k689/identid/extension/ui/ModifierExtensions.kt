@@ -55,7 +55,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 
 private data class ClickState(
     val event: () -> Unit,
-    var currentTimeInMillis: Long
+    var currentTimeInMillis: Long,
 )
 
 fun Modifier.throttledClickable(
@@ -67,24 +67,25 @@ fun Modifier.throttledClickable(
     throttleDuration: Long = 1_000L,
     onClick: () -> Unit,
 ) = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "clickable"
-        properties["enabled"] = enabled
-        properties["onClickLabel"] = onClickLabel
-        properties["role"] = role
-        properties["onClick"] = onClick
-    }
+    inspectorInfo =
+        debugInspectorInfo {
+            name = "clickable"
+            properties["enabled"] = enabled
+            properties["onClickLabel"] = onClickLabel
+            properties["role"] = role
+            properties["onClick"] = onClick
+        },
 ) {
-
     var lastClicked: Long by remember { mutableLongStateOf(0) }
 
-    val debounceState = remember {
-        MutableSharedFlow<ClickState>(
-            replay = 0,
-            extraBufferCapacity = 1,
-            onBufferOverflow = BufferOverflow.DROP_OLDEST
-        )
-    }
+    val debounceState =
+        remember {
+            MutableSharedFlow<ClickState>(
+                replay = 0,
+                extraBufferCapacity = 1,
+                onBufferOverflow = BufferOverflow.DROP_OLDEST,
+            )
+        }
 
     LaunchedEffect(Unit) {
         debounceState
@@ -103,7 +104,7 @@ fun Modifier.throttledClickable(
             onClick = { debounceState.tryEmit(ClickState(onClick, System.currentTimeMillis())) },
             role = role,
             indication = indication ?: LocalIndication.current,
-            interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+            interactionSource = interactionSource ?: remember { MutableInteractionSource() },
         )
 }
 
@@ -127,15 +128,17 @@ fun Modifier.throttledClickable(
  */
 inline fun Modifier.clickableNoRipple(
     enabled: Boolean = true,
-    crossinline onClick: () -> Unit
-): Modifier = composed {
-    clickable(
-        enabled = enabled,
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() }) {
-        onClick()
+    crossinline onClick: () -> Unit,
+): Modifier =
+    composed {
+        clickable(
+            enabled = enabled,
+            indication = null,
+            interactionSource = remember { MutableInteractionSource() },
+        ) {
+            onClick()
+        }
     }
-}
 
 fun Modifier.dashedBorder(
     brush: Brush,
@@ -143,17 +146,19 @@ fun Modifier.dashedBorder(
     strokeWidth: Dp = 2.dp,
     dashLength: Dp = 4.dp,
     gapLength: Dp = 4.dp,
-    cap: StrokeCap = StrokeCap.Round
+    cap: StrokeCap = StrokeCap.Round,
 ) = this.drawWithContent {
     val outline = shape.createOutline(size, layoutDirection, density = this)
 
-    val dashedStroke = Stroke(
-        cap = cap,
-        width = strokeWidth.toPx(),
-        pathEffect = PathEffect.dashPathEffect(
-            intervals = floatArrayOf(dashLength.toPx(), gapLength.toPx())
+    val dashedStroke =
+        Stroke(
+            cap = cap,
+            width = strokeWidth.toPx(),
+            pathEffect =
+                PathEffect.dashPathEffect(
+                    intervals = floatArrayOf(dashLength.toPx(), gapLength.toPx()),
+                ),
         )
-    )
 
     // Draw the content
     drawContent()
@@ -162,7 +167,7 @@ fun Modifier.dashedBorder(
     drawOutline(
         outline = outline,
         style = dashedStroke,
-        brush = brush
+        brush = brush,
     )
 }
 
@@ -172,7 +177,7 @@ fun Modifier.dashedBorder(
     strokeWidth: Dp = 2.dp,
     dashLength: Dp = 4.dp,
     gapLength: Dp = 4.dp,
-    cap: StrokeCap = StrokeCap.Round
+    cap: StrokeCap = StrokeCap.Round,
 ) = dashedBorder(brush = SolidColor(color), shape, strokeWidth, dashLength, gapLength, cap)
 
 @Composable
@@ -181,7 +186,7 @@ fun Modifier.paddingFrom(
     top: Boolean = true,
     start: Boolean = true,
     end: Boolean = true,
-    bottom: Boolean = true
+    bottom: Boolean = true,
 ): Modifier {
     val layoutDirection = LocalLayoutDirection.current
     return this.padding(
@@ -189,24 +194,22 @@ fun Modifier.paddingFrom(
             top = if (top) pv.calculateTopPadding() else 0.dp,
             start = if (start) pv.calculateStartPadding(layoutDirection) else 0.dp,
             end = if (end) pv.calculateEndPadding(layoutDirection) else 0.dp,
-            bottom = if (bottom) pv.calculateBottomPadding() else 0.dp
-        )
+            bottom = if (bottom) pv.calculateBottomPadding() else 0.dp,
+        ),
     )
 }
 
-fun Modifier.optionalTestTag(testTag: String?): Modifier {
-    return this.then(
+fun Modifier.optionalTestTag(testTag: String?): Modifier =
+    this.then(
         if (testTag != null) {
             Modifier.testTag(testTag)
         } else {
             Modifier
-        }
+        },
     )
-}
 
-fun Modifier.exposeTestTagsAsResourceId(): Modifier {
-    return this
+fun Modifier.exposeTestTagsAsResourceId(): Modifier =
+    this
         .semantics {
             this.testTagsAsResourceId = true
         }
-}

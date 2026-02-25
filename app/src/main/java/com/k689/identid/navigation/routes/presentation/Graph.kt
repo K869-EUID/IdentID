@@ -23,45 +23,46 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
-import com.k689.identid.config.RequestUriConfig
 import com.k689.identid.BuildConfig
+import com.k689.identid.config.RequestUriConfig
+import com.k689.identid.navigation.ModuleRoute
+import com.k689.identid.navigation.PresentationScreens
 import com.k689.identid.ui.presentation.loading.PresentationLoadingScreen
 import com.k689.identid.ui.presentation.request.PresentationRequestScreen
 import com.k689.identid.ui.presentation.success.PresentationSuccessScreen
-import com.k689.identid.navigation.ModuleRoute
-import com.k689.identid.navigation.PresentationScreens
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 fun NavGraphBuilder.presentationGraph(navController: NavController) {
     navigation(
         startDestination = PresentationScreens.PresentationRequest.screenRoute,
-        route = ModuleRoute.PresentationModule.route
+        route = ModuleRoute.PresentationModule.route,
     ) {
-
         composable(
             route = PresentationScreens.PresentationRequest.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        BuildConfig.DEEPLINK + PresentationScreens.PresentationRequest.screenRoute
-                }
-            ),
-            arguments = listOf(
-                navArgument(RequestUriConfig.serializedKeyName) {
-                    type = NavType.StringType
-                },
-            )
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern =
+                            BuildConfig.DEEPLINK + PresentationScreens.PresentationRequest.screenRoute
+                    },
+                ),
+            arguments =
+                listOf(
+                    navArgument(RequestUriConfig.serializedKeyName) {
+                        type = NavType.StringType
+                    },
+                ),
         ) {
             PresentationRequestScreen(
                 navController,
                 koinViewModel(
                     parameters = {
                         parametersOf(
-                            it.arguments?.getString(RequestUriConfig.serializedKeyName).orEmpty()
+                            it.arguments?.getString(RequestUriConfig.serializedKeyName).orEmpty(),
                         )
-                    }
-                )
+                    },
+                ),
             )
         }
 
@@ -70,22 +71,23 @@ fun NavGraphBuilder.presentationGraph(navController: NavController) {
         ) {
             PresentationLoadingScreen(
                 navController,
-                koinViewModel()
+                koinViewModel(),
             )
         }
 
         composable(
             route = PresentationScreens.PresentationSuccess.screenRoute,
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern =
-                        BuildConfig.DEEPLINK + PresentationScreens.PresentationSuccess.screenRoute
-                }
-            ),
+            deepLinks =
+                listOf(
+                    navDeepLink {
+                        uriPattern =
+                            BuildConfig.DEEPLINK + PresentationScreens.PresentationSuccess.screenRoute
+                    },
+                ),
         ) {
             PresentationSuccessScreen(
                 navController,
-                koinViewModel()
+                koinViewModel(),
             )
         }
     }

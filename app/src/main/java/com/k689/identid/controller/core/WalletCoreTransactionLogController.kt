@@ -16,11 +16,11 @@
 
 package com.k689.identid.controller.core
 
-import com.nimbusds.jose.shaded.gson.Gson
 import com.k689.identid.provider.UuidProvider
+import com.k689.identid.storage.dao.TransactionLogDao
+import com.nimbusds.jose.shaded.gson.Gson
 import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLog
 import eu.europa.ec.eudi.wallet.transactionLogging.TransactionLogger
-import com.k689.identid.storage.dao.TransactionLogDao
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -33,9 +33,8 @@ interface WalletCoreTransactionLogController : TransactionLogger
 class WalletCoreTransactionLogControllerImpl(
     private val transactionLogDao: TransactionLogDao,
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO),
-    private val uuidProvider: UuidProvider
+    private val uuidProvider: UuidProvider,
 ) : WalletCoreTransactionLogController {
-
     @OptIn(ExperimentalUuidApi::class)
     override fun log(transaction: TransactionLog) {
         scope.launch {
@@ -43,8 +42,8 @@ class WalletCoreTransactionLogControllerImpl(
             transactionLogDao.store(
                 TransactionStorage(
                     identifier = uuidProvider.provideUuid(),
-                    value = json
-                )
+                    value = json,
+                ),
             )
         }
     }

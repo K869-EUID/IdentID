@@ -19,28 +19,28 @@ package com.k689.identid.config
 import androidx.compose.ui.graphics.Color
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.k689.identid.config.ConfigNavigation
+import com.k689.identid.config.NavigationType
 import com.k689.identid.theme.values.ThemeColors
 import com.k689.identid.ui.component.AppIconAndTextDataUi
 import com.k689.identid.ui.component.IconDataUi
 import com.k689.identid.ui.component.content.ContentHeaderConfig
 import com.k689.identid.ui.component.utils.PERCENTAGE_60
-import com.k689.identid.config.ConfigNavigation
-import com.k689.identid.config.NavigationType
 import com.k689.identid.ui.serializer.UiSerializable
 import com.k689.identid.ui.serializer.UiSerializableParser
 import com.k689.identid.ui.serializer.adapter.SerializableTypeAdapter
 
 data class SuccessUIConfig(
     val textElementsConfig: TextElementsConfig,
-    val headerConfig: ContentHeaderConfig = ContentHeaderConfig(
-        appIconAndTextData = AppIconAndTextDataUi(),
-        description = null,
-    ),
+    val headerConfig: ContentHeaderConfig =
+        ContentHeaderConfig(
+            appIconAndTextData = AppIconAndTextDataUi(),
+            description = null,
+        ),
     val imageConfig: ImageConfig,
     val buttonConfig: List<ButtonConfig>,
-    val onBackScreenToNavigate: ConfigNavigation
+    val onBackScreenToNavigate: ConfigNavigation,
 ) : UiSerializable {
-
     data class ImageConfig(
         val type: Type = Type.Default,
         val tint: Color? = ThemeColors.success,
@@ -48,7 +48,10 @@ data class SuccessUIConfig(
     ) {
         sealed class Type {
             data object Default : Type()
-            data class Drawable(val icon: IconDataUi) : Type()
+
+            data class Drawable(
+                val icon: IconDataUi,
+            ) : Type()
         }
     }
 
@@ -58,29 +61,28 @@ data class SuccessUIConfig(
         val navigation: ConfigNavigation,
     ) {
         enum class Style {
-            PRIMARY, OUTLINE
+            PRIMARY,
+            OUTLINE,
         }
     }
 
     data class TextElementsConfig(
         val text: String,
         val description: String,
-        val color: Color = ThemeColors.success
+        val color: Color = ThemeColors.success,
     )
 
     companion object Parser : UiSerializableParser {
         override val serializedKeyName = "successConfig"
-        override fun provideParser(): Gson {
-            return GsonBuilder()
+
+        override fun provideParser(): Gson =
+            GsonBuilder()
                 .registerTypeAdapter(
                     NavigationType::class.java,
-                    SerializableTypeAdapter<NavigationType>()
-                )
-                .registerTypeAdapter(
+                    SerializableTypeAdapter<NavigationType>(),
+                ).registerTypeAdapter(
                     ImageConfig.Type::class.java,
-                    SerializableTypeAdapter<ImageConfig.Type>()
-                )
-                .create()
-        }
+                    SerializableTypeAdapter<ImageConfig.Type>(),
+                ).create()
     }
 }

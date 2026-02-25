@@ -38,7 +38,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.skydoves.cloudy.cloudy
 import com.k689.identid.ui.component.ClickableArea.ENTIRE_ROW
 import com.k689.identid.ui.component.ClickableArea.TRAILING_CONTENT
 import com.k689.identid.ui.component.preview.PreviewTheme
@@ -59,6 +58,7 @@ import com.k689.identid.ui.component.wrap.WrapIconButton
 import com.k689.identid.ui.component.wrap.WrapRadioButton
 import com.k689.identid.ui.component.wrap.WrapSwitch
 import com.k689.identid.ui.component.wrap.WrapText
+import com.skydoves.cloudy.cloudy
 
 /**
  * Represents the data displayed within a single item in a list.
@@ -99,8 +99,13 @@ data class ListItemDataUi(
  * - [Image]: An image represented as a Base64 encoded string.
  */
 sealed class ListItemMainContentDataUi {
-    data class Text(val text: String) : ListItemMainContentDataUi()
-    data class Image(val base64Image: String) : ListItemMainContentDataUi()
+    data class Text(
+        val text: String,
+    ) : ListItemMainContentDataUi()
+
+    data class Image(
+        val base64Image: String,
+    ) : ListItemMainContentDataUi()
 }
 
 /**
@@ -155,16 +160,27 @@ sealed class ListItemLeadingContentDataUi {
  *  - [TextWithIcon]: Represents text and an icon to be displayed as trailing content.
  */
 sealed class ListItemTrailingContentDataUi {
-    data class Icon(val iconData: IconDataUi, val tint: Color? = null) :
-        ListItemTrailingContentDataUi()
+    data class Icon(
+        val iconData: IconDataUi,
+        val tint: Color? = null,
+    ) : ListItemTrailingContentDataUi()
 
-    data class Checkbox(val checkboxData: CheckboxDataUi) : ListItemTrailingContentDataUi()
-    data class RadioButton(val radioButtonData: RadioButtonDataUi) : ListItemTrailingContentDataUi()
-    data class Switch(val switchData: SwitchDataUi) : ListItemTrailingContentDataUi()
+    data class Checkbox(
+        val checkboxData: CheckboxDataUi,
+    ) : ListItemTrailingContentDataUi()
+
+    data class RadioButton(
+        val radioButtonData: RadioButtonDataUi,
+    ) : ListItemTrailingContentDataUi()
+
+    data class Switch(
+        val switchData: SwitchDataUi,
+    ) : ListItemTrailingContentDataUi()
+
     data class TextWithIcon(
         val text: String,
         val iconData: IconDataUi,
-        val tint: Color? = null
+        val tint: Color? = null,
     ) : ListItemTrailingContentDataUi()
 }
 
@@ -177,7 +193,8 @@ sealed class ListItemTrailingContentDataUi {
  * @property TRAILING_CONTENT The trailing content (e.g., an icon or checkbox) of the [ListItem] is clickable.
  */
 enum class ClickableArea {
-    ENTIRE_ROW, TRAILING_CONTENT,
+    ENTIRE_ROW,
+    TRAILING_CONTENT,
 }
 
 /**
@@ -218,97 +235,131 @@ fun ListItem(
     hideSensitiveContent: Boolean = false,
     mainContentVerticalPadding: Dp? = null,
     clickableAreas: List<ClickableArea> = listOf(TRAILING_CONTENT),
-    overlineTextStyle: TextStyle = MaterialTheme.typography.labelMedium.copy(
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    ),
+    overlineTextStyle: TextStyle =
+        MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
     supportingTextColor: Color? = null,
     mainContentTextStyle: TextStyle? = null,
 ) {
     val maxSecondaryTextLines = 1
     val textOverflow = TextOverflow.Ellipsis
-    val mainTextStyle = mainContentTextStyle ?: MaterialTheme.typography.bodyLarge.copy(
-        color = MaterialTheme.colorScheme.onSurface
-    )
+    val mainTextStyle =
+        mainContentTextStyle ?: MaterialTheme.typography.bodyLarge.copy(
+            color = MaterialTheme.colorScheme.onSurface,
+        )
 
-    val blurModifier = if (hideSensitiveContent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        Modifier.blur(10.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
-    } else if (hideSensitiveContent) {
-        Modifier.cloudy(radius = 20)
-    } else {
-        Modifier
-    }
+    val blurModifier =
+        if (hideSensitiveContent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            Modifier.blur(10.dp, edgeTreatment = BlurredEdgeTreatment.Unbounded)
+        } else if (hideSensitiveContent) {
+            Modifier.cloudy(radius = 20)
+        } else {
+            Modifier
+        }
 
     // Determines the appropriate click handling for a list item's row based on its trailing content.
     // - If the trailing content is a radiobutton, checkbox or switch, the handling is only enabled if it is enabled.
     // - If the trailing content is an icon, or there is no trailing content, the handling is always the provided `onItemClick` function.
-    val handleRowItemClick = when (val trailingContentData = item.trailingContentData) {
-        is ListItemTrailingContentDataUi.RadioButton ->
-            if (trailingContentData.radioButtonData.enabled) onItemClick
-            else null
+    val handleRowItemClick =
+        when (val trailingContentData = item.trailingContentData) {
+            is ListItemTrailingContentDataUi.RadioButton -> {
+                if (trailingContentData.radioButtonData.enabled) {
+                    onItemClick
+                } else {
+                    null
+                }
+            }
 
-        is ListItemTrailingContentDataUi.Checkbox ->
-            if (trailingContentData.checkboxData.enabled) onItemClick
-            else null
+            is ListItemTrailingContentDataUi.Checkbox -> {
+                if (trailingContentData.checkboxData.enabled) {
+                    onItemClick
+                } else {
+                    null
+                }
+            }
 
-        is ListItemTrailingContentDataUi.Switch ->
-            if (trailingContentData.switchData.enabled) onItemClick
-            else null
+            is ListItemTrailingContentDataUi.Switch -> {
+                if (trailingContentData.switchData.enabled) {
+                    onItemClick
+                } else {
+                    null
+                }
+            }
 
-        is ListItemTrailingContentDataUi.Icon -> onItemClick
-        is ListItemTrailingContentDataUi.TextWithIcon -> onItemClick
-        null -> onItemClick
-    }
+            is ListItemTrailingContentDataUi.Icon -> {
+                onItemClick
+            }
+
+            is ListItemTrailingContentDataUi.TextWithIcon -> {
+                onItemClick
+            }
+
+            null -> {
+                onItemClick
+            }
+        }
 
     with(item) {
         Row(
-            modifier = if (clickableAreas.contains(ENTIRE_ROW) && handleRowItemClick != null) {
-                Modifier.clickable {
-                    handleRowItemClick(item)
-                }
-            } else {
-                Modifier
-            }.then(
-                other = modifier.padding(horizontal = SPACING_MEDIUM.dp)
-            ),
+            modifier =
+                if (clickableAreas.contains(ENTIRE_ROW) && handleRowItemClick != null) {
+                    Modifier.clickable {
+                        handleRowItemClick(item)
+                    }
+                } else {
+                    Modifier
+                }.then(
+                    other = modifier.padding(horizontal = SPACING_MEDIUM.dp),
+                ),
             horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             // Leading Content
             leadingContentData?.let { safeLeadingContentData ->
-                val leadingContentModifier = Modifier
-                    .padding(end = SIZE_MEDIUM.dp)
-                    .size(safeLeadingContentData.size.dp)
-                    .then(blurModifier)
+                val leadingContentModifier =
+                    Modifier
+                        .padding(end = SIZE_MEDIUM.dp)
+                        .size(safeLeadingContentData.size.dp)
+                        .then(blurModifier)
 
                 when (safeLeadingContentData) {
-                    is ListItemLeadingContentDataUi.Icon -> WrapIcon(
-                        modifier = leadingContentModifier,
-                        iconData = safeLeadingContentData.iconData,
-                        customTint = safeLeadingContentData.tint
-                            ?: MaterialTheme.colorScheme.primary,
-                    )
+                    is ListItemLeadingContentDataUi.Icon -> {
+                        WrapIcon(
+                            modifier = leadingContentModifier,
+                            iconData = safeLeadingContentData.iconData,
+                            customTint =
+                                safeLeadingContentData.tint
+                                    ?: MaterialTheme.colorScheme.primary,
+                        )
+                    }
 
-                    is ListItemLeadingContentDataUi.UserImage -> ImageOrPlaceholder(
-                        modifier = leadingContentModifier,
-                        base64Image = safeLeadingContentData.userBase64Image,
-                    )
+                    is ListItemLeadingContentDataUi.UserImage -> {
+                        ImageOrPlaceholder(
+                            modifier = leadingContentModifier,
+                            base64Image = safeLeadingContentData.userBase64Image,
+                        )
+                    }
 
-                    is ListItemLeadingContentDataUi.AsyncImage -> WrapAsyncImage(
-                        modifier = leadingContentModifier,
-                        source = safeLeadingContentData.imageUrl,
-                        error = safeLeadingContentData.errorImage,
-                        placeholder = safeLeadingContentData.placeholderImage,
-                        contentDescription = safeLeadingContentData.contentDescription
-                    )
+                    is ListItemLeadingContentDataUi.AsyncImage -> {
+                        WrapAsyncImage(
+                            modifier = leadingContentModifier,
+                            source = safeLeadingContentData.imageUrl,
+                            error = safeLeadingContentData.errorImage,
+                            placeholder = safeLeadingContentData.placeholderImage,
+                            contentDescription = safeLeadingContentData.contentDescription,
+                        )
+                    }
                 }
             }
 
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = mainContentVerticalPadding ?: SPACING_SMALL.dp),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = mainContentVerticalPadding ?: SPACING_SMALL.dp),
                 verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
+                horizontalAlignment = Alignment.Start,
             ) {
                 // Overline Text
                 overlineText?.let { safeOverlineText ->
@@ -321,50 +372,63 @@ fun ListItem(
                 // Main Content
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     when (mainContentData) {
-                        is ListItemMainContentDataUi.Image -> ImageOrPlaceholder(
-                            modifier = Modifier
-                                .wrapContentWidth()
-                                .padding(top = SPACING_SMALL.dp)
-                                .then(blurModifier),
-                            base64Image = mainContentData.base64Image,
-                            contentScale = ContentScale.Fit,
-                        )
+                        is ListItemMainContentDataUi.Image -> {
+                            ImageOrPlaceholder(
+                                modifier =
+                                    Modifier
+                                        .wrapContentWidth()
+                                        .padding(top = SPACING_SMALL.dp)
+                                        .then(blurModifier),
+                                base64Image = mainContentData.base64Image,
+                                contentScale = ContentScale.Fit,
+                            )
+                        }
 
-                        is ListItemMainContentDataUi.Text -> Text(
-                            modifier = Modifier
-                                .weight(1f)
-                                .then(blurModifier),
-                            text = mainContentData.text,
-                            style = mainTextStyle,
-                            overflow = textOverflow,
-                        )
+                        is ListItemMainContentDataUi.Text -> {
+                            Text(
+                                modifier =
+                                    Modifier
+                                        .weight(1f)
+                                        .then(blurModifier),
+                                text = mainContentData.text,
+                                style = mainTextStyle,
+                                overflow = textOverflow,
+                            )
+                        }
                     }
 
                     if (trailingContentData is ListItemTrailingContentDataUi.TextWithIcon) {
                         WrapText(
-                            modifier = Modifier
-                                .padding(start = SIZE_MEDIUM.dp),
+                            modifier =
+                                Modifier
+                                    .padding(start = SIZE_MEDIUM.dp),
                             text = trailingContentData.text,
-                            textConfig = TextConfig(
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                maxLines = Int.MAX_VALUE,
-                            )
+                            textConfig =
+                                TextConfig(
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    maxLines = Int.MAX_VALUE,
+                                ),
                         )
 
                         WrapIconButton(
-                            modifier = Modifier
-                                .padding(start = SPACING_SMALL.dp)
-                                .size(DEFAULT_ICON_SIZE.dp),
+                            modifier =
+                                Modifier
+                                    .padding(start = SPACING_SMALL.dp)
+                                    .size(DEFAULT_ICON_SIZE.dp),
                             iconData = trailingContentData.iconData,
-                            customTint = trailingContentData.tint
-                                ?: MaterialTheme.colorScheme.primary,
-                            onClick = if (clickableAreas.contains(TRAILING_CONTENT)) {
-                                { onItemClick?.invoke(item) }
-                            } else null,
+                            customTint =
+                                trailingContentData.tint
+                                    ?: MaterialTheme.colorScheme.primary,
+                            onClick =
+                                if (clickableAreas.contains(TRAILING_CONTENT)) {
+                                    { onItemClick?.invoke(item) }
+                                } else {
+                                    null
+                                },
                             throttleClicks = false,
                         )
                     }
@@ -374,10 +438,12 @@ fun ListItem(
                 supportingText?.let { safeSupportingText ->
                     Text(
                         text = safeSupportingText,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = supportingTextColor
-                                ?: MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
+                        style =
+                            MaterialTheme.typography.bodyMedium.copy(
+                                color =
+                                    supportingTextColor
+                                        ?: MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
                         maxLines = maxSecondaryTextLines,
                         overflow = textOverflow,
                     )
@@ -387,46 +453,74 @@ fun ListItem(
             // Trailing Content
             trailingContentData?.let { safeTrailingContentData ->
                 when (safeTrailingContentData) {
-                    is ListItemTrailingContentDataUi.Checkbox -> WrapCheckbox(
-                        checkboxData = safeTrailingContentData.checkboxData.copy(
-                            onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
-                                { onItemClick?.invoke(item) }
-                            } else null
-                        ),
-                        modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
-                    )
+                    is ListItemTrailingContentDataUi.Checkbox -> {
+                        WrapCheckbox(
+                            checkboxData =
+                                safeTrailingContentData.checkboxData.copy(
+                                    onCheckedChange =
+                                        if (clickableAreas.contains(TRAILING_CONTENT)) {
+                                            { onItemClick?.invoke(item) }
+                                        } else {
+                                            null
+                                        },
+                                ),
+                            modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
+                        )
+                    }
 
-                    is ListItemTrailingContentDataUi.Icon -> WrapIconButton(
-                        modifier = Modifier
-                            .padding(start = SIZE_MEDIUM.dp)
-                            .size(DEFAULT_ICON_SIZE.dp),
-                        iconData = safeTrailingContentData.iconData,
-                        customTint = safeTrailingContentData.tint
-                            ?: MaterialTheme.colorScheme.primary,
-                        onClick = if (clickableAreas.contains(TRAILING_CONTENT)) {
-                            { onItemClick?.invoke(item) }
-                        } else null,
-                        throttleClicks = false,
-                    )
+                    is ListItemTrailingContentDataUi.Icon -> {
+                        WrapIconButton(
+                            modifier =
+                                Modifier
+                                    .padding(start = SIZE_MEDIUM.dp)
+                                    .size(DEFAULT_ICON_SIZE.dp),
+                            iconData = safeTrailingContentData.iconData,
+                            customTint =
+                                safeTrailingContentData.tint
+                                    ?: MaterialTheme.colorScheme.primary,
+                            onClick =
+                                if (clickableAreas.contains(TRAILING_CONTENT)) {
+                                    { onItemClick?.invoke(item) }
+                                } else {
+                                    null
+                                },
+                            throttleClicks = false,
+                        )
+                    }
 
-                    is ListItemTrailingContentDataUi.RadioButton -> WrapRadioButton(
-                        radioButtonData = safeTrailingContentData.radioButtonData.copy(
-                            onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
-                                { onItemClick?.invoke(item) }
-                            } else null
-                        ),
-                        modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
-                    )
+                    is ListItemTrailingContentDataUi.RadioButton -> {
+                        WrapRadioButton(
+                            radioButtonData =
+                                safeTrailingContentData.radioButtonData.copy(
+                                    onCheckedChange =
+                                        if (clickableAreas.contains(TRAILING_CONTENT)) {
+                                            { onItemClick?.invoke(item) }
+                                        } else {
+                                            null
+                                        },
+                                ),
+                            modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
+                        )
+                    }
 
-                    is ListItemTrailingContentDataUi.TextWithIcon -> Unit // No-op, it is handled by the main content.
+                    is ListItemTrailingContentDataUi.TextWithIcon -> {
+                        Unit
+                    }
 
-                    is ListItemTrailingContentDataUi.Switch -> WrapSwitch(
-                        switchData = safeTrailingContentData.switchData,
-                        onCheckedChange = if (clickableAreas.contains(TRAILING_CONTENT)) {
-                            { onItemClick?.invoke(item) }
-                        } else null,
-                        modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
-                    )
+                    // No-op, it is handled by the main content.
+
+                    is ListItemTrailingContentDataUi.Switch -> {
+                        WrapSwitch(
+                            switchData = safeTrailingContentData.switchData,
+                            onCheckedChange =
+                                if (clickableAreas.contains(TRAILING_CONTENT)) {
+                                    { onItemClick?.invoke(item) }
+                                } else {
+                                    null
+                                },
+                            modifier = Modifier.padding(start = SIZE_MEDIUM.dp),
+                        )
+                    }
                 }
             }
         }
@@ -439,52 +533,58 @@ private fun ListItemPreview() {
     PreviewTheme {
         val modifier = Modifier.fillMaxWidth()
         Column(
-            modifier = modifier
-                .padding(SPACING_MEDIUM.dp),
-            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp)
+            modifier =
+                modifier
+                    .padding(SPACING_MEDIUM.dp),
+            verticalArrangement = Arrangement.spacedBy(SPACING_SMALL.dp),
         ) {
             // Basic ListItem with only mainText
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "1",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Basic Item")
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "1",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Basic Item"),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with overlineText and supportingText
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "2",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Overline and Supporting Text"),
-                    overlineText = "Overline Text",
-                    supportingText = "Supporting Text"
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "2",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Overline and Supporting Text"),
+                        overlineText = "Overline Text",
+                        supportingText = "Supporting Text",
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with leadingIcon
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "3",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Leading Icon"),
-                    leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Add),
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "3",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Leading Icon"),
+                        leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Add),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with icon for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "4",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Icon"),
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = AppIcons.KeyboardArrowDown,
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "4",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Icon"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowDown,
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -493,16 +593,18 @@ private fun ListItemPreview() {
             // normal overline and supporting text,
             // and text with icon with normal text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "5",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing TextWithIcon and Text"),
-                    overlineText = "Overline Text",
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "1/2",
-                        iconData = AppIcons.KeyboardArrowRight
+                item =
+                    ListItemDataUi(
+                        itemId = "5",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing TextWithIcon and Text"),
+                        overlineText = "Overline Text",
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "1/2",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                        supportingText = "Supporting Text",
                     ),
-                    supportingText = "Supporting Text"
-                ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -511,15 +613,17 @@ private fun ListItemPreview() {
             // normal overline text,
             // and text with icon with normal text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "6",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing TextWithIcon and Text"),
-                    overlineText = "Overline Text",
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "1/2",
-                        iconData = AppIcons.KeyboardArrowRight
+                item =
+                    ListItemDataUi(
+                        itemId = "6",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing TextWithIcon and Text"),
+                        overlineText = "Overline Text",
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "1/2",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
                     ),
-                ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -527,14 +631,16 @@ private fun ListItemPreview() {
             // ListItem with normal text for main content,
             // and text with icon with normal text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "7",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with TextWithIcon and Text"),
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "1/2",
-                        iconData = AppIcons.KeyboardArrowRight
+                item =
+                    ListItemDataUi(
+                        itemId = "7",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with TextWithIcon and Text"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "1/2",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
                     ),
-                ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -543,15 +649,17 @@ private fun ListItemPreview() {
             // normal overline text,
             // and text with icon with normal text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "8",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with very very very very very very big text"),
-                    overlineText = "Overline Text",
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "1/2",
-                        iconData = AppIcons.KeyboardArrowRight
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "8",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with very very very very very very big text"),
+                        overlineText = "Overline Text",
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "1/2",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -560,15 +668,17 @@ private fun ListItemPreview() {
             // very big overline text,
             // and text with icon with normal text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "9",
-                    overlineText = "Very very very very very very very very very very very very big Overline Text",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing Icon and Text"),
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "1/2",
-                        iconData = AppIcons.KeyboardArrowRight
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "9",
+                        overlineText = "Very very very very very very very very very very very very big Overline Text",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing Icon and Text"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "1/2",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
@@ -577,124 +687,146 @@ private fun ListItemPreview() {
             // very big overline text,
             // and text with icon with very big text for trailing content
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "10",
-                    overlineText = "Very very very very very very very very very very very very big Overline Text",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing Icon and Text"),
-                    trailingContentData = ListItemTrailingContentDataUi.TextWithIcon(
-                        text = "Very very big trailing TextWithIcon",
-                        iconData = AppIcons.KeyboardArrowRight
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "10",
+                        overlineText = "Very very very very very very very very very very very very big Overline Text",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with trailing Icon and Text"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.TextWithIcon(
+                                text = "Very very big trailing TextWithIcon",
+                                iconData = AppIcons.KeyboardArrowRight,
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing enabled checkbox
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "11",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Checkbox"),
-                    trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                        checkboxData = CheckboxDataUi(
-                            isChecked = true,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "11",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Checkbox"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Checkbox(
+                                checkboxData =
+                                    CheckboxDataUi(
+                                        isChecked = true,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing disabled checkbox
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "12",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Checkbox"),
-                    trailingContentData = ListItemTrailingContentDataUi.Checkbox(
-                        checkboxData = CheckboxDataUi(
-                            isChecked = true,
-                            enabled = false,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "12",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Checkbox"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Checkbox(
+                                checkboxData =
+                                    CheckboxDataUi(
+                                        isChecked = true,
+                                        enabled = false,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing enabled radiobutton
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "13",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Radiobutton"),
-                    trailingContentData = ListItemTrailingContentDataUi.RadioButton(
-                        radioButtonData = RadioButtonDataUi(
-                            isSelected = true,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "13",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Radiobutton"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.RadioButton(
+                                radioButtonData =
+                                    RadioButtonDataUi(
+                                        isSelected = true,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing disabled radiobutton
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "14",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Radiobutton"),
-                    trailingContentData = ListItemTrailingContentDataUi.RadioButton(
-                        radioButtonData = RadioButtonDataUi(
-                            isSelected = true,
-                            enabled = false,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "14",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Radiobutton"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.RadioButton(
+                                radioButtonData =
+                                    RadioButtonDataUi(
+                                        isSelected = true,
+                                        enabled = false,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing enabled switch
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "15",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Switch"),
-                    trailingContentData = ListItemTrailingContentDataUi.Switch(
-                        switchData = SwitchDataUi(
-                            isChecked = true,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "15",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Enabled Switch"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Switch(
+                                switchData =
+                                    SwitchDataUi(
+                                        isChecked = true,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with trailing disabled switch
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "16",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Switch"),
-                    trailingContentData = ListItemTrailingContentDataUi.Switch(
-                        switchData = SwitchDataUi(
-                            isChecked = true,
-                            enabled = false,
-                        )
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "16",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Item with Trailing Disabled Switch"),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Switch(
+                                switchData =
+                                    SwitchDataUi(
+                                        isChecked = true,
+                                        enabled = false,
+                                    ),
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )
 
             // ListItem with all elements
             ListItem(
-                item = ListItemDataUi(
-                    itemId = "17",
-                    mainContentData = ListItemMainContentDataUi.Text(text = "Full Item Example"),
-                    overlineText = "Overline Text",
-                    supportingText = "Supporting Text",
-                    leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Add),
-                    trailingContentData = ListItemTrailingContentDataUi.Icon(
-                        iconData = AppIcons.KeyboardArrowDown,
-                    )
-                ),
+                item =
+                    ListItemDataUi(
+                        itemId = "17",
+                        mainContentData = ListItemMainContentDataUi.Text(text = "Full Item Example"),
+                        overlineText = "Overline Text",
+                        supportingText = "Supporting Text",
+                        leadingContentData = ListItemLeadingContentDataUi.Icon(iconData = AppIcons.Add),
+                        trailingContentData =
+                            ListItemTrailingContentDataUi.Icon(
+                                iconData = AppIcons.KeyboardArrowDown,
+                            ),
+                    ),
                 modifier = modifier,
                 onItemClick = {},
             )

@@ -17,11 +17,11 @@
 package com.k689.identid.interactor.proximity
 
 import androidx.activity.ComponentActivity
-import com.k689.identid.extension.business.safeAsync
 import com.k689.identid.config.RequestUriConfig
 import com.k689.identid.config.toDomainConfig
 import com.k689.identid.controller.core.TransferEventPartialState
 import com.k689.identid.controller.core.WalletCorePresentationController
+import com.k689.identid.extension.business.safeAsync
 import com.k689.identid.provider.resources.ResourceProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -29,28 +29,36 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onSubscription
 
 sealed class ProximityQRPartialState {
-    data class QrReady(val qrCode: String) : ProximityQRPartialState()
-    data class Error(val error: String) : ProximityQRPartialState()
+    data class QrReady(
+        val qrCode: String,
+    ) : ProximityQRPartialState()
+
+    data class Error(
+        val error: String,
+    ) : ProximityQRPartialState()
+
     data object Connected : ProximityQRPartialState()
+
     data object Disconnected : ProximityQRPartialState()
 }
 
 interface ProximityQRInteractor {
     fun startQrEngagement(): Flow<ProximityQRPartialState>
+
     fun toggleNfcEngagement(
         componentActivity: ComponentActivity,
-        toggle: Boolean
+        toggle: Boolean,
     )
 
     fun cancelTransfer()
+
     fun setConfig(config: RequestUriConfig)
 }
 
 class ProximityQRInteractorImpl(
     private val resourceProvider: ResourceProvider,
-    private val walletCorePresentationController: WalletCorePresentationController
+    private val walletCorePresentationController: WalletCorePresentationController,
 ) : ProximityQRInteractor {
-
     private val genericErrorMsg
         get() = resourceProvider.genericErrorMessage()
 
@@ -58,40 +66,43 @@ class ProximityQRInteractorImpl(
         walletCorePresentationController.setConfig(config.toDomainConfig())
     }
 
-    override fun startQrEngagement(): Flow<ProximityQRPartialState> = flow {
-        walletCorePresentationController.events
-            .onSubscription {
-                walletCorePresentationController.startQrEngagement()
-            }.mapNotNull {
-                when (it) {
-                    is TransferEventPartialState.Connected -> {
-                        ProximityQRPartialState.Connected
-                    }
+    override fun startQrEngagement(): Flow<ProximityQRPartialState> =
+        flow {
+            walletCorePresentationController.events
+                .onSubscription {
+                    walletCorePresentationController.startQrEngagement()
+                }.mapNotNull {
+                    when (it) {
+                        is TransferEventPartialState.Connected -> {
+                            ProximityQRPartialState.Connected
+                        }
 
-                    is TransferEventPartialState.Error -> {
-                        ProximityQRPartialState.Error(error = it.error)
-                    }
+                        is TransferEventPartialState.Error -> {
+                            ProximityQRPartialState.Error(error = it.error)
+                        }
 
-                    is TransferEventPartialState.QrEngagementReady -> {
-                        ProximityQRPartialState.QrReady(qrCode = it.qrCode)
-                    }
+                        is TransferEventPartialState.QrEngagementReady -> {
+                            ProximityQRPartialState.QrReady(qrCode = it.qrCode)
+                        }
 
-                    is TransferEventPartialState.Disconnected -> {
-                        ProximityQRPartialState.Disconnected
-                    }
+                        is TransferEventPartialState.Disconnected -> {
+                            ProximityQRPartialState.Disconnected
+                        }
 
-                    else -> null
+                        else -> {
+                            null
+                        }
+                    }
+                }.collect {
+                    emit(it)
                 }
-            }.collect {
-                emit(it)
-            }
-    }.safeAsync {
-        ProximityQRPartialState.Error(error = it.localizedMessage ?: genericErrorMsg)
-    }
+        }.safeAsync {
+            ProximityQRPartialState.Error(error = it.localizedMessage ?: genericErrorMsg)
+        }
 
     override fun toggleNfcEngagement(
         componentActivity: ComponentActivity,
-        toggle: Boolean
+        toggle: Boolean,
     ) {
         walletCorePresentationController.toggleNfcEngagement(componentActivity, toggle)
     }
