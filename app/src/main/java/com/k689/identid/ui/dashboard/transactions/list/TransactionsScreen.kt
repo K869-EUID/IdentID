@@ -18,6 +18,7 @@ package com.k689.identid.ui.dashboard.transactions.list
 
 import android.content.Context
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -78,9 +79,11 @@ import com.k689.identid.ui.component.FiltersSearchBar
 import com.k689.identid.ui.component.InlineSnackbar
 import com.k689.identid.ui.component.ListItemDataUi
 import com.k689.identid.ui.component.ListItemMainContentDataUi
+import com.k689.identid.ui.component.ListItemTrailingContentDataUi
 import com.k689.identid.ui.component.SectionTitle
 import com.k689.identid.ui.component.content.ContentScreen
 import com.k689.identid.ui.component.content.ScreenNavigateAction
+import com.k689.identid.ui.component.preview.PreviewTheme
 import com.k689.identid.ui.component.preview.ThemeModePreviews
 import com.k689.identid.ui.component.utils.HSpacer
 import com.k689.identid.ui.component.utils.LifecycleEffect
@@ -113,6 +116,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDateTime
 
 typealias DashboardEvent = com.k689.identid.ui.dashboard.dashboard.Event
 typealias OpenSideMenuEvent = com.k689.identid.ui.dashboard.dashboard.Event.SideMenu.Open
@@ -375,8 +380,13 @@ private fun TransactionCategory(
                 transactions.associateBy { it.uiData.header.itemId }
             }
 
+        val listShape = MaterialTheme.shapes.small
         WrapListItems(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .border(2.dp, MaterialTheme.colorScheme.outline, listShape),
+            shape = listShape,
             items = transactionItems,
             onItemClick = { item ->
                 onEventSend(
@@ -649,14 +659,143 @@ fun FiltersDatePickerField(
 @ThemeModePreviews
 @Composable
 private fun TransactionsScreenPreview() {
-    ContentScreen(
-        isLoading = false,
-        navigatableAction = ScreenNavigateAction.NONE,
-        onBack = { },
-        topBar = {
-            TopBar(
-                onDashboardEventSent = {},
+    data class PreviewEntry(
+        val name: String,
+        val relying: String,
+        val time: String,
+        val status: TransactionStatusUi,
+        val category: TransactionCategoryUi,
+    )
+
+    val previewEntries =
+        listOf(
+            PreviewEntry(
+                name = "Age Verification",
+                relying = "Online Shop Ltd.",
+                time = "Today · 14:32",
+                status = TransactionStatusUi.Completed,
+                category = TransactionCategoryUi.Today,
+            ),
+            PreviewEntry(
+                name = "Identity Check",
+                relying = "Gov Portal",
+                time = "Today · 09:15",
+                status = TransactionStatusUi.Failed,
+                category = TransactionCategoryUi.Today,
+            ),
+            PreviewEntry(
+                name = "Address Proof",
+                relying = "Bank Services",
+                time = "Mon · 18:44",
+                status = TransactionStatusUi.Completed,
+                category = TransactionCategoryUi.ThisWeek,
+            ),
+            PreviewEntry(
+                name = "Driving Licence",
+                relying = "Car Rental Co.",
+                time = "Sun · 11:02",
+                status = TransactionStatusUi.Completed,
+                category = TransactionCategoryUi.ThisWeek,
+            ),
+            PreviewEntry(
+                name = "Passport Share",
+                relying = "Travel Agency",
+                time = "15 Jan · 10:00",
+                status = TransactionStatusUi.Completed,
+                category =
+                    TransactionCategoryUi.Month(
+                        LocalDateTime(year = 2026, month = 1, day = 15, hour = 10, minute = 0, second = 0, nanosecond = 0).toJavaLocalDateTime(),
+                    ),
+            ),
+            PreviewEntry(
+                name = "Tax ID Disclosure",
+                relying = "Finance Dept.",
+                time = "3 Jan · 08:30",
+                status = TransactionStatusUi.Failed,
+                category =
+                    TransactionCategoryUi.Month(
+                        LocalDateTime(year = 2026, month = 1, day = 3, hour = 8, minute = 30, second = 0, nanosecond = 0).toJavaLocalDateTime(),
+                    ),
+            ),
+        )
+
+    val transactions =
+        previewEntries.mapIndexed { index, entry ->
+            TransactionUi(
+                uiData =
+                    ExpandableListItemUi.SingleListItem(
+                        header =
+                            ListItemDataUi(
+                                itemId = index.toString(),
+                                mainContentData = ListItemMainContentDataUi.Text(entry.name),
+                                overlineText =
+                                    when (entry.status) {
+                                        TransactionStatusUi.Completed -> "Completed"
+                                        TransactionStatusUi.Failed -> "Failed"
+                                    },
+                                supportingText = "${entry.relying}  ·  ${entry.time}",
+                                trailingContentData =
+                                    ListItemTrailingContentDataUi.Icon(
+                                        iconData = AppIcons.KeyboardArrowRight,
+                                    ),
+                            ),
+                    ),
+                uiStatus = entry.status,
+                transactionCategoryUi = entry.category,
             )
-        },
-    ) {}
+        }
+
+    val groupedTransactions =
+        transactions
+            .groupBy { it.transactionCategoryUi.id }
+            .map { (_, transactions) -> transactions.first().transactionCategoryUi to transactions }
+
+    PreviewTheme {
+        ContentScreen(
+            isLoading = false,
+            navigatableAction = ScreenNavigateAction.NONE,
+            onBack = { },
+            topBar = {
+                TopBar(
+                    onDashboardEventSent = {},
+                )
+            },
+        ) { paddingValues ->
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .paddingFrom(paddingValues, bottom = false),
+                contentPadding = PaddingValues(bottom = SPACING_MEDIUM.dp),
+            ) {
+                item {
+                    FiltersSearchBar(
+                        placeholder = "Search transactions",
+                        onValueChange = {},
+                        onFilterClick = {},
+                        onClearClick = {},
+                        isFilteringActive = false,
+                        text = "",
+                    )
+                    VSpacer.Large()
+                }
+
+                itemsIndexed(items = groupedTransactions) { index, (category, transactionsUis) ->
+                    TransactionCategory(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = SPACING_MEDIUM.dp),
+                        category = category,
+                        transactions = transactionsUis,
+                        onEventSend = {},
+                    )
+
+                    if (index != groupedTransactions.lastIndex) {
+                        VSpacer.ExtraLarge()
+                    }
+                }
+            }
+        }
+    }
 }
